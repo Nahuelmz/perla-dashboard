@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
+
+  canvas#bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+  .toggle {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 100; display: flex; gap: 8px;
+    background: rgba(255,255,255,.55); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.75); border-radius: 99px; padding: 5px;
+  }
+  .toggle button {
+    padding: 7px 22px; border-radius: 99px; border: none; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600;
+    transition: all .2s; background: transparent; color: #555;
+  }
+  .toggle button.active { background: white; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+
+  .content {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center; gap: 20px;
+    padding: 80px 60px 60px;
+  }
+  .fc {
+    border-radius: 18px; padding: 22px 24px;
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    background: rgba(255,255,255,.46);
+    border: 1px solid rgba(255,255,255,.78);
+    box-shadow: 0 4px 28px rgba(0,0,0,.07), inset 0 1px 0 rgba(255,255,255,.9);
+    min-width: 210px;
+  }
+  .fc-sm { padding: 14px 18px; min-width: 150px; text-align: center; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .label-sm { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  .big-num { font-family: 'Bricolage Grotesque', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; margin-top: 2px; }
+  .greeting { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+  .main-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; line-height: 1.2; }
+  .sub { font-size: 12px; margin-top: 10px; line-height: 1.5; }
+  .next-label { font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 6px; }
+  .next-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 800; }
+  .next-meta { font-size: 12px; margin-top: 2px; }
+  .pill { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-top: 10px; }
+  .btn { border-radius: 10px; padding: 11px 18px; font-size: 11px; font-weight: 700; text-align: center; letter-spacing: .05em; text-transform: uppercase; border: none; cursor: pointer; font-family: inherit; width: 100%; margin-top: 14px; }
+
+  .bg-label {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 100; background: rgba(255,255,255,.5); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.7); border-radius: 12px;
+    padding: 9px 20px; font-size: 11px; color: #555; text-align: center;
+  }
+  .bg-label strong { font-weight: 700; color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="toggle">
+  <button class="active" onclick="setMode('sage')">Sage Glow</button>
+  <button onclick="setMode('cream')">Cream Glow</button>
+</div>
+
+<div class="content" id="cards"></div>
+
+<div class="bg-label">
+  Fondo fijo · <strong id="label">Sage Glow</strong>
+</div>
+
+<script>
+// ── Canvas background renderer ──
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let mode = 'sage';
+
+const palettes = {
+  sage: {
+    base: ['#8BBDAA', '#B8D4C8', '#D8EBE4', '#F0F7F4'],
+    columns: 'rgba(255,255,255,',
+    glows: [
+      { x: 0.28, y: 0.22, rx: 0.22, ry: 0.38, r: 'rgba(122,158,138,', a: 0.28 },
+      { x: 0.72, y: 0.72, rx: 0.20, ry: 0.32, r: 'rgba(217,123,79,',  a: 0.14 },
+    ]
+  },
+  cream: {
+    base: ['#D4A882', '#E8C8A8', '#F5E4D0', '#FDF5EE'],
+    columns: 'rgba(255,255,255,',
+    glows: [
+      { x: 0.22, y: 0.20, rx: 0.25, ry: 0.40, r: 'rgba(217,123,79,',  a: 0.26 },
+      { x: 0.76, y: 0.74, rx: 0.20, ry: 0.34, r: 'rgba(160,140,220,', a: 0.14 },
+    ]
+  }
+};
+
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  const p = palettes[mode];
+
+  // Base gradient
+  const grad = ctx.createLinearGradient(W * 0.1, 0, W * 0.9, H);
+  grad.addColorStop(0,    p.base[0]);
+  grad.addColorStop(0.3,  p.base[1]);
+  grad.addColorStop(0.65, p.base[2]);
+  grad.addColorStop(1,    p.base[3]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Soft vertical light columns
+  const cols = [
+    { cx: 0.16, width: 0.10, opacity: 0.38 },
+    { cx: 0.40, width: 0.08, opacity: 0.30 },
+    { cx: 0.62, width: 0.12, opacity: 0.26 },
+    { cx: 0.84, width: 0.09, opacity: 0.34 },
+  ];
+  cols.forEach(col => {
+    const cg = ctx.createLinearGradient(col.cx * W, 0, col.cx * W, H);
+    cg.addColorStop(0,   `rgba(255,255,255,${col.opacity})`);
+    cg.addColorStop(0.5, `rgba(255,255,255,${col.opacity * 0.6})`);
+    cg.addColorStop(1,   'rgba(255,255,255,0)');
+    const rg = ctx.createRadialGradient(
+      col.cx * W, H * 0.3, 0,
+      col.cx * W, H * 0.3, col.width * W * 3
+    );
+    rg.addColorStop(0, `rgba(255,255,255,${col.opacity})`);
+    rg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, W, H);
+  });
+
+  // Ambient color glows
+  p.glows.forEach(g => {
+    const rg = ctx.createRadialGradient(
+      g.x * W, g.y * H, 0,
+      g.x * W, g.y * H, Math.max(g.rx * W, g.ry * H)
+    );
+    rg.addColorStop(0, `${g.r}${g.a})`);
+    rg.addColorStop(1, `${g.r}0)`);
+    ctx.save();
+    ctx.scale(1, g.ry / g.rx);
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, W, H * (g.rx / g.ry));
+    ctx.restore();
+  });
+}
+
+function resize() {
+  canvas.width  = window.innerWidth  * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  canvas.style.width  = window.innerWidth  + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  draw();
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── Cards ──
+const themes = {
+  sage: {
+    text:   '#1A2A22',
+    muted:  '#4A7060',
+    accent: '#3D7A58',
+    pill:   'background:rgba(60,130,90,.15);color:#2A6040',
+    btn:    'background:#5A9070;color:white',
+  },
+  cream: {
+    text:   '#1C1712',
+    muted:  '#8C7B6E',
+    accent: '#C06030',
+    pill:   'background:rgba(217,123,79,.18);color:#A04820',
+    btn:    'background:#D97B4F;color:white',
+  }
+};
+
+function renderCards() {
+  const t = themes[mode];
+  document.getElementById('cards').innerHTML = `
+    <div class="fc">
+      <p class="greeting" style="color:${t.muted}">Buenos días, Rodrigo</p>
+      <h2 class="main-title" style="color:${t.text}">Hoy tenés <span style="color:${t.accent}">8 turnos</span></h2>
+      <p class="sub" style="color:${t.muted}">Tu asistente está trabajando.<br>Todo tranquilo por ahora.</p>
+    </div>
+
+    <div class="stack">
+      <div class="fc fc-sm">
+        <p class="label-sm" style="color:${t.muted}">Confirmados</p>
+        <p class="big-num" style="color:${t.text}">6</p>
+      </div>
+      <div class="fc fc-sm">
+        <p class="label-sm" style="color:${t.muted}">Pendientes</p>
+        <p class="big-num" style="color:${t.accent}">2</p>
+      </div>
+    </div>
+
+    <div class="fc stack" style="min-width:220px">
+      <div>
+        <p class="next-label" style="color:${t.muted}">Próximo turno</p>
+        <p class="next-name" style="color:${t.text}">Valentina M.</p>
+        <p class="next-meta" style="color:${t.muted}">10:30 · Corte + Mechas</p>
+        <span class="pill" style="${t.pill}">Confirmado ✓</span>
+      </div>
+      <button class="btn" style="${t.btn}">Ver agenda completa →</button>
+    </div>
+  `;
+}
+
+function setMode(m) {
+  mode = m;
+  draw();
+  renderCards();
+  document.querySelectorAll('.toggle button').forEach((b, i) => {
+    b.classList.toggle('active', (m === 'sage') === (i === 0));
+  });
+  document.getElementById('label').textContent = m === 'sage' ? 'Sage Glow' : 'Cream Glow';
+}
+
+renderCards();
+</script>
+</body>
+</html>

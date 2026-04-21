@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inicio — Réplica fiel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #faf9f7;
+  --bg2:       rgba(0,0,0,0.03);
+  --text:      #2a3d35;
+  --text2:     #6b7d74;
+  --text3:     #9aada5;
+  --nav-inactive: #9f9b93;
+  --border:    rgba(61,90,78,0.08);
+  --sage:      #6b8f7e;
+  --sage-grad: linear-gradient(135deg,#6b8f7e,#a0bfb3);
+  --dark:      #2C5F8A;
+  --shadow:    rgba(61,90,78,0.08) 0px 1px 2px, rgba(61,90,78,0.04) 0px -1px 1px inset, rgba(61,90,78,0.04) 0px 8px 24px;
+}
+
+body {
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 300;
+  height: 100vh; overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+canvas#bg {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+
+/* ── App shell ── */
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 68px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width .3s cubic-bezier(.4,0,.2,1);
+  z-index: 10;
+}
+.sidebar:hover { width: 196px; }
+
+.sidebar-logo {
+  height: 60px;
+  display: flex; align-items: center;
+  padding-left: 16px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.logo-chip {
+  width: 36px; height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  background: var(--sage-grad);
+  color: #fff; font-size: 12px; font-weight: 400;
+}
+.logo-text {
+  margin-left: 12px;
+  font-size: 14px; font-weight: 300;
+  color: var(--text);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity .15s, transform .15s;
+}
+.sidebar:hover .logo-text { opacity: 1; transform: translateX(0); }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow: hidden;
+}
+.nav-item {
+  height: 42px;
+  display: flex; align-items: center;
+  padding-left: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  color: var(--nav-inactive);
+  font-weight: 300;
+  background: transparent;
+  border: none;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.nav-item.active {
+  background: rgba(0,0,0,0.05);
+  color: #1a1a1a;
+  font-weight: 400;
+}
+.nav-item svg {
+  width: 18px; height: 18px; flex-shrink: 0;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.6;
+}
+.nav-label {
+  margin-left: 12px;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity .15s .05s, transform .15s .05s;
+}
+.sidebar:hover .nav-label { opacity: 1; transform: translateX(0); }
+
+.sidebar-user {
+  flex-shrink: 0;
+  padding: 12px 10px;
+  overflow: hidden;
+}
+.user-btn {
+  width: 100%; display: flex; align-items: center;
+  padding: 6px; border-radius: 12px;
+  cursor: pointer; border: none; background: transparent;
+  overflow: hidden; transition: background .15s;
+}
+.user-btn:hover { background: rgba(0,0,0,0.04); }
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 99px;
+  background: var(--sage); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 400;
+  flex-shrink: 0;
+}
+.user-info {
+  margin-left: 10px; text-align: left; flex: 1;
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity .15s .05s, transform .15s .05s;
+  overflow: hidden;
+}
+.sidebar:hover .user-info { opacity: 1; transform: translateX(0); }
+.user-name { font-size: 12px; font-weight: 300; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.user-plan { font-size: 10px; color: var(--text3); line-height: 1.3; }
+
+/* ── Main ── */
+.main {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Topbar ── */
+.topbar {
+  height: 60px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px 0 20px;
+  gap: 12px;
+}
+.topbar-title h2 {
+  font-size: 15px; font-weight: 300; color: var(--text);
+  line-height: 1.2;
+}
+.topbar-title p {
+  font-size: 11px; font-weight: 300; color: var(--text3);
+  line-height: 1;
+}
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.btn-new-turno {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 10px;
+  background: var(--dark); color: #fff;
+  font-size: 13px; font-weight: 400;
+  border: none; cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: rgba(0,0,0,0.04);
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; color: var(--text2);
+}
+.icon-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+
+/* ── Content area ── */
+.content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none;
+}
+.content::-webkit-scrollbar { display: none; }
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 32px 48px;
+}
+
+/* ── Greeting ── */
+.greeting {
+  margin-bottom: 32px;
+}
+.greeting h1 {
+  font-size: 36px; font-weight: 300;
+  color: var(--text); line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.greeting h1 em {
+  font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+  font-style: italic; font-weight: 400;
+}
+
+/* ── Section label ── */
+.section-lbl {
+  font-size: 11px; font-weight: 400;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.link-btn {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 300; color: var(--sage);
+  border: none; background: none; cursor: pointer;
+  font-family: inherit;
+}
+.link-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── Card base ── */
+.card {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(61,90,78,0.07);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* ── Empty state (próximo turno) ── */
+.empty-next {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+.empty-next svg { width: 14px; height: 14px; stroke: var(--text3); fill: none; stroke-width: 1.5; flex-shrink: 0; }
+.empty-next span { flex: 1; font-size: 14px; font-weight: 300; color: var(--text3); }
+.empty-next .add-btn {
+  font-size: 11px; font-weight: 300; color: var(--sage);
+  border: none; background: none; cursor: pointer; font-family: inherit;
+}
+
+/* ── Próximo turno card (con datos) ── */
+.proximo-card {
+  width: 100%; text-align: left;
+  padding: 20px 22px 18px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: box-shadow .2s;
+  border: none;
+  font-family: inherit; font-weight: 300;
+}
+.proximo-card:hover { box-shadow: rgba(61,90,78,0.12) 0px 4px 24px; }
+.pc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.pc-time { font-size: 30px; font-weight: 300; color: var(--text); line-height: 1; letter-spacing: -.02em; }
+.pc-date { font-size: 12px; font-weight: 300; color: var(--text2); margin-top: 5px; }
+.status-badge {
+  font-size: 10px; font-weight: 400;
+  padding: 4px 10px; border-radius: 99px; flex-shrink: 0;
+}
+.badge-confirmed { background: rgba(67,160,71,0.12); color: #2E7D32; }
+.badge-pending   { background: rgba(245,124,0,0.12);  color: #E65100; }
+.pc-client-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.pc-client { flex: 1; min-width: 0; }
+.pc-name { font-size: 15px; font-weight: 400; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-svc  { font-size: 13px; font-weight: 300; color: var(--text2); margin-top: 2px; }
+.provider-chip { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.prov-avatar { width: 28px; height: 28px; border-radius: 99px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 400; }
+.prov-name { font-size: 12px; font-weight: 300; color: var(--text2); }
+.pc-footer { display: flex; align-items: center; gap: 6px; padding-top: 14px; border-top: 1px solid var(--border); }
+.pc-footer svg { width: 13px; height: 13px; stroke: var(--text3); fill: none; stroke-width: 1.5; }
+.pc-footer span { font-size: 12px; font-weight: 300; color: var(--text3); }
+.pc-footer strong { font-weight: 400; }
+
+/* ── Turnos de hoy scroll ── */
+.turnos-wrap { margin-bottom: 24px; }
+.turnos-scroll {
+  display: flex; gap: 8px;
+  overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.turnos-scroll::-webkit-scrollbar { display: none; }
+.turno-mini {
+  flex-shrink: 0; min-width: 140px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: box-shadow .2s;
+}
+.turno-mini:hover { box-shadow: rgba(61,90,78,0.12) 0px 4px 16px; }
+.tm-time  { font-size: 13px; font-weight: 400; color: var(--text); }
+.tm-name  { font-size: 11px; font-weight: 300; color: var(--text); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm-svc   { font-size: 10px; font-weight: 300; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm-dot   { width: 6px; height: 6px; border-radius: 99px; display: block; margin-top: 8px; }
+
+/* ── KPI accordion ── */
+.kpis { display: flex; flex-direction: column; gap: 8px; }
+.kpi-item { border-radius: 16px; overflow: hidden; }
+.kpi-trigger {
+  width: 100%; display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border: none; cursor: pointer; text-align: left;
+  background: transparent;
+  font-family: inherit; font-weight: 300;
+  transition: background .15s;
+}
+.kpi-trigger.open { background: var(--kbg); }
+.kpi-icon {
+  width: 32px; height: 32px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-dot { width: 10px; height: 10px; border-radius: 99px; }
+.kpi-lbl {
+  flex: 1; font-size: 11px; font-weight: 400;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--text3);
+}
+.kpi-val { font-size: 20px; font-weight: 300; letter-spacing: -.01em; margin-right: 4px; }
+.kpi-chevron { font-size: 14px; color: var(--text3); transition: transform .2s; display: inline-block; }
+.kpi-chevron.open { transform: rotate(180deg); }
+
+.kpi-body {
+  display: none; border-top: 1px solid var(--border);
+  padding: 12px 18px 16px;
+}
+.kpi-body.open { display: block; }
+
+/* kpi row items */
+.kpi-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.70);
+  margin-bottom: 6px; cursor: pointer;
+  transition: opacity .15s;
+}
+.kpi-row:last-child { margin-bottom: 0; }
+.kpi-row:hover { opacity: .85; }
+.kr-time { width: 36px; flex-shrink: 0; font-size: 11px; font-weight: 400; color: var(--sage); }
+.kr-name { flex: 1; font-size: 13px; font-weight: 300; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kr-badge { font-size: 10px; font-weight: 300; padding: 3px 8px; border-radius: 99px; flex-shrink: 0; }
+
+/* vacantes */
+.vac-meta { font-size: 12px; font-weight: 300; color: var(--text2); margin-bottom: 10px; }
+.vac-meta strong { font-weight: 400; }
+.vac-bar-wrap { height: 5px; border-radius: 99px; overflow: hidden; background: var(--border); margin-bottom: 10px; }
+.vac-bar { height: 100%; border-radius: 99px; background: var(--sage); }
+.slot-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+.slot-btn { padding: 6px 4px; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; font-weight: 300; text-align: center; background: rgba(107,143,126,0.10); color: var(--sage); font-family: inherit; transition: background .15s; }
+.slot-btn:hover { background: rgba(107,143,126,0.18); }
+
+/* fact */
+.fact-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.70); margin-bottom: 6px; }
+.fact-row:last-child { margin-bottom: 0; }
+.fact-name { font-size: 13px; font-weight: 300; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 12px; }
+.fact-price { font-size: 13px; font-weight: 400; color: #10B981; flex-shrink: 0; }
+.fact-total { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 6px; }
+.fact-total span { font-size: 13px; font-weight: 300; color: var(--text); }
+.fact-total strong { font-size: 16px; font-weight: 300; color: #10B981; }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-chip">TB</div>
+      <span class="logo-text">TurnoBot</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="switchTab(this,'home')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span class="nav-label">Inicio</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(this,'agenda')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="nav-label">Agenda</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(this,'msgs')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="nav-label">Mensajes</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(this,'config')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="nav-label">Config.</span>
+      </button>
+    </nav>
+    <div class="sidebar-user">
+      <button class="user-btn">
+        <div class="user-avatar">J</div>
+        <div class="user-info">
+          <p class="user-name">José Pérez</p>
+          <p class="user-plan">Plan Básico</p>
+        </div>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main content ── -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-title">
+        <h2>Peluquería El Barrio</h2>
+        <p>Peluquería El Barrio · domingo 12 de abril</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-new-turno">
+          <svg style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo turno
+        </button>
+        <button class="icon-btn">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <button class="icon-btn">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="content">
+      <div class="inner">
+
+        <!-- Greeting -->
+        <div class="greeting">
+          <h1>Buenas tardes, <em>José</em>.</h1>
+        </div>
+
+        <!-- Próximo turno -->
+        <p class="section-lbl">Próximo turno</p>
+
+        <!-- Empty state (igual a la screenshot actual) -->
+        <div class="card empty-next">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="16" r="2.5"/></svg>
+          <span>Sin turnos próximos</span>
+          <button class="add-btn">Agregar</button>
+        </div>
+
+        <!-- Turnos de hoy -->
+        <div class="turnos-wrap">
+          <div class="section-header">
+            <p class="section-lbl" style="margin-bottom:0;">Turnos de hoy</p>
+            <button class="link-btn">
+              Ver agenda
+              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+          <div class="turnos-scroll">
+            <div class="card turno-mini">
+              <p class="tm-time">09:30</p>
+              <p class="tm-name">Juan</p>
+              <p class="tm-svc">Corte Caballero</p>
+              <span class="tm-dot" style="background:#3B82F6;"></span>
+            </div>
+            <div class="card turno-mini">
+              <p class="tm-time">10:00</p>
+              <p class="tm-name">José</p>
+              <p class="tm-svc">Corte Caballero</p>
+              <span class="tm-dot" style="background:#3B82F6;"></span>
+            </div>
+            <div class="card turno-mini">
+              <p class="tm-time">10:00</p>
+              <p class="tm-name">Mario</p>
+              <p class="tm-svc">Corte Caballero</p>
+              <span class="tm-dot" style="background:#3B82F6;"></span>
+            </div>
+            <div class="card turno-mini">
+              <p class="tm-time">11:00</p>
+              <p class="tm-name">María</p>
+              <p class="tm-svc">Coloración Completa</p>
+              <span class="tm-dot" style="background:#8B5CF6;"></span>
+            </div>
+            <div class="card turno-mini">
+              <p class="tm-time">14:30</p>
+              <p class="tm-name">Sofía</p>
+              <p class="tm-svc">Coloración Completa</p>
+              <span class="tm-dot" style="background:#8B5CF6;"></span>
+            </div>
+            <div class="card turno-mini">
+              <p class="tm-time">15:00</p>
+              <p class="tm-name">Laura</p>
+              <p class="tm-svc">Mechas + Corte</p>
+              <span class="tm-dot" style="background:#F57C00;"></span>
+            </div>
+            <div class="card turno-mini">
+              <p class="tm-time">15:00</p>
+              <p class="tm-name">Sofía</p>
+              <p class="tm-svc">Corte Caballero</p>
+              <span class="tm-dot" style="background:#3B82F6;"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpis">
+
+          <!-- Turnos hoy -->
+          <div class="card kpi-item">
+            <button class="kpi-trigger" onclick="toggleKpi(this)"
+              style="--kbg:rgba(59,130,246,0.08);">
+              <div class="kpi-icon" style="background:rgba(59,130,246,0.08);">
+                <span class="kpi-dot" style="background:#3B82F6;"></span>
+              </div>
+              <span class="kpi-lbl">Turnos hoy</span>
+              <span class="kpi-val" style="color:#3B82F6;">7</span>
+              <span class="kpi-chevron">›</span>
+            </button>
+            <div class="kpi-body">
+              <div class="kpi-row"><span class="kr-time">09:30</span><span class="kr-name">Juan Pérez</span><span class="kr-badge" style="background:rgba(67,160,71,0.12);color:#2E7D32;">Confirmado</span></div>
+              <div class="kpi-row"><span class="kr-time">10:00</span><span class="kr-name">José Ramírez</span><span class="kr-badge" style="background:rgba(67,160,71,0.12);color:#2E7D32;">Confirmado</span></div>
+              <div class="kpi-row"><span class="kr-time">10:00</span><span class="kr-name">Mario Suárez</span><span class="kr-badge" style="background:rgba(67,160,71,0.12);color:#2E7D32;">Confirmado</span></div>
+              <div class="kpi-row"><span class="kr-time">11:00</span><span class="kr-name">María García</span><span class="kr-badge" style="background:rgba(245,124,0,0.12);color:#E65100;">Pendiente</span></div>
+              <div class="kpi-row"><span class="kr-time">14:30</span><span class="kr-name">Sofía Benítez</span><span class="kr-badge" style="background:rgba(67,160,71,0.12);color:#2E7D32;">Confirmado</span></div>
+              <div class="kpi-row"><span class="kr-time">15:00</span><span class="kr-name">Laura Martínez</span><span class="kr-badge" style="background:rgba(245,124,0,0.12);color:#E65100;">Pendiente</span></div>
+              <div class="kpi-row"><span class="kr-time">15:00</span><span class="kr-name">Sofía Benítez</span><span class="kr-badge" style="background:rgba(67,160,71,0.12);color:#2E7D32;">Confirmado</span></div>
+            </div>
+          </div>
+
+          <!-- Vacantes -->
+          <div class="card kpi-item">
+            <button class="kpi-trigger" onclick="toggleKpi(this)"
+              style="--kbg:rgba(107,143,126,0.10);">
+              <div class="kpi-icon" style="background:rgba(107,143,126,0.10);">
+                <span class="kpi-dot" style="background:#6b8f7e;"></span>
+              </div>
+              <span class="kpi-lbl">Vacantes</span>
+              <span class="kpi-val" style="color:#6b8f7e;">13</span>
+              <span class="kpi-chevron">›</span>
+            </button>
+            <div class="kpi-body">
+              <p class="vac-meta">Capacidad: <strong>20 slots</strong> · Ocupados: <strong>7</strong> · Libres: <strong>13</strong></p>
+              <div class="vac-bar-wrap"><div class="vac-bar" style="width:35%;"></div></div>
+              <div class="slot-grid">
+                <button class="slot-btn">09:00</button>
+                <button class="slot-btn">09:30</button>
+                <button class="slot-btn">10:30</button>
+                <button class="slot-btn">12:00</button>
+                <button class="slot-btn">12:30</button>
+                <button class="slot-btn">13:00</button>
+                <button class="slot-btn">16:00</button>
+                <button class="slot-btn">17:00</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Facturación -->
+          <div class="card kpi-item">
+            <button class="kpi-trigger" onclick="toggleKpi(this)"
+              style="--kbg:rgba(16,185,129,0.08);">
+              <div class="kpi-icon" style="background:rgba(16,185,129,0.08);">
+                <span class="kpi-dot" style="background:#10B981;"></span>
+              </div>
+              <span class="kpi-lbl">Facturación</span>
+              <span class="kpi-val" style="color:#10B981;">$10.500</span>
+              <span class="kpi-chevron">›</span>
+            </button>
+            <div class="kpi-body">
+              <p class="vac-meta">Solo turnos confirmados</p>
+              <div class="fact-row"><span class="fact-name">Juan Pérez · Corte Caballero</span><span class="fact-price">$1.500</span></div>
+              <div class="fact-row"><span class="fact-name">José Ramírez · Corte Caballero</span><span class="fact-price">$1.500</span></div>
+              <div class="fact-row"><span class="fact-name">Mario Suárez · Corte Caballero</span><span class="fact-price">$1.500</span></div>
+              <div class="fact-row"><span class="fact-name">Sofía Benítez · Coloración Completa</span><span class="fact-price">$5.500</span></div>
+              <div class="fact-total">
+                <span>Total estimado</span>
+                <strong>$10.500</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div><!-- /app -->
+
+<script>
+// ── Canvas background ──
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+
+function draw() {
+  const W = canvas.width, H = canvas.height;
+
+  // Base #faf9f7
+  ctx.fillStyle = '#faf9f7';
+  ctx.fillRect(0, 0, W, H);
+
+  // Mesh radial — same as BG_MESH
+  [
+    { x: 0.15, y: 0.05, rx: 0.70, ry: 0.50, r: 'rgba(240,200,170,', a: 0.07 },
+    { x: 0.85, y: 0.95, rx: 0.50, ry: 0.40, r: 'rgba(200,220,215,', a: 0.06 },
+  ].forEach(g => {
+    const rg = ctx.createRadialGradient(
+      g.x * W, g.y * H, 0,
+      g.x * W, g.y * H, Math.max(g.rx * W, g.ry * H)
+    );
+    rg.addColorStop(0, `${g.r}${g.a})`);
+    rg.addColorStop(1, `${g.r}0)`);
+    ctx.save();
+    ctx.scale(1, g.ry / g.rx);
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, W, H * (g.rx / g.ry));
+    ctx.restore();
+  });
+
+  // Vertical light column glows
+  [
+    { cx: 0.17, op: 0.28 },
+    { cx: 0.40, op: 0.20 },
+    { cx: 0.63, op: 0.18 },
+    { cx: 0.84, op: 0.24 },
+  ].forEach(col => {
+    const rg = ctx.createRadialGradient(
+      col.cx * W, H * 0.20, 0,
+      col.cx * W, H * 0.20, 0.095 * W * 3.5
+    );
+    rg.addColorStop(0, `rgba(255,255,255,${col.op})`);
+    rg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, W, H);
+  });
+}
+
+function resize() {
+  canvas.width  = window.innerWidth  * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  canvas.style.width  = window.innerWidth  + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  draw();
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── Accordion ──
+function toggleKpi(btn) {
+  const item = btn.closest('.kpi-item');
+  const body = item.querySelector('.kpi-body');
+  const ch   = btn.querySelector('.kpi-chevron');
+  const wasOpen = body.classList.contains('open');
+  document.querySelectorAll('.kpi-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.kpi-trigger').forEach(b => { b.classList.remove('open'); b.querySelector('.kpi-chevron').classList.remove('open'); });
+  if (!wasOpen) { body.classList.add('open'); btn.classList.add('open'); ch.classList.add('open'); }
+}
+
+// ── Nav ──
+function switchTab(btn, tab) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

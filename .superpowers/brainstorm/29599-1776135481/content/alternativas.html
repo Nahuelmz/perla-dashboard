@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alternativas InicioScreen</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #e8edf1;
+    color: #243542;
+    padding: 28px 20px 80px;
+  }
+  :root {
+    --teal: #5B8FA6;
+    --dark: #1B2D3B;
+    --text: #243542;
+    --text2: #5E7A8A;
+    --text3: #8FA4AE;
+    --border: rgba(27,45,59,0.08);
+    --borderO: rgba(91,143,166,0.22);
+  }
+
+  h1 { font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 4px; letter-spacing:-0.02em; }
+  .subtitle { font-size: 12px; color: var(--text2); margin-bottom: 28px; }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .opt-wrap { cursor: pointer; }
+  .opt-wrap:hover .screen-wrap { box-shadow: 0 12px 40px rgba(27,45,59,0.16); transform: translateY(-2px); }
+  .opt-wrap.selected .screen-wrap { outline: 2px solid var(--teal); outline-offset: 3px; }
+
+  .opt-tag { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+  .opt-letter { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; background: var(--teal); flex-shrink: 0; }
+  .opt-title { font-size: 13px; font-weight: 600; color: var(--dark); }
+  .opt-desc { font-size: 11px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+
+  .screen-wrap {
+    background: #f6f8fa;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 20px rgba(27,45,59,0.08);
+    transition: all 0.2s ease;
+  }
+
+  .glass-card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(27,45,59,0.08);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(27,45,59,0.05);
+  }
+
+  .pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 99px; font-size: 9px; font-weight: 500; }
+  .pill-confirmed { background: rgba(16,185,129,0.10); color: #059669; }
+  .pill-pending { background: rgba(245,158,11,0.10); color: #D97706; }
+  .avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; flex-shrink: 0; }
+  .avatar-jp { background: #C49580; }
+  .avatar-ag { background: #7FA8C4; }
+  .avatar-lh { background: #6BABA4; }
+  .divider { height: 1px; background: rgba(27,45,59,0.06); }
+  .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 5px; }
+  .slot-btn { padding: 2px 7px; border-radius: 99px; font-size: 9px; color: var(--teal); background: rgba(255,255,255,0.72); border: 1px solid var(--borderO); }
+  .greeting-name { font-style: italic; font-weight: 400; }
+  .active-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); display: inline-block; }
+
+  /* ═══════════════════════════════════════
+     OPCIÓN A — Stats en el header integrados
+  ═══════════════════════════════════════ */
+  .header-card {
+    background: var(--dark);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,143,166,0.30) 0%, transparent 70%);
+  }
+  .header-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 20px;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(153,195,214,0.15) 0%, transparent 70%);
+  }
+
+  /* ═══════════════════════════════════════
+     OPCIÓN B — Editorial / gran número
+  ═══════════════════════════════════════ */
+  .editorial-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  /* ═══════════════════════════════════════
+     OPCIÓN C — Una sola glass card principal
+  ═══════════════════════════════════════ */
+  .unified-card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(27,45,59,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(27,45,59,0.06);
+  }
+
+  .selected-badge {
+    display: none;
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--teal);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+  .opt-wrap { position: relative; }
+  .opt-wrap.selected .selected-badge { display: block; }
+</style>
+</head>
+<body>
+
+<h1>Tres direcciones nuevas</h1>
+<p class="subtitle">Ideas completamente distintas a lo anterior. Hacé click en la que más te llame la atención.</p>
+
+<div class="options-grid">
+
+  <!-- ═══════════════════════════════════════════
+       A — Dark header card con stats integrados
+  ═══════════════════════════════════════════ -->
+  <div class="opt-wrap" onclick="select(this, 'a')">
+    <div class="selected-badge">✓ seleccionada</div>
+    <div class="opt-tag">
+      <div class="opt-letter">A</div>
+      <div class="opt-title">Header oscuro</div>
+    </div>
+    <p class="opt-desc">El saludo y los KPIs van dentro de una card oscura tipo "hero". Abajo, las appointment cards en glass claro. Contraste fuerte entre el header y el contenido.</p>
+    <div class="screen-wrap">
+
+      <!-- Dark hero header -->
+      <div class="header-card">
+        <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:6px;letter-spacing:0.04em">Lunes 14 de abril</div>
+        <div style="font-size:17px;font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:12px">
+          Buenas tardes, <span class="greeting-name" style="color:rgba(153,195,214,0.85)">José</span>.
+        </div>
+        <!-- Stats inline en el header -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.40);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Turnos</div>
+            <div style="font-size:22px;font-weight:700;color:#60A5FA;letter-spacing:-0.03em;line-height:1">7</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px">5 conf.</div>
+          </div>
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.40);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Vacantes</div>
+            <div style="font-size:22px;font-weight:700;color:#7FC4D8;letter-spacing:-0.03em;line-height:1">3</div>
+            <div style="height:2px;border-radius:99px;background:rgba(255,255,255,0.15);margin-top:4px;overflow:hidden">
+              <div style="height:100%;width:57%;background:rgba(91,143,166,0.7);border-radius:99px"></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.40);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Factur.</div>
+            <div style="font-size:18px;font-weight:700;color:#6EE7B7;letter-spacing:-0.03em;line-height:1">$12k</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px">hoy</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximo turno -->
+      <div class="glass-card" style="padding:10px;margin-bottom:6px">
+        <div class="section-label">Próximo turno</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-0.04em;line-height:1">14:30</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:500;color:var(--dark)">María García</div>
+            <div style="font-size:10px;color:var(--text2)">Coloración · 120 min</div>
+          </div>
+          <div class="avatar avatar-ag" style="width:26px;height:26px;font-size:9px">AG</div>
+          <div class="pill pill-confirmed">conf.</div>
+        </div>
+      </div>
+
+      <!-- Siguientes -->
+      <div class="glass-card" style="padding:10px;margin-bottom:6px">
+        <div class="section-label">Siguientes</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">15:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Laura M.</span>
+            <div class="avatar avatar-lh" style="width:14px;height:14px;font-size:6px">LH</div>
+            <div class="pill pill-pending">pend.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">17:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Juan P.</span>
+            <div class="avatar avatar-jp" style="width:14px;height:14px;font-size:6px">JP</div>
+            <div class="pill pill-confirmed">conf.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <div class="slot-btn">09:00</div>
+        <div class="slot-btn">13:00</div>
+        <div class="slot-btn" style="color:var(--text3);border-color:var(--border)">+3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       B — Editorial: números grandes, sin secciones
+  ═══════════════════════════════════════════ -->
+  <div class="opt-wrap" onclick="select(this, 'b')">
+    <div class="selected-badge">✓ seleccionada</div>
+    <div class="opt-tag">
+      <div class="opt-letter" style="background:#8B5CF6">B</div>
+      <div class="opt-title">Editorial</div>
+    </div>
+    <p class="opt-desc">Los números son tipografía, no datos en cards. El layout respira. Un único bloque glass para la agenda. Muy limpio, muy "revista".</p>
+    <div class="screen-wrap">
+
+      <!-- Greeting -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:16px;font-weight:700;color:var(--dark);letter-spacing:-0.02em">
+          Buenas tardes, <span class="greeting-name">José</span>.
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:5px;margin-top:5px;font-size:10px;color:var(--text2)">
+          <div class="active-dot"></div>Asistente activo
+        </div>
+      </div>
+
+      <!-- Stats editoriales: puro texto, sin card -->
+      <div style="display:flex;align-items:flex-end;gap:0;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(27,45,59,0.07)">
+        <div style="flex:1;padding-right:12px;border-right:1px solid rgba(27,45,59,0.07)">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:3px">Turnos hoy</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span style="font-size:40px;font-weight:700;letter-spacing:-0.04em;color:#3B82F6;line-height:1">7</span>
+            <span style="font-size:10px;color:var(--text2)">/ 5 conf.</span>
+          </div>
+        </div>
+        <div style="flex:1;padding:0 12px;border-right:1px solid rgba(27,45,59,0.07)">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:3px">Vacantes</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span style="font-size:40px;font-weight:700;letter-spacing:-0.04em;color:var(--teal);line-height:1">3</span>
+            <span style="font-size:10px;color:var(--text2)">libres</span>
+          </div>
+        </div>
+        <div style="flex:1;padding-left:12px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:3px">Hoy</div>
+          <div style="font-size:22px;font-weight:700;letter-spacing:-0.03em;color:#10B981;line-height:1">$12k</div>
+          <div style="font-size:9px;color:var(--text2)">facturado</div>
+        </div>
+      </div>
+
+      <!-- Una sola glass card con próximo + agenda -->
+      <div class="glass-card" style="overflow:hidden;margin-bottom:8px">
+        <!-- Próximo: header de la card -->
+        <div style="padding:10px 12px;border-bottom:1px solid rgba(27,45,59,0.06)">
+          <div class="section-label">Próximo turno</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:28px;font-weight:700;letter-spacing:-0.04em;color:var(--dark);line-height:1">14:30</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:500;color:var(--dark)">María García</div>
+              <div style="font-size:10px;color:var(--text2)">Coloración · Ana G. · 120 min</div>
+            </div>
+            <div class="avatar avatar-ag" style="width:28px;height:28px;font-size:10px">AG</div>
+          </div>
+        </div>
+        <!-- Siguientes dentro de la misma card -->
+        <div style="padding:8px 12px">
+          <div class="section-label">A continuación</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:10px;font-weight:700;color:var(--teal);width:34px">15:00</span>
+              <span style="font-size:10px;flex:1;color:var(--text)">Laura Martínez</span>
+              <div class="avatar avatar-lh" style="width:14px;height:14px;font-size:6px">LH</div>
+              <div class="pill pill-pending">pend.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:10px;font-weight:700;color:var(--teal);width:34px">17:00</span>
+              <span style="font-size:10px;flex:1;color:var(--text)">Juan Pérez</span>
+              <div class="avatar avatar-jp" style="width:14px;height:14px;font-size:6px">JP</div>
+              <div class="pill pill-confirmed">conf.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <div class="slot-btn">09:00</div>
+        <div class="slot-btn">13:00</div>
+        <div class="slot-btn" style="color:var(--text3);border-color:var(--border)">+3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       C — Todo en una sola card unificada
+  ═══════════════════════════════════════════ -->
+  <div class="opt-wrap" onclick="select(this, 'c')">
+    <div class="selected-badge">✓ seleccionada</div>
+    <div class="opt-tag">
+      <div class="opt-letter" style="background:#10B981">C</div>
+      <div class="opt-title">Card unificada</div>
+    </div>
+    <p class="opt-desc">Todo el contenido de turnos dentro de una sola glass card estructurada con secciones. El saludo y stats flotan arriba, libres.</p>
+    <div class="screen-wrap">
+
+      <!-- Greeting + stats: libre, sin card -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:16px;font-weight:700;color:var(--dark);letter-spacing:-0.02em;margin-bottom:8px">
+          Buenas tardes, <span class="greeting-name">José</span>.
+        </div>
+        <!-- Stats como "badges" en línea -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15)">
+            <span style="font-size:13px;font-weight:700;color:#3B82F6">7</span>
+            <span style="font-size:10px;color:var(--text2)">turnos</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;background:rgba(91,143,166,0.08);border:1px solid rgba(91,143,166,0.18)">
+            <span style="font-size:13px;font-weight:700;color:var(--teal)">3</span>
+            <span style="font-size:10px;color:var(--text2)">vacantes</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15)">
+            <span style="font-size:12px;font-weight:700;color:#10B981">$12k</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <div class="active-dot"></div>
+            <span style="font-size:10px;color:var(--text3)">activo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Una glass card unificada -->
+      <div class="unified-card">
+        <!-- Sección próximo -->
+        <div style="padding:12px;background:rgba(91,143,166,0.04)">
+          <div class="section-label">Próximo turno</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar avatar-ag" style="width:34px;height:34px;font-size:11px">AG</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;color:var(--dark)">María García</div>
+              <div style="font-size:11px;color:var(--text2)">Coloración Completa · 120 min</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:20px;font-weight:700;letter-spacing:-0.03em;color:var(--dark)">14:30</div>
+              <div class="pill pill-confirmed" style="margin-top:2px">confirmado</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Siguientes -->
+        <div style="padding:10px 12px">
+          <div class="section-label">Siguientes turnos</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;font-weight:700;color:var(--teal);width:34px">15:00</span>
+              <span style="font-size:11px;flex:1;color:var(--text)">Laura Martínez</span>
+              <div class="avatar avatar-lh" style="width:16px;height:16px;font-size:7px">LH</div>
+              <div class="pill pill-pending">pend.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;font-weight:700;color:var(--teal);width:34px">15:00</span>
+              <span style="font-size:11px;flex:1;color:var(--text)">Sofía Benítez</span>
+              <div class="avatar avatar-ag" style="width:16px;height:16px;font-size:7px">AG</div>
+              <div class="pill pill-confirmed">conf.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;font-weight:700;color:var(--teal);width:34px">17:00</span>
+              <span style="font-size:11px;flex:1;color:var(--text)">Juan Pérez</span>
+              <div class="avatar avatar-jp" style="width:16px;height:16px;font-size:7px">JP</div>
+              <div class="pill pill-confirmed">conf.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Slots dentro de la card también -->
+        <div style="padding:8px 12px">
+          <div class="section-label">Slots libres</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <div class="slot-btn">09:00</div>
+            <div class="slot-btn">13:00</div>
+            <div class="slot-btn" style="color:var(--text3);border-color:var(--border)">+3 más</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function select(el, choice) {
+  document.querySelectorAll('.opt-wrap').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  if (window.__brainstorm_select) window.__brainstorm_select(choice, el.querySelector('.opt-title')?.textContent);
+}
+</script>
+
+</body>
+</html>

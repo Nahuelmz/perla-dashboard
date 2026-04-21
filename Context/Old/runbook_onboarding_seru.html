@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runbook de Onboarding · Serú</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --terracota:    #D97B4F;
+    --salvia:       #7A9E8A;
+    --crema:        #FAF6F0;
+    --hueso:        #FFF9F4;
+    --oscuro:       #1C1712;
+    --gris:         #8C7B6E;
+    --borde:        #E8DDD4;
+    --terracota-10: rgba(217,123,79,.10);
+    --salvia-10:    rgba(122,158,138,.10);
+    --oscuro-06:    rgba(28,23,18,.06);
+    --oscuro-10:    rgba(28,23,18,.10);
+    --oscuro-14:    rgba(28,23,18,.14);
+    --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px;
+    --shadow-sm: 0 2px 12px var(--oscuro-06);
+    --shadow-md: 0 4px 24px var(--oscuro-10);
+    --shadow-lg: 0 8px 40px var(--oscuro-14);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--crema);
+    color: var(--oscuro);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--terracota);
+    z-index: 1000;
+    transition: width .1s linear;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 240px;
+    height: 100vh;
+    background: var(--hueso);
+    border-right: 1px solid var(--borde);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--borde);
+    flex-shrink: 0;
+  }
+
+  .wordmark {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--oscuro);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .wordmark span { color: var(--terracota); }
+
+  .sidebar-meta {
+    font-size: 0.68rem;
+    color: var(--gris);
+    margin-top: 6px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    line-height: 1.4;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 16px 0 24px;
+    overflow-y: auto;
+  }
+
+  .nav-section-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gris);
+    padding: 12px 24px 6px;
+    opacity: 0.7;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--gris);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .2s ease;
+    cursor: pointer;
+    gap: 8px;
+  }
+
+  .nav-link:hover {
+    color: var(--oscuro);
+    background: var(--oscuro-06);
+  }
+
+  .nav-link.active {
+    color: var(--terracota);
+    border-left-color: var(--terracota);
+    background: var(--terracota-10);
+    font-weight: 600;
+  }
+
+  .nav-link .nav-label { flex: 1; }
+
+  .nav-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--terracota);
+    background: var(--terracota-10);
+    border-radius: 20px;
+    padding: 2px 6px;
+    min-width: 20px;
+    text-align: center;
+    display: none;
+  }
+
+  .nav-badge.visible { display: block; }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    margin-left: 240px;
+    flex: 1;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--oscuro);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 80px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -80px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(217,123,79,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: .6;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--terracota);
+    margin-bottom: 20px;
+    position: relative; z-index: 1;
+  }
+
+  .hero h1 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    color: #fff;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 24px;
+    position: relative; z-index: 1;
+    max-width: 680px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--terracota);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,.55);
+    font-weight: 400;
+    max-width: 480px;
+    line-height: 1.6;
+    position: relative; z-index: 1;
+    margin-bottom: 48px;
+  }
+
+  .hero-meta-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    position: relative; z-index: 1;
+  }
+
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .hero-meta-item .label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.3);
+  }
+
+  .hero-meta-item .value {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,.7);
+    font-weight: 500;
+  }
+
+  /* ── CONTENT SECTIONS ── */
+  .content-section {
+    padding: 80px 72px;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  .content-section:last-child { border-bottom: none; }
+
+  .section-header {
+    margin-bottom: 48px;
+  }
+
+  .section-number {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--terracota);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .section-header h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    color: var(--oscuro);
+    margin-bottom: 12px;
+  }
+
+  .section-objetivo {
+    font-size: 0.9rem;
+    color: var(--gris);
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 560px;
+    padding: 14px 18px;
+    background: var(--oscuro-06);
+    border-radius: var(--r-sm);
+    border-left: 3px solid var(--borde);
+    margin-top: 16px;
+  }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .card {
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card h3 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: -0.2px;
+    margin-bottom: 16px;
+    color: var(--oscuro);
+  }
+
+  .card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card ul li {
+    font-size: 0.83rem;
+    color: var(--oscuro);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .card ul li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    color: var(--terracota);
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  /* ── KPI ROW ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .kpi-card {
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .kpi-card .kpi-num {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: var(--terracota);
+    letter-spacing: -1px;
+    line-height: 1;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .kpi-card .kpi-label {
+    font-size: 0.78rem;
+    color: var(--gris);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* ── TIMELINE HORIZONTAL ── */
+  .timeline-h {
+    display: flex;
+    gap: 0;
+    margin-top: 36px;
+    position: relative;
+  }
+
+  .timeline-h::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    right: 28px;
+    height: 2px;
+    background: var(--borde);
+    z-index: 0;
+  }
+
+  .timeline-h-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .timeline-h-dot {
+    width: 56px; height: 56px;
+    background: var(--oscuro);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 16px;
+    border: 3px solid var(--crema);
+    box-shadow: var(--shadow-sm);
+    transition: background .2s;
+  }
+
+  .timeline-h-item:nth-child(1) .timeline-h-dot { background: var(--terracota); }
+  .timeline-h-item:nth-child(2) .timeline-h-dot { background: var(--oscuro); }
+  .timeline-h-item:nth-child(3) .timeline-h-dot { background: var(--salvia); }
+  .timeline-h-item:nth-child(4) .timeline-h-dot { background: var(--oscuro); }
+  .timeline-h-item:nth-child(5) .timeline-h-dot { background: var(--terracota); }
+
+  .timeline-h-phase {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 6px;
+  }
+
+  .timeline-h-name {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--oscuro);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .timeline-h-dur {
+    font-size: 0.72rem;
+    color: var(--gris);
+    margin-bottom: 4px;
+  }
+
+  .pill-resp {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--salvia-10);
+    color: var(--salvia);
+    display: inline-block;
+    margin-top: 4px;
+  }
+
+  /* ── TIMELINE VERTICAL ── */
+  .timeline-v {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 32px;
+    position: relative;
+  }
+
+  .timeline-v::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    bottom: 20px;
+    width: 2px;
+    background: var(--borde);
+  }
+
+  .timeline-v-item {
+    display: flex;
+    gap: 24px;
+    padding: 0 0 36px 0;
+    position: relative;
+  }
+
+  .timeline-v-item:last-child { padding-bottom: 0; }
+
+  .timeline-v-dot {
+    width: 42px; height: 42px;
+    min-width: 42px;
+    background: var(--oscuro);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #fff;
+    position: relative;
+    z-index: 1;
+    border: 3px solid var(--crema);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .timeline-v-content { flex: 1; padding-top: 8px; }
+
+  .timeline-v-content h4 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--oscuro);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pill-tiempo {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--terracota-10);
+    color: var(--terracota);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .timeline-v-content p {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--oscuro);
+    opacity: 0.8;
+  }
+
+  /* ── CHECKLISTS ── */
+  .checklist-block {
+    margin-top: 28px;
+  }
+
+  .checklist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .checklist-title {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--oscuro);
+  }
+
+  .checklist-progress {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gris);
+    background: var(--oscuro-06);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .checklist-progress .done { color: var(--salvia); }
+
+  .checklist-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--borde);
+    cursor: pointer;
+    transition: background .15s;
+    position: relative;
+  }
+
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item:hover { background: var(--oscuro-06); }
+
+  .checklist-item.checked {
+    background: rgba(122,158,138,.07);
+  }
+
+  .checklist-item input[type="checkbox"] {
+    display: none;
+  }
+
+  .checkbox-custom {
+    width: 18px; height: 18px;
+    min-width: 18px;
+    border: 2px solid var(--borde);
+    border-radius: 5px;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    background: #fff;
+  }
+
+  .checklist-item.checked .checkbox-custom {
+    background: var(--salvia);
+    border-color: var(--salvia);
+  }
+
+  .checkbox-custom::after {
+    content: '';
+    display: none;
+    width: 5px; height: 9px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) translate(-1px,-1px);
+  }
+
+  .checklist-item.checked .checkbox-custom::after { display: block; }
+
+  .checklist-item-text {
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: var(--oscuro);
+    font-weight: 400;
+    transition: color .15s;
+  }
+
+  .checklist-item.checked .checklist-item-text {
+    color: var(--gris);
+    text-decoration: line-through;
+  }
+
+  .btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gris);
+    background: transparent;
+    border: 1px solid var(--borde);
+    border-radius: var(--r-sm);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all .15s;
+  }
+
+  .btn-reset:hover {
+    background: var(--terracota-10);
+    color: var(--terracota);
+    border-color: rgba(217,123,79,.3);
+  }
+
+  /* ── CARDS ESPECIALES ── */
+  .card-terracota {
+    background: var(--terracota-10);
+    border-left: 4px solid var(--terracota);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .card-terracota p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--oscuro);
+  }
+
+  .card-salvia {
+    background: var(--salvia-10);
+    border-left: 4px solid var(--salvia);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .card-salvia p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--oscuro);
+  }
+
+  .card-roja {
+    background: rgba(220,38,38,.08);
+    border-left: 4px solid #dc2626;
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+
+  .card-roja p {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--oscuro);
+  }
+
+  .card-script {
+    background: var(--oscuro);
+    border-radius: var(--r-lg);
+    padding: 32px 36px;
+    margin-top: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-script::before {
+    content: '"';
+    position: absolute;
+    top: -20px; left: 20px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 10rem;
+    color: var(--terracota);
+    opacity: .12;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .card-script p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,.9);
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+    font-style: italic;
+  }
+
+  .card-objetivo {
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-lg);
+    padding: 24px 28px;
+    margin-top: 28px;
+    border-top: 4px solid var(--terracota);
+  }
+
+  .card-objetivo p {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--oscuro);
+  }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    margin-top: 24px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--borde);
+    box-shadow: var(--shadow-sm);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+  }
+
+  thead tr {
+    background: var(--oscuro);
+  }
+
+  thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 600;
+    color: rgba(255,255,255,.85);
+    font-size: 0.78rem;
+    letter-spacing: 0.3px;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--borde);
+    transition: background .15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--oscuro-06); }
+  tbody tr:hover { background: var(--terracota-10); }
+
+  tbody td {
+    padding: 14px 18px;
+    color: var(--oscuro);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+
+  tbody td:first-child {
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+
+  /* ── PILLS ── */
+  .pill-verde {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(122,158,138,.15);
+    color: var(--salvia);
+  }
+
+  .pill-naranja {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(217,123,79,.15);
+    color: var(--terracota);
+  }
+
+  .pill-rojo {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(220,38,38,.12);
+    color: #dc2626;
+  }
+
+  /* ── FORMULARIO VISUAL ── */
+  .form-visual {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .form-section {
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+  }
+
+  .form-section-header {
+    padding: 16px 24px;
+    background: var(--oscuro);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form-section-header h4 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,.9);
+    letter-spacing: 0.2px;
+  }
+
+  .form-fields {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .form-field.full { grid-column: 1 / -1; }
+
+  .form-field label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gris);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-field-box {
+    background: #fff;
+    border: 1px solid var(--borde);
+    border-radius: var(--r-sm);
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    color: var(--gris);
+    font-style: italic;
+    min-height: 34px;
+  }
+
+  /* ── GLOSARIO ── */
+  .glosario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .glosario-item {
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-md);
+    padding: 18px 20px;
+    transition: box-shadow .2s;
+  }
+
+  .glosario-item:hover { box-shadow: var(--shadow-md); }
+
+  .glosario-term {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--terracota);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .glosario-def {
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--oscuro);
+    opacity: .8;
+  }
+
+  /* ── DURACION BADGE ── */
+  .duracion-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--oscuro);
+    color: rgba(255,255,255,.8);
+    border-radius: var(--r-sm);
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  /* ── CRITERIO ── */
+  .criterio-card {
+    background: var(--salvia-10);
+    border: 1px solid rgba(122,158,138,.3);
+    border-radius: var(--r-md);
+    padding: 18px 22px;
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .criterio-card .icon { font-size: 1.2rem; flex-shrink: 0; }
+
+  .criterio-card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--oscuro);
+    font-weight: 500;
+  }
+
+  /* ── REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── SEGUIMIENTO DAYS ── */
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .day-card {
+    background: var(--hueso);
+    border: 1px solid var(--borde);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .day-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .day-card:nth-child(1)::before { background: var(--terracota); }
+  .day-card:nth-child(2)::before { background: var(--salvia); }
+  .day-card:nth-child(3)::before { background: var(--terracota); }
+  .day-card:nth-child(4)::before { background: var(--salvia); }
+
+  .day-label {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--oscuro);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 12px;
+    opacity: .15;
+  }
+
+  .day-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .day-item {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--oscuro);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .day-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--terracota);
+    font-size: 0.7rem;
+    top: 1px;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gris); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--borde);
+    margin: 36px 0;
+  }
+
+  /* ── INLINE MSG ── */
+  .msg-box {
+    background: var(--oscuro);
+    border-radius: var(--r-md);
+    padding: 16px 20px;
+    margin-top: 12px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,.8);
+    line-height: 1.6;
+    font-style: italic;
+    position: relative;
+    padding-left: 48px;
+  }
+
+  .msg-box::before {
+    content: '💬';
+    position: absolute;
+    left: 16px;
+    top: 15px;
+    font-style: normal;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <div class="wordmark">Serú<span>.</span></div>
+    <div class="sidebar-meta">Runbook de Onboarding<br>v1.0 · Abril 2026</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Introducción</div>
+    <a class="nav-link" href="#s00" data-section="s00">
+      <span class="nav-label">00 · Para qué sirve</span>
+    </a>
+    <a class="nav-link" href="#s01" data-section="s01">
+      <span class="nav-label">01 · Resumen ejecutivo</span>
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px">Fases del proceso</div>
+    <a class="nav-link" href="#s02" data-section="s02">
+      <span class="nav-label">02 · Pre-onboarding</span>
+      <span class="nav-badge" id="badge-s02"></span>
+    </a>
+    <a class="nav-link" href="#s03" data-section="s03">
+      <span class="nav-label">03 · Reunión de activación</span>
+    </a>
+    <a class="nav-link" href="#s04" data-section="s04">
+      <span class="nav-label">04 · Configuración técnica</span>
+      <span class="nav-badge" id="badge-s04"></span>
+    </a>
+    <a class="nav-link" href="#s05" data-section="s05">
+      <span class="nav-label">05 · Testing y validación</span>
+      <span class="nav-badge" id="badge-s05"></span>
+    </a>
+    <a class="nav-link" href="#s06" data-section="s06">
+      <span class="nav-label">06 · Go-live y seguimiento</span>
+      <span class="nav-badge" id="badge-s06"></span>
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px">Referencia</div>
+    <a class="nav-link" href="#s07" data-section="s07">
+      <span class="nav-label">07 · Troubleshooting</span>
+    </a>
+    <a class="nav-link" href="#s08" data-section="s08">
+      <span class="nav-label">08 · Métricas</span>
+    </a>
+    <a class="nav-link" href="#s09" data-section="s09">
+      <span class="nav-label">09 · Formulario de alta</span>
+    </a>
+    <a class="nav-link" href="#s10" data-section="s10">
+      <span class="nav-label">10 · Glosario</span>
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-eyebrow">Documento interno · Uso del equipo</div>
+    <h1>Runbook de<br>Onboarding<br>· <em>Serú</em></h1>
+    <p class="hero-sub">Del "sí quiero" al bot activo. El protocolo oficial paso a paso para cada incorporación de negocio a la plataforma.</p>
+    <div class="hero-meta-row">
+      <div class="hero-meta-item">
+        <span class="label">Versión</span>
+        <span class="value">1.0</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Contexto</span>
+        <span class="value">G17 Bootcamp · Rosario, AR</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Responsable</span>
+        <span class="value">Seba (COO)</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Usuarios</span>
+        <span class="value">Guido · Seba · Tomi</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Tiempo objetivo</span>
+        <span class="value">&lt; 90 min presenciales</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 00 -->
+  <section class="content-section reveal" id="s00">
+    <div class="section-header">
+      <span class="section-number">00 · Introducción</span>
+      <h2>Para qué sirve este documento</h2>
+      <div class="section-objetivo">
+        Este runbook es el protocolo oficial de onboarding de Serú. Define cada paso, cada responsable y cada criterio de éxito desde que el negocio firma hasta que el bot responde su primer cliente real. Sin este proceso estandarizado, cada onboarding es diferente y no podemos escalar.
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>👥 Quién lo usa</h3>
+        <ul>
+          <li><strong>Guido</strong> — Ejecución del onboarding. Es quien hace la visita al local, configura el sistema y acompaña al dueño en los primeros días.</li>
+          <li><strong>Seba</strong> — Supervisión y QA. Revisa que el proceso se ejecute correctamente y toma decisiones en casos de churn temprano.</li>
+          <li><strong>Tomi</strong> — Soporte técnico. Interviene cuando hay problemas que Guido no puede resolver en el campo.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>📅 Cuándo se usa</h3>
+        <ul>
+          <li>Cada vez que un negocio nuevo se incorpora a la plataforma Serú.</li>
+          <li>Como checklist de preparación antes de una visita.</li>
+          <li>Como guía de resolución de problemas durante los primeros 7 días.</li>
+          <li>Para registrar aprendizajes y mejoras del proceso después de cada onboarding.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 -->
+  <section class="content-section reveal" id="s01">
+    <div class="section-header">
+      <span class="section-number">01 · Resumen ejecutivo</span>
+      <h2>El proceso de un vistazo</h2>
+      <div class="section-objetivo">
+        Las 5 fases del onboarding, su duración estimada y responsable. El objetivo es que cualquier integrante del equipo entienda el proceso completo antes de leer los detalles.
+      </div>
+    </div>
+
+    <div class="timeline-h">
+      <div class="timeline-h-item">
+        <div class="timeline-h-dot">0</div>
+        <div class="timeline-h-phase">Fase 0</div>
+        <div class="timeline-h-name">Pre-<br>onboarding</div>
+        <div class="timeline-h-dur">24–48 hs antes</div>
+        <span class="pill-resp">Guido</span>
+      </div>
+      <div class="timeline-h-item">
+        <div class="timeline-h-dot">1</div>
+        <div class="timeline-h-phase">Fase 1</div>
+        <div class="timeline-h-name">Reunión de<br>activación</div>
+        <div class="timeline-h-dur">30–45 min</div>
+        <span class="pill-resp">Guido + dueño</span>
+      </div>
+      <div class="timeline-h-item">
+        <div class="timeline-h-dot">2</div>
+        <div class="timeline-h-phase">Fase 2</div>
+        <div class="timeline-h-name">Configuración<br>técnica</div>
+        <div class="timeline-h-dur">20–30 min</div>
+        <span class="pill-resp">Guido + Tomi</span>
+      </div>
+      <div class="timeline-h-item">
+        <div class="timeline-h-dot">3</div>
+        <div class="timeline-h-phase">Fase 3</div>
+        <div class="timeline-h-name">Testing y<br>validación</div>
+        <div class="timeline-h-dur">15–20 min</div>
+        <span class="pill-resp">Guido + dueño</span>
+      </div>
+      <div class="timeline-h-item">
+        <div class="timeline-h-dot">4</div>
+        <div class="timeline-h-phase">Fase 4</div>
+        <div class="timeline-h-name">Go-live y<br>seguimiento</div>
+        <div class="timeline-h-dur">Día 1–7</div>
+        <span class="pill-resp">Guido</span>
+      </div>
+    </div>
+
+    <div class="kpi-row" style="margin-top: 48px;">
+      <div class="kpi-card">
+        <span class="kpi-num">&lt;90</span>
+        <span class="kpi-label">minutos presenciales para el onboarding completo</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-num">24hs</span>
+        <span class="kpi-label">para que el bot responda el primer cliente real después del go-live</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-num">≥8</span>
+        <span class="kpi-label">NPS objetivo del dueño al día 7 del uso</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="content-section reveal" id="s02">
+    <div class="section-header">
+      <span class="section-number">02 · Fase 0</span>
+      <h2>Pre-onboarding</h2>
+      <div class="section-objetivo">
+        Objetivo: Llegar preparado. Que la reunión no se use para recolectar datos que podrían conseguirse antes.
+      </div>
+    </div>
+
+    <div class="duracion-badge">
+      ⏱ 24–48 hs antes de la visita &nbsp;·&nbsp; Responsable: Guido
+    </div>
+
+    <div class="checklist-block">
+      <div class="checklist-header">
+        <span class="checklist-title">Datos a recolectar por WhatsApp o llamada previa</span>
+        <span class="checklist-progress" id="prog-s02a"><span class="done">0</span> / 9</span>
+      </div>
+      <div class="checklist-items" id="cl-s02a">
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Nombre completo del negocio</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Nombre del dueño</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Servicios que ofrece (nombre + precio)</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Horarios de atención (días y horas)</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Dirección del local</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">¿Tiene número de WhatsApp Business propio? (sí/no)</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Cantidad promedio de turnos por día</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">¿Trabaja solo o tiene empleados?</span></label>
+        <label class="checklist-item" data-group="s02a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Perfil de voz preferido: informal / neutro / formal (preguntar con ejemplos)</span></label>
+      </div>
+      <button class="btn-reset" data-target="s02a">↺ Resetear</button>
+    </div>
+
+    <div class="checklist-block" style="margin-top: 36px;">
+      <div class="checklist-header">
+        <span class="checklist-title">Materiales a llevar</span>
+        <span class="checklist-progress" id="prog-s02b"><span class="done">0</span> / 4</span>
+      </div>
+      <div class="checklist-items" id="cl-s02b">
+        <label class="checklist-item" data-group="s02b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Teléfono con la app para hacer la demo en vivo</span></label>
+        <label class="checklist-item" data-group="s02b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Número de WhatsApp de prueba de Serú cargado en el teléfono</span></label>
+        <label class="checklist-item" data-group="s02b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Script de presentación (ver Sección 03)</span></label>
+        <label class="checklist-item" data-group="s02b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Formulario de alta del negocio</span></label>
+      </div>
+      <button class="btn-reset" data-target="s02b">↺ Resetear</button>
+    </div>
+
+    <div class="card-terracota">
+      <p>⚠️ <strong>Si el dueño no sabe qué perfil de voz quiere</strong>, llevá ejemplos de mensajes de los 3 perfiles y que elija en vivo. El momento de conversión ocurre cuando ve su nombre de negocio funcionando.</p>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="content-section reveal" id="s03">
+    <div class="section-header">
+      <span class="section-number">03 · Fase 1</span>
+      <h2>Reunión de activación</h2>
+      <div class="section-objetivo">
+        Objetivo: Que el dueño entienda qué hace Serú, confíe, y dé el OK para configurar.
+      </div>
+    </div>
+
+    <div class="duracion-badge">
+      ⏱ 30–45 minutos &nbsp;·&nbsp; Responsable: Guido + dueño del negocio
+    </div>
+
+    <div class="card-script">
+      <p>"¿Cuántos mensajes de WhatsApp tenés sin responder ahora mismo? Serú los responde por vos, reserva el turno y le manda el recordatorio al cliente. Y vos no cambiás nada — el cliente te sigue escribiendo al mismo número."</p>
+    </div>
+
+    <div class="timeline-v" style="margin-top: 40px;">
+      <div class="timeline-v-item">
+        <div class="timeline-v-dot">1</div>
+        <div class="timeline-v-content">
+          <h4>Presentación <span class="pill-tiempo">5 min</span></h4>
+          <p>Mostrar el pitch. No hablar de tecnología. Hablar del dolor: mensajes sin responder, turnos perdidos, clientes que se van a otro lugar porque no los atendieron. El dueño tiene que verse reflejado en el problema antes de escuchar la solución.</p>
+        </div>
+      </div>
+      <div class="timeline-v-item">
+        <div class="timeline-v-dot">2</div>
+        <div class="timeline-v-content">
+          <h4>Demo en vivo <span class="pill-tiempo">10 min</span></h4>
+          <p>Hacer que el dueño le escriba al número de prueba como si fuera un cliente. Él ve en tiempo real cómo responde el asistente. Usar el nombre de su negocio en la demo para que la experiencia sea lo más real posible.</p>
+        </div>
+      </div>
+      <div class="timeline-v-item">
+        <div class="timeline-v-dot">3</div>
+        <div class="timeline-v-content">
+          <h4>Manejo de objeciones <span class="pill-tiempo">10 min</span></h4>
+          <p style="margin-bottom: 16px;">Escuchar sin apuro. Cada objeción es una señal de interés. Usar las respuestas de la tabla a continuación.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Objeción</th>
+                  <th>Respuesta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>"¿Y si el bot le dice algo mal a un cliente?"</td>
+                  <td>El bot siempre puede escalar a vos. Y podés ver toda la conversación en el dashboard en tiempo real.</td>
+                </tr>
+                <tr>
+                  <td>"Mis clientes no saben usar esto"</td>
+                  <td>Tus clientes no cambian nada. Siguen escribiéndote al mismo número de siempre.</td>
+                </tr>
+                <tr>
+                  <td>"¿Cuánto cuesta?"</td>
+                  <td>Arrancamos con 14 días gratis. Si no te sirve, no pagás nada.</td>
+                </tr>
+                <tr>
+                  <td>"No tengo tiempo para aprender algo nuevo"</td>
+                  <td>Lo configuramos nosotros. Vos no tocás nada. En 20 minutos está andando.</td>
+                </tr>
+                <tr>
+                  <td>"Ya tengo agenda en papel y funciona"</td>
+                  <td>La agenda no responde a las 2am. Serú sí.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="timeline-v-item">
+        <div class="timeline-v-dot">4</div>
+        <div class="timeline-v-content">
+          <h4>Confirmación y firma <span class="pill-tiempo">5 min</span></h4>
+          <p>Si el dueño dice sí: completar el formulario de alta. Si dice "lo pienso": dejar el número de Guido y el pitch por escrito en WhatsApp. No presionar. La confianza se construye con paciencia.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="criterio-card">
+      <span class="icon">✅</span>
+      <p><strong>Criterio de avance:</strong> El dueño firmó el formulario de alta Y eligió el perfil de voz del asistente. Sin estos dos elementos, no se avanza a la Fase 2.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="content-section reveal" id="s04">
+    <div class="section-header">
+      <span class="section-number">04 · Fase 2</span>
+      <h2>Configuración técnica</h2>
+      <div class="section-objetivo">
+        Objetivo: El bot queda configurado con los datos reales del negocio y listo para responder.
+      </div>
+    </div>
+
+    <div class="duracion-badge">
+      ⏱ 20–30 minutos &nbsp;·&nbsp; Responsable: Guido + Tomi
+    </div>
+
+    <div class="checklist-block">
+      <div class="checklist-header">
+        <span class="checklist-title">En el sistema (Tomi / Seba)</span>
+        <span class="checklist-progress" id="prog-s04a"><span class="done">0</span> / 9</span>
+      </div>
+      <div class="checklist-items" id="cl-s04a">
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Crear registro del negocio en la base de datos</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Asignar número de WhatsApp al negocio (o confirmar integración con número propio)</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Cargar servicios con precios</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Cargar horarios de atención y días libres</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Seleccionar y activar perfil de voz elegido</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Configurar mensaje de bienvenida con nombre del negocio</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Definir tiempo de duración de turno por defecto</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Configurar mensajes de confirmación y recordatorio</span></label>
+        <label class="checklist-item" data-group="s04a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Activar fallback al dueño (qué hace el bot cuando no sabe responder)</span></label>
+      </div>
+      <button class="btn-reset" data-target="s04a">↺ Resetear</button>
+    </div>
+
+    <div class="checklist-block" style="margin-top: 36px;">
+      <div class="checklist-header">
+        <span class="checklist-title">En el teléfono del dueño</span>
+        <span class="checklist-progress" id="prog-s04b"><span class="done">0</span> / 4</span>
+      </div>
+      <div class="checklist-items" id="cl-s04b">
+        <label class="checklist-item" data-group="s04b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Agregar el número de Serú a los contactos como "Asistente [Nombre Negocio]"</span></label>
+        <label class="checklist-item" data-group="s04b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Mostrar cómo ver las conversaciones en el dashboard</span></label>
+        <label class="checklist-item" data-group="s04b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Mostrar cómo ver la agenda del día</span></label>
+        <label class="checklist-item" data-group="s04b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Explicar qué hacer cuando el bot escala una conversación</span></label>
+      </div>
+      <button class="btn-reset" data-target="s04b">↺ Resetear</button>
+    </div>
+
+    <div class="card-salvia">
+      <p>💡 <strong>Nota técnica:</strong> La restricción de WhatsApp API indica que el primer mensaje siempre debe venir del cliente. Los recordatorios automáticos usan templates pre-aprobados por Meta con variables configurables (nombre del cliente, hora del turno).</p>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="content-section reveal" id="s05">
+    <div class="section-header">
+      <span class="section-number">05 · Fase 3</span>
+      <h2>Testing y validación</h2>
+      <div class="section-objetivo">
+        Objetivo: Confirmar que el flujo completo funciona antes de que lo use un cliente real.
+      </div>
+    </div>
+
+    <div class="duracion-badge">
+      ⏱ 15–20 minutos &nbsp;·&nbsp; Responsable: Guido + dueño
+    </div>
+
+    <div class="checklist-block">
+      <div class="checklist-header">
+        <span class="checklist-title">Test 1 · Flujo básico de reserva <span class="pill-naranja" style="font-size:.65rem;padding:2px 6px">CRÍTICO</span></span>
+        <span class="checklist-progress" id="prog-s05a"><span class="done">0</span> / 5</span>
+      </div>
+      <div class="checklist-items" id="cl-s05a">
+        <label class="checklist-item" data-group="s05a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Guido escribe al número del negocio como si fuera un cliente</span></label>
+        <label class="checklist-item" data-group="s05a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">El bot saluda con el nombre del negocio correcto</span></label>
+        <label class="checklist-item" data-group="s05a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">El bot muestra disponibilidad real del día</span></label>
+        <label class="checklist-item" data-group="s05a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">El cliente elige horario → el bot pide nombre → confirma turno</span></label>
+        <label class="checklist-item" data-group="s05a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">El turno aparece en el dashboard del dueño ✓</span></label>
+      </div>
+      <button class="btn-reset" data-target="s05a">↺ Resetear</button>
+    </div>
+
+    <div class="checklist-block" style="margin-top: 28px;">
+      <div class="checklist-header">
+        <span class="checklist-title">Test 2 · Consultas frecuentes</span>
+        <span class="checklist-progress" id="prog-s05b"><span class="done">0</span> / 3</span>
+      </div>
+      <div class="checklist-items" id="cl-s05b">
+        <label class="checklist-item" data-group="s05b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Preguntar precio de cada servicio → respuesta correcta</span></label>
+        <label class="checklist-item" data-group="s05b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Preguntar horarios → respuesta correcta</span></label>
+        <label class="checklist-item" data-group="s05b"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Preguntar dirección → respuesta correcta</span></label>
+      </div>
+      <button class="btn-reset" data-target="s05b">↺ Resetear</button>
+    </div>
+
+    <div class="checklist-block" style="margin-top: 28px;">
+      <div class="checklist-header">
+        <span class="checklist-title">Test 3 · Casos borde</span>
+        <span class="checklist-progress" id="prog-s05c"><span class="done">0</span> / 4</span>
+      </div>
+      <div class="checklist-items" id="cl-s05c">
+        <label class="checklist-item" data-group="s05c"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Pedir un horario ocupado → bot ofrece alternativas</span></label>
+        <label class="checklist-item" data-group="s05c"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Pedir turno un día que está cerrado → bot informa y ofrece otro día</span></label>
+        <label class="checklist-item" data-group="s05c"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Escribir algo que el bot no entiende → fallback al dueño funciona correctamente</span></label>
+        <label class="checklist-item" data-group="s05c"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Cancelar un turno → bot cancela y ofrece reprogramar</span></label>
+      </div>
+      <button class="btn-reset" data-target="s05c">↺ Resetear</button>
+    </div>
+
+    <div class="checklist-block" style="margin-top: 28px;">
+      <div class="checklist-header">
+        <span class="checklist-title">Test 4 · Recordatorio automático</span>
+        <span class="checklist-progress" id="prog-s05d"><span class="done">0</span> / 1</span>
+      </div>
+      <div class="checklist-items" id="cl-s05d">
+        <label class="checklist-item" data-group="s05d"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Confirmar que el sistema enviará recordatorio automático 24hs antes del turno (no se puede testear en tiempo real — verificar configuración en el sistema)</span></label>
+      </div>
+      <button class="btn-reset" data-target="s05d">↺ Resetear</button>
+    </div>
+
+    <div class="card-roja">
+      <p>🔴 <strong>NO hacer go-live si el Test 1 (flujo básico) falla.</strong> Es el flujo core del producto. Un cliente que no puede sacar turno es un cliente perdido y un dueño que desconfía del sistema desde el día 1.</p>
+    </div>
+
+    <div class="criterio-card" style="margin-top: 20px;">
+      <span class="icon">✅</span>
+      <p><strong>Criterio de go-live:</strong> Los 4 tests pasan sin errores. Si hay algún fallo, pausar y escalar a Tomi antes de continuar.</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="content-section reveal" id="s06">
+    <div class="section-header">
+      <span class="section-number">06 · Fase 4</span>
+      <h2>Go-live y seguimiento</h2>
+      <div class="section-objetivo">
+        Objetivo: Que el primer cliente real tenga una buena experiencia y el dueño sienta que el sistema funciona solo.
+      </div>
+    </div>
+
+    <div class="duracion-badge">
+      📅 Días 0 a 7 &nbsp;·&nbsp; Responsable: Guido
+    </div>
+
+    <div class="days-grid">
+      <div class="day-card">
+        <div class="day-label">D0</div>
+        <div class="day-items">
+          <div class="day-item">Notificar al dueño que el sistema está activo</div>
+          <div class="day-item">Enviar mensaje de confirmación por WhatsApp</div>
+          <div class="day-item">Monitorear el dashboard durante las primeras 2 horas</div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-label">D1</div>
+        <div class="day-items">
+          <div class="day-item">Checar conversaciones escaladas sin resolver</div>
+          <div class="day-item">Verificar que los turnos del día estén correctos</div>
+          <div class="day-item">Escribirle al dueño para consultar cómo va</div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-label">D3</div>
+        <div class="day-items">
+          <div class="day-item">Revisar métricas: turnos gestionados, tasa de confirmación</div>
+          <div class="day-item">Identificar preguntas que el bot no responde bien</div>
+          <div class="day-item">Ajustar respuestas coordinando con Tomi</div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-label">D7</div>
+        <div class="day-items">
+          <div class="day-item">Llamada de seguimiento de 10 minutos</div>
+          <div class="day-item">NPS informal del 1 al 10</div>
+          <div class="day-item">Si ≥8 → pedir testimonio</div>
+          <div class="day-item">Si &lt;7 → escalar a Seba</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="msg-box" style="margin-top: 28px;">
+      Rodrigo, el asistente ya está activo. Cualquier mensaje que llegue al número del local va a ser respondido automáticamente. Podés ver todo en el dashboard. Cualquier cosa, me avisás.
+    </div>
+
+    <div class="checklist-block" style="margin-top: 36px;">
+      <div class="checklist-header">
+        <span class="checklist-title">Checklist de go-live completo</span>
+        <span class="checklist-progress" id="prog-s06a"><span class="done">0</span> / 8</span>
+      </div>
+      <div class="checklist-items" id="cl-s06a">
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 0 · Notificar al dueño que el sistema está activo</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 0 · Enviar mensaje de confirmación por WhatsApp</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 0 · Monitorear dashboard durante primeras 2 horas</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 1 · Verificar que no hay conversaciones escaladas sin resolver</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 1 · Checar con el dueño si todo va bien</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 3 · Revisar métricas y ajustar respuestas si es necesario</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 7 · Llamada de seguimiento de 10 minutos</span></label>
+        <label class="checklist-item" data-group="s06a"><input type="checkbox"><div class="checkbox-custom"></div><span class="checklist-item-text">Día 7 · Registrar NPS + aprendizajes en planilla del equipo</span></label>
+      </div>
+      <button class="btn-reset" data-target="s06a">↺ Resetear</button>
+    </div>
+
+    <div class="card-objetivo" style="margin-top: 28px;">
+      <p>🎯 <strong>Objetivo de la beta:</strong> El objetivo de la beta no es escalar — es aprender. Cada onboarding debe terminar con: 1 problema identificado + 1 cosa que funcionó bien + 1 frase real del dueño sobre su experiencia.</p>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="content-section reveal" id="s07">
+    <div class="section-header">
+      <span class="section-number">07 · Referencia</span>
+      <h2>Errores frecuentes y cómo resolverlos</h2>
+      <div class="section-objetivo">
+        Objetivo: Que Guido pueda resolver los problemas más comunes sin necesidad de escalar a Tomi.
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Error / Síntoma</th>
+            <th>Causa probable</th>
+            <th>Solución</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>El bot no responde al primer mensaje</td>
+            <td>El número no está activado correctamente</td>
+            <td>Contactar a Tomi con el ID del negocio</td>
+          </tr>
+          <tr>
+            <td>El bot muestra horarios incorrectos</td>
+            <td>Los horarios se cargaron mal en la configuración</td>
+            <td>Dashboard → Configuración → Horarios → verificar y corregir</td>
+          </tr>
+          <tr>
+            <td>El bot dice un precio incorrecto</td>
+            <td>El precio no se actualizó después de que el dueño lo cambió</td>
+            <td>Dashboard → Servicios → actualizar precio</td>
+          </tr>
+          <tr>
+            <td>El recordatorio no llegó</td>
+            <td>El template de Meta puede estar en revisión</td>
+            <td>Verificar estado del template con Tomi. Mientras tanto, recordatorio manual</td>
+          </tr>
+          <tr>
+            <td>El dueño no puede ver el dashboard</td>
+            <td>Error de login o sesión vencida</td>
+            <td>Guido resetea contraseña desde el panel admin</td>
+          </tr>
+          <tr>
+            <td>El bot escaló algo que debería responder</td>
+            <td>El system prompt necesita ese caso</td>
+            <td>Documentar el caso y enviárselo a Seba para mejora del prompt</td>
+          </tr>
+          <tr>
+            <td>El cliente escribió en otro idioma o dialecto</td>
+            <td>Caso no contemplado en el entrenamiento</td>
+            <td>Escalar al dueño + documentar para próxima iteración</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="content-section reveal" id="s08">
+    <div class="section-header">
+      <span class="section-number">08 · Métricas</span>
+      <h2>Métricas del onboarding</h2>
+      <div class="section-objetivo">
+        Objetivo: Saber si el proceso está funcionando o si hay que ajustarlo. En la beta privada (5–10 negocios), estas métricas se registran manualmente por Guido en una planilla compartida.
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Métrica</th>
+            <th>Definición</th>
+            <th>Target Fase Beta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tiempo de onboarding</td>
+            <td>Desde firma hasta go-live</td>
+            <td><span class="pill-verde">✓ &lt; 90 min</span></td>
+          </tr>
+          <tr>
+            <td>Tests fallidos en validación</td>
+            <td>Cantidad de tests que no pasaron</td>
+            <td><span class="pill-verde">✓ 0 en Test 1</span></td>
+          </tr>
+          <tr>
+            <td>NPS día 7</td>
+            <td>Puntaje 1–10 del dueño</td>
+            <td><span class="pill-verde">✓ ≥ 8</span></td>
+          </tr>
+          <tr>
+            <td>Primeros 7 días de uso</td>
+            <td>Turnos gestionados por el bot</td>
+            <td><span class="pill-naranja">⬆ ≥ 5</span></td>
+          </tr>
+          <tr>
+            <td>Churn temprano</td>
+            <td>Abandona antes de los 14 días</td>
+            <td><span class="pill-verde">✓ 0 en beta</span></td>
+          </tr>
+          <tr>
+            <td>Tiempo de respuesta del bot</td>
+            <td>Desde que el cliente escribe hasta que responde</td>
+            <td><span class="pill-verde">✓ &lt; 5 seg</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="content-section reveal" id="s09">
+    <div class="section-header">
+      <span class="section-number">09 · Formulario</span>
+      <h2>Formulario de alta del negocio</h2>
+      <div class="section-objetivo">
+        El formulario que se completa en la Fase 1 cuando el dueño dice sí. Completarlo en el local junto con el dueño.
+      </div>
+    </div>
+
+    <div class="form-visual">
+      <div class="form-section">
+        <div class="form-section-header"><h4>📍 Datos del negocio</h4></div>
+        <div class="form-fields">
+          <div class="form-field"><label>Nombre del negocio</label><div class="form-field-box">Ej: Barbería El Gaucho</div></div>
+          <div class="form-field"><label>Tipo de negocio</label><div class="form-field-box">Peluquería / Barbería / Estética / Kinesiología / Otro</div></div>
+          <div class="form-field full"><label>Dirección</label><div class="form-field-box">Calle, número, ciudad</div></div>
+          <div class="form-field full"><label>Horarios de atención (por día)</label><div class="form-field-box" style="min-height:50px;">Lunes a viernes 9:00–19:00 / Sábados 9:00–14:00</div></div>
+          <div class="form-field full"><label>Días de descanso</label><div class="form-field-box">Ej: Domingos y feriados nacionales</div></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header"><h4>✂️ Servicios</h4></div>
+        <div class="form-fields" style="grid-template-columns: 1fr;">
+          <div class="table-wrap" style="margin-top:0">
+            <table>
+              <thead><tr><th>Servicio</th><th>Precio</th><th>Duración estimada</th></tr></thead>
+              <tbody>
+                <tr><td style="color:var(--gris);font-style:italic">Ej: Corte de cabello</td><td style="color:var(--gris);font-style:italic">$5.000</td><td style="color:var(--gris);font-style:italic">30 min</td></tr>
+                <tr><td style="color:var(--gris);font-style:italic">Ej: Afeitado</td><td style="color:var(--gris);font-style:italic">$3.500</td><td style="color:var(--gris);font-style:italic">20 min</td></tr>
+                <tr><td style="color:var(--gris);font-style:italic">Agregar más filas según corresponda...</td><td></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header"><h4>🤖 Configuración del asistente</h4></div>
+        <div class="form-fields">
+          <div class="form-field"><label>Perfil de voz elegido</label><div class="form-field-box">Colaborador de Confianza / Profesional / Cálido / Energético / Informal</div></div>
+          <div class="form-field"><label>Nombre con el que se presenta</label><div class="form-field-box">Ej: Asistente del Gaucho</div></div>
+          <div class="form-field full"><label>Mensaje de bienvenida personalizado</label><div class="form-field-box" style="min-height:50px;">Ej: ¡Hola! Soy el asistente de Barbería El Gaucho. ¿En qué te puedo ayudar?</div></div>
+          <div class="form-field"><label>Duración por defecto de cada turno</label><div class="form-field-box">__ minutos</div></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header"><h4>👤 Datos del dueño</h4></div>
+        <div class="form-fields">
+          <div class="form-field"><label>Nombre</label><div class="form-field-box"></div></div>
+          <div class="form-field"><label>WhatsApp de contacto directo</label><div class="form-field-box">Para fallback del bot</div></div>
+          <div class="form-field full"><label>Email</label><div class="form-field-box">Para el dashboard</div></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-header"><h4>📋 Cierre</h4></div>
+        <div class="form-fields">
+          <div class="form-field"><label>Plan elegido</label><div class="form-field-box">Starter / Pro / Agencia</div></div>
+          <div class="form-field"><label>Fecha de inicio de prueba gratuita</label><div class="form-field-box">__ / __ / ____</div></div>
+          <div class="form-field full"><label>Firma del dueño</label><div class="form-field-box" style="min-height:48px; font-style:normal; border-bottom: 2px solid var(--oscuro); border-radius: var(--r-sm) var(--r-sm) 0 0;"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="content-section reveal" id="s10">
+    <div class="section-header">
+      <span class="section-number">10 · Glosario</span>
+      <h2>Términos para explicar sin tecnicismos</h2>
+      <div class="section-objetivo">
+        Definiciones en lenguaje simple para que Guido pueda explicar cualquier término sin conocimiento técnico.
+      </div>
+    </div>
+
+    <div class="glosario-grid">
+      <div class="glosario-item">
+        <div class="glosario-term">WhatsApp Business API</div>
+        <div class="glosario-def">El canal oficial de Meta para empresas. Permite que el bot responda mensajes de forma automática sin que el dueño tenga que hacerlo.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">Template de Meta</div>
+        <div class="glosario-def">Un mensaje prediseñado y aprobado por WhatsApp para que el negocio pueda iniciar una conversación. Ej: el recordatorio de turno 24 hs antes.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">Multi-tenant</div>
+        <div class="glosario-def">Que el mismo sistema sirve a muchos negocios a la vez, cada uno con sus propios datos, sin que se mezclen entre ellos.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">Fallback</div>
+        <div class="glosario-def">Cuando el bot no sabe responder algo, escala la conversación al dueño para que la atienda personalmente.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">System prompt</div>
+        <div class="glosario-def">Las instrucciones que le dicen al bot cómo comportarse y qué datos tiene del negocio: horarios, precios, nombre, perfil de voz.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">Dashboard</div>
+        <div class="glosario-def">El panel web donde el dueño ve su agenda del día, las conversaciones activas y las métricas de uso del asistente.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">Go-live</div>
+        <div class="glosario-def">El momento exacto en que el bot está activo y respondiendo clientes reales. El "estreno" del asistente.</div>
+      </div>
+      <div class="glosario-item">
+        <div class="glosario-term">NPS</div>
+        <div class="glosario-def">Net Promoter Score. Una pregunta del 1 al 10 para medir si el dueño recomendaría Serú a un colega. 9-10 = promotor, 7-8 = neutro, 0-6 = detractor.</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--borde); text-align: center;">
+      <div class="wordmark" style="font-size: 2rem; margin-bottom: 12px;">Serú<span style="color: var(--terracota);">.</span></div>
+      <p style="font-size: 0.8rem; color: var(--gris); line-height: 1.6;">
+        Runbook de Onboarding · v1.0 · G17 Bootcamp · Rosario, Argentina · Abril 2026<br>
+        Responsable: Seba (COO) · Documento de uso interno
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── PROGRESS BAR ──
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+});
+
+// ── ACTIVE NAV + BADGES ──
+const navLinks = document.querySelectorAll('.nav-link[data-section]');
+const sections = document.querySelectorAll('.content-section[id], .hero[id]');
+
+const observerNav = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[data-section="${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+
+sections.forEach(s => observerNav.observe(s));
+
+navLinks.forEach(l => {
+  l.addEventListener('click', e => {
+    e.preventDefault();
+    const id = l.getAttribute('data-section');
+    const target = document.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ── REVEAL ON SCROLL ──
+const reveals = document.querySelectorAll('.reveal');
+const observerReveal = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); }
+  });
+}, { rootMargin: '0px 0px -80px 0px' });
+
+reveals.forEach(r => observerReveal.observe(r));
+
+// ── CHECKLISTS WITH LOCALSTORAGE ──
+const STORAGE_KEY = 'seru_runbook_checks_v1';
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function getGroupItems(groupId) {
+  return document.querySelectorAll(`[data-group="${groupId}"]`);
+}
+
+function updateProgress(groupId) {
+  const items = getGroupItems(groupId);
+  const done = [...items].filter(i => i.classList.contains('checked')).length;
+  const total = items.length;
+
+  // progress counter for this group
+  const progEl = document.getElementById('prog-' + groupId);
+  if (progEl) {
+    const doneSpan = progEl.querySelector('.done');
+    if (doneSpan) doneSpan.textContent = done;
+    progEl.childNodes[1].textContent = ' / ' + total; // fallback
+  }
+
+  // badge in sidebar — find section prefix
+  const sectionPrefix = groupId.replace(/[ab-z]$/, ''); // e.g. s02a → s02
+  const badge = document.getElementById('badge-' + sectionPrefix);
+  if (badge) {
+    const allItems = document.querySelectorAll(`[data-group^="${sectionPrefix}"]`);
+    const totalAll = allItems.length;
+    const doneAll = [...allItems].filter(i => i.classList.contains('checked')).length;
+    if (doneAll > 0 && totalAll > 0) {
+      const pct = Math.round((doneAll / totalAll) * 100);
+      badge.textContent = pct + '%';
+      badge.classList.add('visible');
+    } else {
+      badge.classList.remove('visible');
+    }
+  }
+}
+
+function initChecklists() {
+  const state = loadState();
+  const allItems = document.querySelectorAll('.checklist-item[data-group]');
+
+  allItems.forEach((item, idx) => {
+    const group = item.getAttribute('data-group');
+    const key = group + '_' + idx;
+
+    if (state[key]) {
+      item.classList.add('checked');
+      item.querySelector('input').checked = true;
+    }
+
+    item.addEventListener('click', function(e) {
+      const isChecked = this.classList.toggle('checked');
+      this.querySelector('input').checked = isChecked;
+
+      const st = loadState();
+      st[key] = isChecked;
+      saveState(st);
+
+      updateProgress(group);
+    });
+  });
+
+  // init all progress counters
+  const groups = new Set([...allItems].map(i => i.getAttribute('data-group')));
+  groups.forEach(g => updateProgress(g));
+}
+
+// ── RESET BUTTONS ──
+document.querySelectorAll('.btn-reset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.getAttribute('data-target');
+    const items = getGroupItems(target);
+    const state = loadState();
+    let idx = 0;
+    document.querySelectorAll('.checklist-item[data-group]').forEach((item, i) => {
+      if (item.getAttribute('data-group') === target) {
+        const key = target + '_' + i;
+        item.classList.remove('checked');
+        item.querySelector('input').checked = false;
+        delete state[key];
+      }
+    });
+    saveState(state);
+    updateProgress(target);
+  });
+});
+
+// Fix progress display init — rebuild with correct index
+function initChecklistsFixed() {
+  const state = loadState();
+  const allItems = document.querySelectorAll('.checklist-item[data-group]');
+  const groupCounters = {};
+
+  allItems.forEach((item) => {
+    const group = item.getAttribute('data-group');
+    if (groupCounters[group] === undefined) groupCounters[group] = 0;
+    const idx = groupCounters[group]++;
+    const key = group + '_' + idx;
+
+    item._checkKey = key;
+
+    if (state[key]) {
+      item.classList.add('checked');
+      item.querySelector('input').checked = true;
+    }
+
+    item.addEventListener('click', function() {
+      const isChecked = this.classList.toggle('checked');
+      this.querySelector('input').checked = isChecked;
+      const st = loadState();
+      st[this._checkKey] = isChecked;
+      saveState(st);
+      updateProgress(group);
+    });
+  });
+
+  // update all progress
+  const groups = new Set([...allItems].map(i => i.getAttribute('data-group')));
+  groups.forEach(g => {
+    const items = getGroupItems(g);
+    const done = [...items].filter(i => i.classList.contains('checked')).length;
+    const total = items.length;
+    const progId = 'prog-' + g;
+    const progEl = document.getElementById(progId);
+    if (progEl) {
+      progEl.innerHTML = `<span class="done">${done}</span> / ${total}`;
+    }
+    // badge
+    const sectionId = g.replace(/[a-z]$/, '');
+    const badge = document.getElementById('badge-' + sectionId);
+    if (badge) {
+      const allSectionItems = document.querySelectorAll(`[data-group^="${sectionId}"]`);
+      const totalS = allSectionItems.length;
+      const doneS = [...allSectionItems].filter(i => i.classList.contains('checked')).length;
+      if (doneS > 0) {
+        badge.textContent = Math.round((doneS/totalS)*100) + '%';
+        badge.classList.add('visible');
+      } else {
+        badge.classList.remove('visible');
+      }
+    }
+  });
+}
+
+// Reset button — fixed version with key-based approach
+document.querySelectorAll('.btn-reset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.getAttribute('data-target');
+    const items = getGroupItems(target);
+    const state = loadState();
+    items.forEach(item => {
+      item.classList.remove('checked');
+      item.querySelector('input').checked = false;
+      if (item._checkKey) delete state[item._checkKey];
+    });
+    saveState(state);
+    // recount
+    const progEl = document.getElementById('prog-' + target);
+    if (progEl) progEl.innerHTML = `<span class="done">0</span> / ${items.length}`;
+    const sectionId = target.replace(/[a-z]$/, '');
+    const badge = document.getElementById('badge-' + sectionId);
+    if (badge) {
+      const allSectionItems = document.querySelectorAll(`[data-group^="${sectionId}"]`);
+      const doneS = [...allSectionItems].filter(i => i.classList.contains('checked')).length;
+      if (doneS > 0) {
+        badge.textContent = Math.round((doneS/allSectionItems.length)*100) + '%';
+        badge.classList.add('visible');
+      } else {
+        badge.classList.remove('visible');
+      }
+    }
+  });
+});
+
+// Remove duplicate listeners from initChecklists and only use fixed version
+initChecklistsFixed();
+</script>
+
+</body>
+</html>

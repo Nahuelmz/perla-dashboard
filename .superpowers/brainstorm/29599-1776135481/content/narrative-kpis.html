@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrative KPIs</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #dde4e9;
+    color: #243542;
+    padding: 28px 20px 80px;
+  }
+  :root {
+    --teal: #5B8FA6;
+    --dark: #1B2D3B;
+    --text: #243542;
+    --text2: #5E7A8A;
+    --text3: #8FA4AE;
+    --border: rgba(27,45,59,0.08);
+    --borderO: rgba(91,143,166,0.22);
+  }
+
+  h1 { font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 4px; letter-spacing:-0.02em; }
+  .subtitle { font-size: 12px; color: var(--text2); margin-bottom: 28px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+
+  .opt-wrap { cursor: pointer; position: relative; }
+  .opt-wrap:hover .screen { box-shadow: 0 14px 44px rgba(27,45,59,0.18); transform: translateY(-2px); }
+  .opt-wrap.selected .screen { outline: 2px solid var(--teal); outline-offset: 3px; }
+
+  .opt-tag { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+  .opt-letter { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; background: var(--teal); flex-shrink: 0; }
+  .opt-title { font-size: 13px; font-weight: 600; color: var(--dark); }
+  .opt-desc { font-size: 11px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+
+  .screen {
+    background: #f6f8fa;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 4px 20px rgba(27,45,59,0.09);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .screen::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,143,166,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .glass-card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(27,45,59,0.08);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(27,45,59,0.05);
+  }
+
+  .pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 99px; font-size: 9px; font-weight: 500; }
+  .pill-confirmed { background: rgba(16,185,129,0.10); color: #059669; }
+  .pill-pending { background: rgba(245,158,11,0.10); color: #D97706; }
+  .avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; flex-shrink: 0; }
+  .avatar-jp { background: #C49580; }
+  .avatar-ag { background: #7FA8C4; }
+  .avatar-lh { background: #6BABA4; }
+  .divider { height: 1px; background: rgba(27,45,59,0.06); }
+  .label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); }
+  .slot-btn { padding: 2px 8px; border-radius: 99px; font-size: 9px; color: var(--teal); background: rgba(255,255,255,0.72); border: 1px solid var(--borderO); }
+  .active-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); display: inline-block; }
+
+  /* ── CHIPS inline en narrativa ── */
+  /* chip base */
+  .chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1px;
+    padding: 1px 6px 2px;
+    border-radius: 6px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+    border: 1px solid transparent;
+  }
+  .chip-val { font-size: 1.15em; letter-spacing: -0.03em; }
+  .chip-unit { font-size: 0.72em; font-weight: 400; opacity: 0.75; }
+
+  /* chip variantes de color */
+  .chip-blue  { background: rgba(59,130,246,0.08);  border-color: rgba(59,130,246,0.18);  color: #2563EB; }
+  .chip-teal  { background: rgba(91,143,166,0.09);  border-color: rgba(91,143,166,0.22);  color: #4A7A94; }
+  .chip-green { background: rgba(16,185,129,0.09);  border-color: rgba(16,185,129,0.20);  color: #059669; }
+  .chip-amber { background: rgba(245,158,11,0.09);  border-color: rgba(245,158,11,0.22);  color: #B45309; }
+  .chip-dark  { background: rgba(27,45,59,0.06);    border-color: rgba(27,45,59,0.14);    color: var(--dark); }
+
+  .sel-badge { display: none; position: absolute; top: 32px; right: 0; background: var(--teal); color: white; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+  .opt-wrap.selected .sel-badge { display: block; }
+</style>
+</head>
+<body>
+
+<h1>KPIs narrativos — variaciones</h1>
+<p class="subtitle">Los datos viven dentro del texto como chips. Minimalista pero con ritmo visual.</p>
+
+<div class="grid">
+
+  <!-- ═══════════════════════════════════════
+       N1 — Narrativa fluida, chips sutiles
+  ═══════════════════════════════════════ -->
+  <div class="opt-wrap" onclick="sel(this,'n1')">
+    <div class="sel-badge">✓</div>
+    <div class="opt-tag">
+      <div class="opt-letter">1</div>
+      <div class="opt-title">Narrativa fluida</div>
+    </div>
+    <p class="opt-desc">Los stats son una oración. Los números quedan resaltados con chips de color según su naturaleza. Lectura natural, ritmo visual dado por los colores.</p>
+    <div class="screen">
+
+      <!-- Greeting -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;color:var(--dark);letter-spacing:-0.02em;margin-bottom:4px">
+          Buenas tardes, <span style="font-style:italic;font-weight:400">José</span>.
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:5px;font-size:9px;color:var(--text3)">
+          <div class="active-dot"></div> Asistente activo · lun 14 abr
+        </div>
+      </div>
+
+      <!-- Narrative KPI block -->
+      <div style="font-size:15px;line-height:1.8;color:var(--text);margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(27,45,59,0.07)">
+        Hoy tenés
+        <span class="chip chip-blue"><span class="chip-val">7</span><span class="chip-unit">turnos</span></span>,
+        de los cuales
+        <span class="chip chip-green"><span class="chip-val">5</span><span class="chip-unit">confirmados</span></span>
+        y
+        <span class="chip chip-teal"><span class="chip-val">3</span><span class="chip-unit">vacantes</span></span>.
+        Facturación proyectada:
+        <span class="chip chip-green"><span class="chip-val">$12.000</span></span>.
+      </div>
+
+      <!-- Próximo turno -->
+      <div style="margin-bottom:10px">
+        <div class="label" style="margin-bottom:5px">Próximo turno</div>
+        <div style="font-size:36px;font-weight:700;letter-spacing:-0.05em;color:var(--dark);line-height:1;margin-bottom:6px">14:30</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar avatar-ag" style="width:24px;height:24px;font-size:9px">AG</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--dark)">María García</div>
+            <div style="font-size:10px;color:var(--text2)">Coloración · 120 min · Ana G.</div>
+          </div>
+          <div class="pill pill-confirmed" style="margin-left:auto">conf.</div>
+        </div>
+      </div>
+
+      <!-- Agenda glass -->
+      <div class="glass-card" style="overflow:hidden;margin-bottom:8px">
+        <div style="padding:4px 0">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">15:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Laura M.</span>
+            <div class="avatar avatar-lh" style="width:14px;height:14px;font-size:6px">LH</div>
+            <div class="pill pill-pending">pend.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">17:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Juan P.</span>
+            <div class="avatar avatar-jp" style="width:14px;height:14px;font-size:6px">JP</div>
+            <div class="pill pill-confirmed">conf.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <div class="slot-btn">09:00</div><div class="slot-btn">13:00</div><div class="slot-btn" style="color:var(--text3);border-color:var(--border)">+3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       N2 — Chips grandes con iconografía, dos líneas
+  ═══════════════════════════════════════ -->
+  <div class="opt-wrap" onclick="sel(this,'n2')">
+    <div class="sel-badge">✓</div>
+    <div class="opt-tag">
+      <div class="opt-letter" style="background:#8B5CF6">2</div>
+      <div class="opt-title">Chips prominentes</div>
+    </div>
+    <p class="opt-desc">Los chips son más grandes y tienen más presencia. Se alinean en dos "renglones" de texto con distintos tamaños, generando jerarquía interna.</p>
+    <div class="screen">
+
+      <!-- Greeting -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;color:var(--dark);letter-spacing:-0.02em;margin-bottom:4px">
+          Buenas tardes, <span style="font-style:italic;font-weight:400">José</span>.
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:5px;font-size:9px;color:var(--text3)">
+          <div class="active-dot"></div> Asistente activo · lun 14 abr
+        </div>
+      </div>
+
+      <!-- Narrative con chips más grandes -->
+      <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(27,45,59,0.07)">
+        <!-- línea 1: los grandes -->
+        <div style="font-size:16px;line-height:2;color:var(--text2);margin-bottom:0">
+          Hoy tenés
+          <span class="chip chip-blue" style="font-size:16px;padding:2px 9px 3px;border-radius:8px">
+            <span class="chip-val" style="font-size:20px">7</span><span class="chip-unit" style="font-size:11px"> turnos</span>
+          </span>
+          con
+          <span class="chip chip-teal" style="font-size:16px;padding:2px 9px 3px;border-radius:8px">
+            <span class="chip-val" style="font-size:20px">3</span><span class="chip-unit" style="font-size:11px"> vacantes</span>
+          </span>.
+        </div>
+        <!-- línea 2: los secundarios -->
+        <div style="font-size:13px;line-height:1.9;color:var(--text3)">
+          <span class="chip chip-green" style="font-size:13px;padding:1px 7px 2px">
+            <span class="chip-val">5</span><span class="chip-unit"> conf.</span>
+          </span>
+          ·
+          <span class="chip chip-amber" style="font-size:13px;padding:1px 7px 2px">
+            <span class="chip-val">2</span><span class="chip-unit"> pend.</span>
+          </span>
+          · facturación estimada
+          <span class="chip chip-green" style="font-size:13px;padding:1px 7px 2px">
+            <span class="chip-val">$12.000</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Próximo turno -->
+      <div style="margin-bottom:10px">
+        <div class="label" style="margin-bottom:5px">Próximo turno</div>
+        <div style="font-size:38px;font-weight:700;letter-spacing:-0.05em;color:var(--dark);line-height:1;margin-bottom:6px">14:30</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar avatar-ag" style="width:24px;height:24px;font-size:9px">AG</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--dark)">María García</div>
+            <div style="font-size:10px;color:var(--text2)">Coloración · 120 min</div>
+          </div>
+          <div class="pill pill-confirmed" style="margin-left:auto">conf.</div>
+        </div>
+      </div>
+
+      <!-- Agenda glass -->
+      <div class="glass-card" style="overflow:hidden;margin-bottom:8px">
+        <div style="padding:4px 0">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">15:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Laura M.</span>
+            <div class="avatar avatar-lh" style="width:14px;height:14px;font-size:6px">LH</div>
+            <div class="pill pill-pending">pend.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">17:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Juan P.</span>
+            <div class="avatar avatar-jp" style="width:14px;height:14px;font-size:6px">JP</div>
+            <div class="pill pill-confirmed">conf.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <div class="slot-btn">09:00</div><div class="slot-btn">13:00</div><div class="slot-btn" style="color:var(--text3);border-color:var(--border)">+3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       N3 — Narrativa + gran número destacado
+  ═══════════════════════════════════════ -->
+  <div class="opt-wrap" onclick="sel(this,'n3')">
+    <div class="sel-badge">✓</div>
+    <div class="opt-tag">
+      <div class="opt-letter" style="background:#E8601A">3</div>
+      <div class="opt-title">Narrativa + gran número</div>
+    </div>
+    <p class="opt-desc">El número de turnos es el protagonista visual (editorial grande). Los demás datos quedan como chips en el texto secundario abajo. Jerarquía clara.</p>
+    <div class="screen">
+
+      <!-- Greeting -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;color:var(--dark);letter-spacing:-0.02em;margin-bottom:4px">
+          Buenas tardes, <span style="font-style:italic;font-weight:400">José</span>.
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:5px;font-size:9px;color:var(--text3)">
+          <div class="active-dot"></div> Asistente activo · lun 14 abr
+        </div>
+      </div>
+
+      <!-- Hero stat: un gran número con contexto narrativo -->
+      <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(27,45,59,0.07)">
+        <div class="label" style="margin-bottom:4px">Turnos hoy</div>
+        <!-- El gran número -->
+        <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:8px">
+          <span style="font-size:56px;font-weight:700;letter-spacing:-0.06em;color:#3B82F6;line-height:1">7</span>
+          <div style="padding-bottom:6px">
+            <div style="font-size:11px;color:var(--text2);line-height:1.4">de <span style="font-weight:600;color:var(--dark)">10</span> posibles</div>
+            <div style="height:3px;border-radius:99px;background:rgba(27,45,59,0.08);width:60px;margin-top:4px;overflow:hidden">
+              <div style="height:100%;width:70%;background:#3B82F6;border-radius:99px"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Segunda línea: chips narrativos para los demás datos -->
+        <div style="font-size:13px;line-height:1.8;color:var(--text2)">
+          <span class="chip chip-green"><span class="chip-val">5</span><span class="chip-unit"> confirmados</span></span>
+          ·
+          <span class="chip chip-amber"><span class="chip-val">2</span><span class="chip-unit"> pendientes</span></span>
+          ·
+          <span class="chip chip-teal"><span class="chip-val">3</span><span class="chip-unit"> vacantes</span></span>
+          · estimado
+          <span class="chip chip-green"><span class="chip-val">$12k</span></span>
+        </div>
+      </div>
+
+      <!-- Próximo turno -->
+      <div style="margin-bottom:10px">
+        <div class="label" style="margin-bottom:5px">Próximo turno</div>
+        <div style="font-size:38px;font-weight:700;letter-spacing:-0.05em;color:var(--dark);line-height:1;margin-bottom:6px">14:30</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar avatar-ag" style="width:24px;height:24px;font-size:9px">AG</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--dark)">María García</div>
+            <div style="font-size:10px;color:var(--text2)">Coloración · 120 min · Ana G.</div>
+          </div>
+          <div class="pill pill-confirmed" style="margin-left:auto">conf.</div>
+        </div>
+      </div>
+
+      <!-- Agenda glass -->
+      <div class="glass-card" style="overflow:hidden;margin-bottom:8px">
+        <div style="padding:4px 0">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">15:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Laura M.</span>
+            <div class="avatar avatar-lh" style="width:14px;height:14px;font-size:6px">LH</div>
+            <div class="pill pill-pending">pend.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 10px">
+            <span style="font-size:10px;font-weight:700;color:var(--teal);width:32px">17:00</span>
+            <span style="font-size:10px;flex:1;color:var(--text)">Juan P.</span>
+            <div class="avatar avatar-jp" style="width:14px;height:14px;font-size:6px">JP</div>
+            <div class="pill pill-confirmed">conf.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <div class="slot-btn">09:00</div><div class="slot-btn">13:00</div><div class="slot-btn" style="color:var(--text3);border-color:var(--border)">+3</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function sel(el, choice) {
+  document.querySelectorAll('.opt-wrap').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  if (window.__brainstorm_select) window.__brainstorm_select(choice, el.querySelector('.opt-title')?.textContent);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InicioScreen — Layout Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: #f0f4f7;
+    color: #243542;
+    padding: 32px 24px 64px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1B2D3B;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #5E7A8A;
+    margin-bottom: 32px;
+  }
+
+  /* ── Palette ── */
+  :root {
+    --teal: #5B8FA6;
+    --teal2: #6FA4BC;
+    --teal3: #99C3D6;
+    --teal-pale: rgba(91,143,166,0.07);
+    --teal-light: rgba(91,143,166,0.10);
+    --teal-mid: rgba(91,143,166,0.18);
+    --dark: #1B2D3B;
+    --text: #243542;
+    --text2: #5E7A8A;
+    --text3: #8FA4AE;
+    --border: rgba(27,45,59,0.08);
+    --bg: #f6f8fa;
+  }
+
+  /* ── Layout comparison grid ── */
+  .layouts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .layout-option {
+    cursor: pointer;
+    border-radius: 18px;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: visible;
+  }
+  .layout-option:hover { transform: translateY(-2px); }
+  .layout-option.selected {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 4px rgba(91,143,166,0.15);
+  }
+
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .option-letter {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option-letter.b { background: #8B5CF6; }
+  .option-letter.c { background: #10B981; }
+  .option-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .option-desc {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* ── Glassy border technique (from reference) ── */
+  .glassy-border {
+    position: relative;
+    border-radius: 16px;
+    padding: 2px; /* the "border" thickness */
+    background: linear-gradient(135deg,
+      rgba(91,143,166,0.55) 0%,
+      rgba(153,195,214,0.15) 50%,
+      rgba(91,143,166,0.40) 100%
+    );
+  }
+  .glassy-border::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 22px;
+    background: radial-gradient(ellipse 80% 60% at 15% 10%, rgba(91,143,166,0.22) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 50% at 85% 85%, rgba(91,143,166,0.15) 0%, transparent 60%);
+    z-index: -1;
+    filter: blur(6px);
+  }
+  .glassy-inner {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(16px);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  /* ── Glass card (standard) ── */
+  .glass-card {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(27,45,59,0.08);
+    border-radius: 14px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(27,45,59,0.06);
+  }
+
+  /* ── Mockup screen wrapper ── */
+  .screen {
+    background: #f6f8fa;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(27,45,59,0.06);
+    overflow: hidden;
+  }
+
+  /* ── Reusable micro-components ── */
+  .kpi-num { font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 4px; }
+  .kpi-sub { font-size: 10px; color: var(--text2); margin-top: 4px; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 500; }
+  .pill-confirmed { background: rgba(16,185,129,0.10); color: #059669; }
+  .pill-pending { background: rgba(245,158,11,0.10); color: #D97706; }
+  .avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; color: white; flex-shrink: 0; }
+  .avatar-jp { background: #C49580; }
+  .avatar-ag { background: #7FA8C4; }
+  .avatar-lh { background: #6BABA4; }
+  .time-chip { font-size: 11px; font-weight: 700; color: var(--teal); font-variant-numeric: tabular-nums; }
+  .greeting-text { font-size: 16px; font-weight: 700; color: var(--dark); letter-spacing: -0.02em; }
+  .greeting-name { font-style: italic; font-weight: 400; }
+  .active-badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 99px; background: rgba(91,143,166,0.08); border: 1px solid rgba(91,143,166,0.18); font-size: 9px; color: var(--text2); }
+  .active-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+  .divider { height: 1px; background: rgba(27,45,59,0.06); }
+  .tag { padding: 1px 6px; border-radius: 4px; font-size: 9px; color: var(--text3); background: rgba(27,45,59,0.04); }
+  .progress-bar { height: 3px; border-radius: 99px; background: rgba(27,45,59,0.08); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: var(--teal); width: 45%; }
+  .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 6px; }
+  .slot-btn { padding: 2px 7px; border-radius: 99px; font-size: 9px; color: var(--teal); background: rgba(255,255,255,0.72); border: 1px solid rgba(91,143,166,0.22); }
+
+  /* ── Option A: Hero Next Card ── */
+  .opt-a-hero {
+    padding: 12px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .opt-a-time { font-size: 32px; font-weight: 700; letter-spacing: -0.04em; color: var(--dark); line-height: 1; }
+
+  /* ── Option B: Bento Grid ── */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    grid-template-rows: auto auto;
+    gap: 6px;
+  }
+  .bento-span-2 { grid-row: span 2; }
+
+  /* ── Option C: Timeline strip ── */
+  .timeline-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .timeline-block {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 6px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(27,45,59,0.06);
+  }
+  .timeline-block.active {
+    background: rgba(91,143,166,0.10);
+    border-color: rgba(91,143,166,0.25);
+  }
+
+  /* ── Traits section ── */
+  .traits {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .trait-card {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(27,45,59,0.07);
+  }
+  .trait-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--dark); }
+  .trait-card p { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .trait-icon { font-size: 18px; margin-bottom: 8px; }
+  .badge-rec { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; background: rgba(91,143,166,0.12); color: var(--teal); margin-top: 6px; }
+
+  /* selection state */
+  .selected-check {
+    display: none;
+    position: absolute;
+    top: -8px; right: -8px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: white;
+    font-size: 12px;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .layout-option.selected .selected-check { display: flex; }
+</style>
+</head>
+<body>
+
+<h1>InicioScreen — Exploración de layouts</h1>
+<p class="subtitle">Tres enfoques distintos. Hacé click en el que más te atrae para seleccionarlo.</p>
+
+<div class="layouts">
+
+  <!-- ══════════════════════════════════════════
+       OPCIÓN A — Hero + KPIs compactos
+  ══════════════════════════════════════════ -->
+  <div class="layout-option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="selected-check">✓</div>
+    <div class="option-label">
+      <div class="option-letter">A</div>
+      <div class="option-title">Hero card protagonista</div>
+    </div>
+    <p class="option-desc">El próximo turno ocupa el rol principal con el borde glassy. Los KPIs se vuelven más compactos y horizontales debajo.</p>
+
+    <div class="screen">
+      <!-- Greeting -->
+      <div style="margin-bottom:10px">
+        <div class="greeting-text">Buenas tardes, <span class="greeting-name">José</span>.</div>
+        <div class="active-badge" style="margin-top:4px"><div class="active-dot"></div>Asistente activo</div>
+      </div>
+
+      <!-- HERO: Next appointment with glassy colored border -->
+      <div class="glassy-border" style="margin-bottom:10px">
+        <div class="glassy-inner">
+          <div class="opt-a-hero">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div>
+                <div class="section-label">Próximo turno</div>
+                <div class="opt-a-time">14:30</div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">hoy, lunes 13 de abril</div>
+              </div>
+              <div class="pill pill-confirmed">confirmado</div>
+            </div>
+            <div class="divider" style="margin:8px 0"></div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="avatar avatar-jp" style="width:28px;height:28px">JP</div>
+              <div>
+                <div style="font-size:12px;font-weight:500;color:var(--dark)">María García</div>
+                <div style="font-size:10px;color:var(--text2)">Coloración Completa · 120 min</div>
+              </div>
+              <div style="margin-left:auto;display:flex;gap:3px">
+                <div class="avatar avatar-jp" style="width:14px;height:14px;font-size:7px">JP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs compact row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+        <div class="glass-card" style="padding:8px">
+          <div class="kpi-label">Turnos</div>
+          <div class="kpi-num" style="color:#3B82F6">7</div>
+          <div class="kpi-sub">5 conf.</div>
+        </div>
+        <div class="glass-card" style="padding:8px">
+          <div class="kpi-label">Vacantes</div>
+          <div class="kpi-num" style="color:var(--teal)">3</div>
+          <div class="progress-bar" style="margin-top:4px"><div class="progress-fill"></div></div>
+        </div>
+        <div class="glass-card" style="padding:8px">
+          <div class="kpi-label">Factur.</div>
+          <div class="kpi-num" style="color:#10B981;font-size:18px">$12k</div>
+          <div class="kpi-sub">hoy</div>
+        </div>
+      </div>
+
+      <!-- Agenda mini-list -->
+      <div class="glass-card" style="overflow:hidden">
+        <div style="padding:6px 10px;border-bottom:1px solid var(--border)">
+          <div class="section-label" style="margin:0">Agenda de hoy</div>
+        </div>
+        <div style="padding:4px 0">
+          <div style="display:flex;align-items:center;gap:8px;padding:5px 10px;background:rgba(91,143,166,0.05)">
+            <div class="time-chip">14:30</div>
+            <div style="flex:1;font-size:10px;color:var(--text)">María García</div>
+            <div class="avatar avatar-ag" style="width:14px;height:14px;font-size:7px">AG</div>
+            <div class="pill pill-confirmed" style="font-size:9px;padding:1px 5px">conf.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:5px 10px">
+            <div class="time-chip">15:00</div>
+            <div style="flex:1;font-size:10px;color:var(--text)">Laura Martínez</div>
+            <div class="avatar avatar-lh" style="width:14px;height:14px;font-size:7px">LH</div>
+            <div class="pill pill-pending" style="font-size:9px;padding:1px 5px">pend.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       OPCIÓN B — Bento grid (RECOMENDADA)
+  ══════════════════════════════════════════ -->
+  <div class="layout-option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="selected-check" style="background:#8B5CF6">✓</div>
+    <div class="option-label">
+      <div class="option-letter b">B</div>
+      <div class="option-title">Bento grid</div>
+      <div class="badge-rec" style="font-size:9px;padding:1px 7px">★ recomendada</div>
+    </div>
+    <p class="option-desc">Grid tipo bento donde el próximo turno y la agenda conviven en columnas asimétricas. KPIs con más personalidad visual.</p>
+
+    <div class="screen">
+      <!-- Greeting compacto -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div class="greeting-text" style="font-size:14px">Buenas tardes, <span class="greeting-name">José</span>.</div>
+          <div class="active-badge" style="margin-top:3px"><div class="active-dot"></div>Asistente activo</div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);text-align:right">Lunes<br/>13 abr</div>
+      </div>
+
+      <!-- KPIs — con el teal card glassy en Vacantes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px">
+        <div class="glass-card" style="padding:8px">
+          <div class="kpi-label">Turnos hoy</div>
+          <div class="kpi-num" style="color:#3B82F6;font-size:22px">7</div>
+          <div class="kpi-sub">5 confirmados</div>
+        </div>
+        <!-- Vacantes con glassy border efecto -->
+        <div class="glassy-border" style="border-radius:14px">
+          <div class="glassy-inner" style="padding:8px;border-radius:13px">
+            <div class="kpi-label">Vacantes</div>
+            <div class="kpi-num" style="color:var(--teal);font-size:22px">3</div>
+            <div class="progress-bar" style="margin-top:4px"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+        <div class="glass-card" style="padding:8px">
+          <div class="kpi-label">Facturación</div>
+          <div class="kpi-num" style="color:#10B981;font-size:16px">$12.000</div>
+          <div class="kpi-sub">hoy</div>
+        </div>
+      </div>
+
+      <!-- Bento: próximo + agenda asimétricas -->
+      <div class="bento-grid">
+        <!-- Col izq: próximo turno (span 2 rows) -->
+        <div class="glassy-border bento-span-2" style="border-radius:14px">
+          <div class="glassy-inner" style="padding:10px;border-radius:13px;height:100%">
+            <div class="section-label">Próximo turno</div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-0.04em;color:var(--dark);line-height:1;margin-bottom:2px">14:30</div>
+            <div style="font-size:9px;color:var(--text2);margin-bottom:8px">hoy · lunes 13</div>
+            <div class="divider" style="margin-bottom:8px"></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <div class="avatar avatar-ag" style="width:24px;height:24px;font-size:8px">AG</div>
+              <div>
+                <div style="font-size:11px;font-weight:500;color:var(--dark)">María García</div>
+                <div style="font-size:9px;color:var(--text2)">Coloración · 120 min</div>
+              </div>
+            </div>
+            <div class="pill pill-confirmed" style="font-size:9px">confirmado</div>
+          </div>
+        </div>
+
+        <!-- Col der: siguientes turnos (compacto) -->
+        <div class="glass-card" style="padding:6px 8px">
+          <div class="section-label">Siguientes</div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <div style="display:flex;align-items:center;gap:5px">
+              <div class="time-chip" style="font-size:9px">15:00</div>
+              <div style="font-size:9px;flex:1;color:var(--text)" class="truncate">Laura M.</div>
+              <div class="avatar avatar-lh" style="width:12px;height:12px;font-size:6px">LH</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <div class="time-chip" style="font-size:9px">16:00</div>
+              <div style="font-size:9px;flex:1;color:var(--text)" class="truncate">Juan P.</div>
+              <div class="avatar avatar-jp" style="width:12px;height:12px;font-size:6px">JP</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col der: slots libres -->
+        <div class="glass-card" style="padding:6px 8px">
+          <div class="section-label">Slots libres</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px">
+            <div class="slot-btn">09:00</div>
+            <div class="slot-btn">10:00</div>
+            <div class="slot-btn">17:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       OPCIÓN C — Timeline horizontal + highlights
+  ══════════════════════════════════════════ -->
+  <div class="layout-option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="selected-check" style="background:#10B981">✓</div>
+    <div class="option-label">
+      <div class="option-letter c">C</div>
+      <div class="option-title">Timeline de día</div>
+    </div>
+    <p class="option-desc">Strip visual del día en el tope, con los turnos como bloques. KPIs y próximo turno debajo como apoyo. Muy orientado a "¿qué sigue?"</p>
+
+    <div class="screen">
+      <!-- Greeting -->
+      <div style="margin-bottom:8px">
+        <div class="greeting-text" style="font-size:13px">Buenas tardes, <span class="greeting-name">José</span>.</div>
+      </div>
+
+      <!-- Timeline strip -->
+      <div class="glass-card" style="padding:8px;margin-bottom:8px">
+        <div class="section-label">Hoy — 13 de abril</div>
+        <div class="timeline-strip">
+          <div class="timeline-block">
+            <div style="font-size:8px;color:var(--text3)">09:30</div>
+            <div style="font-size:8px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Juan P.</div>
+            <div class="avatar avatar-jp" style="width:10px;height:10px;font-size:5px;margin-top:2px">JP</div>
+          </div>
+          <div class="timeline-block">
+            <div style="font-size:8px;color:var(--text3)">10:00</div>
+            <div style="font-size:8px;color:var(--text2)">José R.</div>
+            <div class="avatar avatar-jp" style="width:10px;height:10px;font-size:5px;margin-top:2px">JP</div>
+          </div>
+          <div class="timeline-block">
+            <div style="font-size:8px;color:var(--text3)">11:00</div>
+            <div style="font-size:8px;color:var(--text2)">María G.</div>
+            <div class="avatar avatar-ag" style="width:10px;height:10px;font-size:5px;margin-top:2px">AG</div>
+          </div>
+          <!-- Now indicator -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 2px">
+            <div style="width:2px;height:24px;background:var(--teal);border-radius:1px;position:relative">
+              <div style="position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--teal)"></div>
+            </div>
+            <div style="font-size:7px;color:var(--teal);margin-top:1px">ahora</div>
+          </div>
+          <div class="timeline-block active">
+            <div style="font-size:8px;color:var(--teal);font-weight:600">14:30</div>
+            <div style="font-size:8px;color:var(--dark);font-weight:500">María G.</div>
+            <div class="avatar avatar-ag" style="width:10px;height:10px;font-size:5px;margin-top:2px">AG</div>
+          </div>
+          <div class="timeline-block">
+            <div style="font-size:8px;color:var(--text3)">15:00</div>
+            <div style="font-size:8px;color:var(--text2)">Laura M.</div>
+            <div class="avatar avatar-lh" style="width:10px;height:10px;font-size:5px;margin-top:2px">LH</div>
+          </div>
+          <div class="timeline-block">
+            <div style="font-size:8px;color:var(--text3)">17:00</div>
+            <div style="font-size:8px;color:var(--text2)">Sofía B.</div>
+            <div class="avatar avatar-ag" style="width:10px;height:10px;font-size:5px;margin-top:2px">AG</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximo turno highlight + KPIs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+        <div class="glassy-border" style="border-radius:14px">
+          <div class="glassy-inner" style="padding:8px;border-radius:13px">
+            <div class="section-label">Próximo</div>
+            <div style="font-size:22px;font-weight:700;letter-spacing:-0.03em;color:var(--dark);line-height:1">14:30</div>
+            <div style="font-size:9px;color:var(--text2);margin-top:2px">María García</div>
+            <div style="font-size:9px;color:var(--text3)">Coloración · 120 min</div>
+            <div class="pill pill-confirmed" style="font-size:9px;margin-top:4px">confirmado</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div class="glass-card" style="padding:6px 8px;flex:1">
+            <div class="kpi-label">Turnos hoy</div>
+            <div class="kpi-num" style="color:#3B82F6;font-size:20px">7</div>
+          </div>
+          <div class="glass-card" style="padding:6px 8px;flex:1">
+            <div class="kpi-label">Facturación</div>
+            <div style="font-size:14px;font-weight:700;color:#10B981">$12.000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slots libres -->
+      <div>
+        <div class="section-label">Slots libres hoy</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <div class="slot-btn">09:00</div>
+          <div class="slot-btn">10:00</div>
+          <div class="slot-btn">13:00</div>
+          <div class="slot-btn">17:00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Trait comparison ── -->
+<h2 style="font-size:15px;font-weight:600;color:var(--dark);margin-bottom:12px">¿Qué cambia en cada opción?</h2>
+<div class="traits">
+  <div class="trait-card">
+    <div class="trait-icon">🎯</div>
+    <h4>A — Hero card</h4>
+    <p>El próximo turno es lo más importante visualmente. Ideal si el dueño del salón pasa mucho tiempo ejecutando, no administrando. Menos datos de un vistazo.</p>
+  </div>
+  <div class="trait-card" style="border-color:rgba(91,143,166,0.25);background:rgba(91,143,166,0.03)">
+    <div class="trait-icon">⬛</div>
+    <h4>B — Bento grid</h4>
+    <p>Jerarquía clara con densidad de información controlada. El borde glassy destaca vacantes (dato accionable). Equilibrio entre visión general y detalle.</p>
+    <div class="badge-rec">★ recomendada</div>
+  </div>
+  <div class="trait-card">
+    <div class="trait-icon">⏱️</div>
+    <h4>C — Timeline</h4>
+    <p>Muy visual, muy orientado a "¿qué sigue?". Ideal para ver el flujo del día completo. Puede resultar complejo si el día tiene muchos turnos.</p>
+  </div>
+</div>
+
+<script>
+function toggleSelect(el) {
+  document.querySelectorAll('.layout-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  // record selection
+  if (window.__brainstorm_select) window.__brainstorm_select(el.dataset.choice, el.querySelector('.option-title')?.textContent);
+}
+</script>
+</body>
+</html>

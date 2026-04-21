@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Fallback Decision Tree · Serú</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --terracota:    #D97B4F;
+  --salvia:       #7A9E8A;
+  --rojo:         #C0392B;
+  --crema:        #FAF6F0;
+  --hueso:        #FFF9F4;
+  --oscuro:       #1C1712;
+  --gris:         #8C7B6E;
+  --borde:        #E8DDD4;
+  --terracota-10: rgba(217,123,79,.10);
+  --terracota-20: rgba(217,123,79,.20);
+  --salvia-10:    rgba(122,158,138,.10);
+  --salvia-20:    rgba(122,158,138,.20);
+  --rojo-10:      rgba(192,57,43,.10);
+  --oscuro-06:    rgba(28,23,18,.06);
+  --oscuro-10:    rgba(28,23,18,.10);
+  --oscuro-14:    rgba(28,23,18,.14);
+  --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px;
+  --shadow-sm: 0 2px 12px var(--oscuro-06);
+  --shadow-md: 0 4px 24px var(--oscuro-10);
+  --shadow-lg: 0 8px 40px var(--oscuro-14);
+  --display: 'Bricolage Grotesque', serif;
+  --body: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ─── RESET ──────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);background:var(--crema);color:var(--oscuro);line-height:1.65;font-size:16px;min-height:100vh;}
+
+/* ─── PROGRESS BAR ───────────────────────────────────── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--terracota);z-index:1000;width:0%;transition:width .1s linear;border-radius:0 2px 2px 0;}
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+/* ─── SIDEBAR ────────────────────────────────────────── */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--hueso);border-right:1px solid var(--borde);padding:36px 0 60px;display:flex;flex-direction:column;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--borde);border-radius:2px;}
+.sidebar-logo{padding:0 28px 28px;border-bottom:1px solid var(--borde);margin-bottom:16px;}
+.wordmark{font-family:var(--display);font-weight:800;font-size:24px;color:var(--oscuro);letter-spacing:-.04em;line-height:1;}
+.wordmark span{color:var(--terracota);}
+.sidebar-sub{font-size:10px;font-weight:600;color:var(--gris);letter-spacing:.1em;text-transform:uppercase;margin-top:5px;}
+.sidebar-section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gris);padding:16px 28px 8px;}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 28px;font-size:13px;font-weight:500;color:var(--gris);text-decoration:none;transition:all .2s;border-left:2px solid transparent;}
+.nav-link:hover{color:var(--oscuro);background:var(--terracota-10);}
+.nav-link.active{color:var(--terracota);border-left-color:var(--terracota);background:var(--terracota-10);font-weight:600;}
+.nav-link .nav-num{font-size:10px;font-weight:700;color:var(--borde);font-family:var(--display);min-width:16px;}
+.nav-link.active .nav-num{color:var(--terracota);}
+.sidebar-levels{margin:20px 28px 0;padding:16px;background:white;border-radius:var(--r-md);border:1px solid var(--borde);}
+.sidebar-levels-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);margin-bottom:10px;}
+.level-badge{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;margin-bottom:6px;}
+.level-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ─── MAIN ───────────────────────────────────────────── */
+.main{background:var(--crema);}
+
+/* ─── HERO ───────────────────────────────────────────── */
+.hero{background:var(--oscuro);position:relative;overflow:hidden;padding:80px 72px 72px;}
+.hero-grain{position:absolute;inset:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;}
+.hero-glow{position:absolute;top:-40%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(217,123,79,.18) 0%,transparent 65%);pointer-events:none;}
+.hero-glow2{position:absolute;bottom:-30%;left:5%;width:400px;height:400px;background:radial-gradient(circle,rgba(122,158,138,.10) 0%,transparent 65%);pointer-events:none;}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:20px;}
+.hero-title{font-family:var(--display);font-weight:800;font-size:clamp(36px,4vw,52px);color:white;letter-spacing:-.035em;line-height:1.1;margin-bottom:16px;}
+.hero-title em{font-style:italic;color:var(--terracota);}
+.hero-subtitle{font-size:15px;color:rgba(255,255,255,.55);max-width:560px;line-height:1.7;margin-bottom:36px;}
+.hero-meta{display:flex;gap:24px;flex-wrap:wrap;}
+.hero-meta-item{font-size:12px;color:rgba(255,255,255,.4);font-weight:500;}
+.hero-meta-item strong{color:rgba(255,255,255,.7);font-weight:600;}
+.hero-tags{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap;}
+.hero-tag{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid;}
+.hero-tag.a{color:var(--salvia);border-color:rgba(122,158,138,.4);}
+.hero-tag.b{color:var(--terracota);border-color:rgba(217,123,79,.4);}
+.hero-tag.c{color:#E57373;border-color:rgba(192,57,43,.4);}
+
+/* ─── SECTIONS ───────────────────────────────────────── */
+.section{padding:64px 72px;border-bottom:1px solid var(--borde);}
+.section-eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--terracota);margin-bottom:14px;}
+.section-title{font-family:var(--display);font-weight:800;font-size:clamp(24px,3vw,34px);color:var(--oscuro);letter-spacing:-.03em;line-height:1.15;margin-bottom:10px;}
+.section-subtitle{font-size:15px;color:var(--gris);max-width:600px;line-height:1.7;margin-bottom:40px;}
+
+/* ─── REVEAL ─────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* ═══════════════════════════════════════════════════════
+   SECCIÓN 1 · ÁRBOL
+═══════════════════════════════════════════════════════ */
+.tree-container{position:relative;}
+.branch-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.branch-tab{padding:8px 18px;border-radius:99px;font-size:12px;font-weight:600;border:1.5px solid var(--borde);background:white;color:var(--gris);cursor:pointer;transition:all .2s;font-family:var(--body);}
+.branch-tab:hover{border-color:var(--terracota);color:var(--terracota);}
+.branch-tab.active{background:var(--oscuro);color:white;border-color:var(--oscuro);}
+.tree-toolbar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
+.tree-btn{padding:8px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:600;border:1.5px solid var(--borde);background:white;color:var(--oscuro);cursor:pointer;transition:all .2s;font-family:var(--body);display:flex;align-items:center;gap:6px;}
+.tree-btn:hover{border-color:var(--terracota);color:var(--terracota);}
+.tree-btn.danger{border-color:var(--borde);color:var(--gris);}
+.tree-btn.danger:hover{border-color:#C0392B;color:#C0392B;}
+.tree-canvas-wrap{background:white;border:1px solid var(--borde);border-radius:var(--r-lg);overflow:hidden;position:relative;box-shadow:var(--shadow-sm);}
+.tree-canvas-inner{width:100%;overflow:auto;}
+#tree-svg{display:block;cursor:grab;}
+#tree-svg:active{cursor:grabbing;}
+.tree-hint{position:absolute;bottom:14px;right:18px;font-size:11px;color:var(--gris);font-weight:500;display:flex;align-items:center;gap:6px;}
+
+/* Node panel */
+.node-panel{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:var(--hueso);border-left:1px solid var(--borde);z-index:200;transition:right .3s ease;overflow-y:auto;padding:32px 28px;display:flex;flex-direction:column;gap:20px;}
+.node-panel.open{right:0;}
+.node-panel-close{position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--borde);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gris);transition:all .2s;}
+.node-panel-close:hover{border-color:var(--oscuro);color:var(--oscuro);}
+.node-panel-level{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.node-panel-title{font-family:var(--display);font-weight:700;font-size:20px;color:var(--oscuro);letter-spacing:-.02em;line-height:1.2;}
+.node-panel-block{background:white;border:1px solid var(--borde);border-radius:var(--r-md);padding:16px 18px;}
+.node-panel-block-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gris);margin-bottom:8px;}
+.node-panel-block-text{font-size:13.5px;color:var(--oscuro);line-height:1.65;}
+.bot-message-preview{background:var(--crema);border:1px solid var(--borde);border-radius:16px 16px 16px 4px;padding:12px 16px;font-size:13px;color:var(--oscuro);line-height:1.6;font-style:italic;}
+.responsible-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:var(--terracota-10);color:var(--terracota);font-size:12px;font-weight:600;}
+
+/* ═══════════════════════════════════════════════════════
+   SECCIÓN 2 · CONFIGURACIÓN
+═══════════════════════════════════════════════════════ */
+.config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.config-card{background:white;border:1.5px solid var(--borde);border-radius:var(--r-lg);padding:24px 26px;transition:border-color .3s;}
+.config-card.highlighted{border-color:var(--terracota);animation:pulse-border 1.2s ease-in-out 2;}
+@keyframes pulse-border{0%,100%{border-color:var(--terracota);}50%{border-color:var(--terracota-10);}}
+.config-card-label{font-size:12px;font-weight:700;color:var(--gris);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+.config-card-desc{font-size:13px;color:var(--gris);line-height:1.5;margin-bottom:16px;}
+.config-card-affects{font-size:11px;color:var(--terracota);font-weight:600;margin-top:12px;}
+
+/* Toggle */
+.toggle-wrap{display:flex;align-items:center;gap:12px;}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--borde);border-radius:12px;transition:.3s;}
+.toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle input:checked + .toggle-slider{background:var(--salvia);}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px);}
+.toggle-label{font-size:14px;font-weight:600;color:var(--oscuro);}
+
+/* Slider */
+.slider-control{display:flex;flex-direction:column;gap:8px;}
+.slider-control input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--borde);outline:none;cursor:pointer;}
+.slider-control input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--terracota);cursor:pointer;box-shadow:0 2px 6px rgba(217,123,79,.4);}
+.slider-value{font-family:var(--display);font-size:28px;font-weight:800;color:var(--oscuro);letter-spacing:-.03em;}
+.slider-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--gris);font-weight:500;}
+
+/* Time input */
+.time-row{display:flex;gap:12px;align-items:center;}
+.time-input{border:1.5px solid var(--borde);border-radius:var(--r-sm);padding:8px 12px;font-size:14px;font-weight:600;color:var(--oscuro);font-family:var(--body);background:var(--crema);outline:none;transition:border-color .2s;width:110px;}
+.time-input:focus{border-color:var(--terracota);}
+.time-separator{font-size:12px;color:var(--gris);font-weight:600;}
+
+/* Select */
+.custom-select{border:1.5px solid var(--borde);border-radius:var(--r-sm);padding:8px 14px;font-size:14px;font-weight:500;color:var(--oscuro);font-family:var(--body);background:var(--crema);outline:none;cursor:pointer;transition:border-color .2s;}
+.custom-select:focus{border-color:var(--terracota);}
+
+/* ═══════════════════════════════════════════════════════
+   SECCIÓN 3 · TABLA
+═══════════════════════════════════════════════════════ */
+.table-controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;align-items:center;}
+.filter-btn{padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1.5px solid var(--borde);background:white;color:var(--gris);cursor:pointer;transition:all .2s;font-family:var(--body);}
+.filter-btn:hover{border-color:var(--oscuro);color:var(--oscuro);}
+.filter-btn.active{background:var(--oscuro);color:white;border-color:var(--oscuro);}
+.search-input{flex:1;min-width:200px;border:1.5px solid var(--borde);border-radius:var(--r-md);padding:9px 16px;font-size:13px;font-family:var(--body);color:var(--oscuro);outline:none;background:white;transition:border-color .2s;}
+.search-input:focus{border-color:var(--terracota);}
+.results-count{font-size:12px;color:var(--gris);font-weight:500;margin-left:auto;}
+.level-filter-wrap{display:flex;gap:8px;}
+.level-filter{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;border:1.5px solid;cursor:pointer;transition:all .2s;font-family:var(--body);}
+.level-filter.la{border-color:rgba(122,158,138,.4);color:var(--salvia);}
+.level-filter.la.active,.level-filter.la:hover{background:var(--salvia);color:white;}
+.level-filter.lb{border-color:rgba(217,123,79,.4);color:var(--terracota);}
+.level-filter.lb.active,.level-filter.lb:hover{background:var(--terracota);color:white;}
+.level-filter.lc{border-color:rgba(192,57,43,.4);color:var(--rojo);}
+.level-filter.lc.active,.level-filter.lc:hover{background:var(--rojo);color:white;}
+
+.cases-table{width:100%;border-collapse:collapse;background:white;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--borde);box-shadow:var(--shadow-sm);}
+.cases-table th{padding:13px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);background:var(--hueso);border-bottom:1px solid var(--borde);}
+.cases-table td{padding:13px 16px;font-size:13px;color:var(--oscuro);border-bottom:1px solid var(--borde);vertical-align:top;}
+.cases-table tr:last-child td{border-bottom:none;}
+.cases-table tbody tr{cursor:pointer;transition:background .15s;}
+.cases-table tbody tr:hover{background:var(--crema);}
+.cases-table tbody tr.expanded{background:var(--terracota-10);}
+.case-id{font-family:var(--display);font-weight:700;font-size:12px;color:var(--gris);}
+.case-type-badge{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;background:var(--oscuro-06);color:var(--gris);}
+.level-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+.level-pill.A{background:var(--salvia-10);color:var(--salvia);}
+.level-pill.B{background:var(--terracota-10);color:var(--terracota);}
+.level-pill.C{background:var(--rojo-10);color:var(--rojo);}
+.case-expand-row{display:none;}
+.case-expand-row.visible{display:table-row;}
+.case-expand-cell{padding:0 16px 18px!important;background:var(--crema);}
+.case-expand-inner{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:4px;}
+.case-detail-block{background:white;border:1px solid var(--borde);border-radius:var(--r-md);padding:14px 16px;}
+.case-detail-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris);margin-bottom:6px;}
+.case-detail-text{font-size:12.5px;color:var(--oscuro);line-height:1.6;}
+.case-bot-msg{background:var(--crema);border-radius:12px 12px 12px 3px;padding:10px 14px;font-size:12px;font-style:italic;color:var(--oscuro);line-height:1.55;border:1px solid var(--borde);}
+
+/* ═══════════════════════════════════════════════════════
+   SECCIÓN 4 · MENSAJES
+═══════════════════════════════════════════════════════ */
+.messages-levels{display:flex;flex-direction:column;gap:36px;}
+.msg-level-section{}
+.msg-level-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.msg-level-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.msg-level-title{font-family:var(--display);font-weight:700;font-size:18px;color:var(--oscuro);letter-spacing:-.02em;}
+.msg-level-desc{font-size:13px;color:var(--gris);}
+.messages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.msg-card{background:white;border:1px solid var(--borde);border-radius:var(--r-lg);padding:20px;position:relative;}
+.wa-bubble{background:var(--crema);border-radius:16px 16px 16px 4px;padding:12px 16px;font-size:13.5px;color:var(--oscuro);line-height:1.65;font-style:italic;border:1px solid var(--borde);min-height:60px;outline:none;}
+.wa-bubble:focus{border-color:var(--terracota);background:white;}
+.wa-bubble[contenteditable=true]:focus::before{content:'Editando...';position:absolute;top:-22px;left:0;font-size:10px;color:var(--terracota);font-weight:600;font-style:normal;}
+.msg-card-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
+.msg-action-btn{padding:5px 12px;border-radius:var(--r-sm);font-size:11px;font-weight:600;border:1px solid var(--borde);background:white;color:var(--gris);cursor:pointer;transition:all .2s;font-family:var(--body);}
+.msg-action-btn:hover{border-color:var(--oscuro);color:var(--oscuro);}
+.msg-hint{font-size:10px;color:var(--gris);margin-top:6px;font-weight:500;}
+.wa-tick{color:var(--salvia);font-size:11px;margin-top:4px;text-align:right;}
+
+/* ═══════════════════════════════════════════════════════
+   SECCIÓN 5 · PROTOCOLO
+═══════════════════════════════════════════════════════ */
+.protocol-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-bottom:40px;}
+.protocol-flow::before{content:'';position:absolute;top:40px;left:calc(12.5%);right:calc(12.5%);height:2px;background:linear-gradient(90deg,var(--salvia),var(--terracota));z-index:0;}
+.protocol-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 16px;position:relative;z-index:1;}
+.protocol-num{width:80px;height:80px;border-radius:50%;background:white;border:2px solid var(--borde);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-family:var(--display);font-weight:800;font-size:24px;color:var(--oscuro);box-shadow:var(--shadow-sm);transition:all .3s;}
+.protocol-step:hover .protocol-num{border-color:var(--terracota);color:var(--terracota);box-shadow:var(--shadow-md);}
+.protocol-owner{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--terracota);margin-bottom:6px;}
+.protocol-step-title{font-family:var(--display);font-weight:700;font-size:15px;color:var(--oscuro);margin-bottom:6px;letter-spacing:-.01em;}
+.protocol-step-text{font-size:12.5px;color:var(--gris);line-height:1.6;}
+.cadencia-card{background:white;border:1.5px solid var(--borde);border-radius:var(--r-lg);padding:28px 32px;display:flex;align-items:center;gap:24px;}
+.cadencia-icon{font-size:32px;}
+.cadencia-title{font-family:var(--display);font-weight:700;font-size:18px;color:var(--oscuro);letter-spacing:-.02em;margin-bottom:4px;}
+.cadencia-text{font-size:13.5px;color:var(--gris);line-height:1.6;}
+
+/* Footer */
+.footer{padding:40px 72px;border-top:1px solid var(--borde);display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;}
+.footer-brand{font-family:var(--display);font-weight:800;font-size:18px;color:var(--oscuro);letter-spacing:-.03em;}
+.footer-brand span{color:var(--terracota);}
+.footer-meta{font-size:12px;color:var(--gris);}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- NODE PANEL -->
+<div class="node-panel" id="node-panel">
+  <button class="node-panel-close" onclick="closePanel()">✕</button>
+  <div id="panel-level-badge"></div>
+  <div class="node-panel-title" id="panel-title"></div>
+  <div class="node-panel-block">
+    <div class="node-panel-block-label">Situación</div>
+    <div class="node-panel-block-text" id="panel-desc"></div>
+  </div>
+  <div class="node-panel-block">
+    <div class="node-panel-block-label">Mensaje del bot</div>
+    <div class="bot-message-preview" id="panel-msg"></div>
+  </div>
+  <div class="node-panel-block">
+    <div class="node-panel-block-label">Acción del sistema</div>
+    <div class="node-panel-block-text" id="panel-action"></div>
+  </div>
+  <div class="node-panel-block">
+    <div class="node-panel-block-label">Responsable</div>
+    <div id="panel-responsible"></div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wordmark">Serú<span>.</span></div>
+      <div class="sidebar-sub">Fallback Decision Tree</div>
+    </div>
+
+    <div class="sidebar-section-label">Secciones</div>
+    <a href="#hero" class="nav-link active"><span class="nav-num">00</span> Inicio</a>
+    <a href="#sec-tree" class="nav-link"><span class="nav-num">01</span> Árbol de decisión</a>
+    <a href="#sec-config" class="nav-link"><span class="nav-num">02</span> Configuración</a>
+    <a href="#sec-catalog" class="nav-link"><span class="nav-num">03</span> Catálogo de casos</a>
+    <a href="#sec-messages" class="nav-link"><span class="nav-num">04</span> Mensajes del bot</a>
+    <a href="#sec-protocol" class="nav-link"><span class="nav-num">05</span> Mejora continua</a>
+
+    <div class="sidebar-levels">
+      <div class="sidebar-levels-title">Niveles de fallback</div>
+      <div class="level-badge"><div class="level-dot" style="background:var(--salvia)"></div>Nivel A — Resuelve solo</div>
+      <div class="level-badge"><div class="level-dot" style="background:var(--terracota)"></div>Nivel B — Notificación</div>
+      <div class="level-badge"><div class="level-dot" style="background:var(--rojo)"></div>Nivel C — Transferencia</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══ HERO ════════════════════════════════════════════ -->
+    <section class="hero" id="hero">
+      <div class="hero-grain"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-glow2"></div>
+      <div class="hero-eyebrow">Serú · Producto · Versión 1.0</div>
+      <h1 class="hero-title">Fallback Decision Tree<br><em>Serú</em></h1>
+      <p class="hero-subtitle">Qué hace el bot cuando el flujo se rompe. El árbol de decisión oficial que define cuándo el asistente resuelve solo, notifica al dueño silenciosamente, o pausa y transfiere en tiempo real.</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item"><strong>Owner:</strong> Fede (Product)</div>
+        <div class="hero-meta-item"><strong>Supervisión:</strong> Seba (COO)</div>
+        <div class="hero-meta-item"><strong>Implementación:</strong> Tomi</div>
+        <div class="hero-meta-item"><strong>Reportes:</strong> Guido</div>
+        <div class="hero-meta-item"><strong>Contexto:</strong> G17 Bootcamp · Rosario, Abril 2026</div>
+      </div>
+      <div class="hero-tags">
+        <div class="hero-tag a">● Nivel A: Bot resuelve</div>
+        <div class="hero-tag b">● Nivel B: Notificación silenciosa</div>
+        <div class="hero-tag c">● Nivel C: Transferencia real</div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 1 · ÁRBOL ═══════════════════════════════ -->
+    <section class="section" id="sec-tree">
+      <div class="section-eyebrow reveal">01 · Árbol de decisión</div>
+      <h2 class="section-title reveal">El flujo completo de fallback</h2>
+      <p class="section-subtitle reveal">Hacé click en cualquier nodo para ver el detalle. Doble click en el texto para editar. Navegá por ramas con los filtros de abajo.</p>
+
+      <div class="tree-container reveal in">
+        <div class="branch-tabs">
+          <button class="branch-tab active" onclick="switchBranch('all')">Todas las ramas</button>
+          <button class="branch-tab" onclick="switchBranch('info')">🔍 Información faltante</button>
+          <button class="branch-tab" onclick="switchBranch('intent')">💬 Mensaje no entendido</button>
+          <button class="branch-tab" onclick="switchBranch('format')">📎 Formato no soportado</button>
+          <button class="branch-tab" onclick="switchBranch('human')">👤 Pide hablar con persona</button>
+          <button class="branch-tab" onclick="switchBranch('anger')">⚠️ Enojo o queja</button>
+          <button class="branch-tab" onclick="switchBranch('error')">🔴 Error técnico</button>
+        </div>
+
+        <div class="tree-toolbar">
+          <button class="tree-btn" onclick="resetZoom()">⊙ Centrar vista</button>
+          <button class="tree-btn" onclick="exportJSON()">↓ Exportar JSON</button>
+          <button class="tree-btn danger" onclick="resetTree()">↺ Resetear árbol</button>
+          <span style="font-size:11px;color:var(--gris);margin-left:auto;">Scroll para zoom · Arrastrar para mover · Click para detalle · Doble click para editar</span>
+        </div>
+
+        <div class="tree-canvas-wrap">
+          <div class="tree-canvas-inner" style="height:580px;">
+            <svg id="tree-svg" width="100%" height="580"></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 2 · CONFIGURACIÓN ══════════════════════ -->
+    <section class="section" id="sec-config">
+      <div class="section-eyebrow reveal">02 · Panel de configuración</div>
+      <h2 class="section-title reveal">Parámetros del sistema de fallback</h2>
+      <p class="section-subtitle reveal">Modificá cualquier parámetro y el nodo afectado en el árbol se resalta automáticamente. Sin código, sin técnicos.</p>
+
+      <div class="config-grid reveal">
+
+        <!-- Intentos -->
+        <div class="config-card" id="cfg-intentos">
+          <div class="config-card-label">Intentos antes de escalar</div>
+          <div class="config-card-desc">Cuántas veces el bot intenta entender el mensaje antes de ofrecer transferencia.</div>
+          <div class="slider-control">
+            <div class="slider-value" id="intentos-val">3</div>
+            <input type="range" min="1" max="3" value="3" oninput="updateIntentos(this.value)" id="intentos-slider"/>
+            <div class="slider-labels"><span>1 intento</span><span>2 intentos</span><span>3 intentos</span></div>
+          </div>
+          <div class="config-card-affects">Afecta: Rama "Mensaje no entendido"</div>
+        </div>
+
+        <!-- Horario -->
+        <div class="config-card" id="cfg-horario">
+          <div class="config-card-label">Horario de disponibilidad del dueño</div>
+          <div class="config-card-desc">Fuera de este rango, el bot informa que el profesional no está disponible pero lo contactará a la brevedad.</div>
+          <div class="time-row">
+            <input type="time" class="time-input" value="08:00" id="hora-inicio" onchange="highlightConfig('cfg-horario','human')"/>
+            <span class="time-separator">→</span>
+            <input type="time" class="time-input" value="20:00" id="hora-fin" onchange="highlightConfig('cfg-horario','human')"/>
+          </div>
+          <div class="config-card-affects">Afecta: Rama "Pide hablar con persona" (Fuera de horario)</div>
+        </div>
+
+        <!-- Tiempo máximo -->
+        <div class="config-card" id="cfg-tiempo">
+          <div class="config-card-label">Tiempo máximo de respuesta del dueño</div>
+          <div class="config-card-desc">Si el dueño no responde en este tiempo, el bot avisa al cliente y se mantiene en espera.</div>
+          <select class="custom-select" onchange="highlightConfig('cfg-tiempo','human')">
+            <option value="15">15 minutos</option>
+            <option value="30" selected>30 minutos (recomendado)</option>
+            <option value="60">1 hora</option>
+            <option value="120">2 horas</option>
+          </select>
+          <div class="config-card-affects">Afecta: Nodo "Sin respuesta del dueño"</div>
+        </div>
+
+        <!-- Identidad -->
+        <div class="config-card" id="cfg-identidad">
+          <div class="config-card-label">El bot se identifica si le preguntan</div>
+          <div class="config-card-desc">Cuando el cliente pregunta "¿sos un bot?", el asistente se presenta como "asistente digital" del negocio.</div>
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" checked onchange="highlightConfig('cfg-identidad','human')"/>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" id="identidad-label">Activado</span>
+          </div>
+          <div class="config-card-affects">Afecta: Caso H03 "¿Sos un bot?"</div>
+        </div>
+
+        <!-- Agresividad -->
+        <div class="config-card" id="cfg-agresividad">
+          <div class="config-card-label">Escalado por agresividad: intentar resolver primero</div>
+          <div class="config-card-desc">Antes de escalar al dueño, el bot intenta resolver el motivo del enojo si está dentro del scope del sistema.</div>
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" checked onchange="highlightConfig('cfg-agresividad','anger')"/>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" id="agresividad-label">Activado</span>
+          </div>
+          <div class="config-card-affects">Afecta: Rama "Enojo o queja"</div>
+        </div>
+
+        <!-- Nombre dueño -->
+        <div class="config-card" id="cfg-nombre">
+          <div class="config-card-label">Nombre del dueño / profesional</div>
+          <div class="config-card-desc">Aparece en los mensajes de transferencia. Ejemplo: "Ya le avisé a <strong id="nombre-preview">Rodrigo</strong>."</div>
+          <input type="text" class="time-input" style="width:100%;" value="Rodrigo" id="nombre-duenio" oninput="updateNombre(this.value)" placeholder="Nombre del dueño"/>
+          <div class="config-card-affects">Afecta: Todos los mensajes Nivel C</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 3 · CATÁLOGO ════════════════════════════ -->
+    <section class="section" id="sec-catalog">
+      <div class="section-eyebrow reveal">03 · Catálogo de casos borde</div>
+      <h2 class="section-title reveal">Todos los casos mapeados</h2>
+      <p class="section-subtitle reveal">Filtrá por tipo, por nivel o buscá texto libre. Hacé click en cualquier fila para ver el detalle completo.</p>
+
+      <div class="table-controls reveal">
+        <input type="text" class="search-input" placeholder="Buscar caso..." id="search-input" oninput="filterTable()"/>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="filter-btn active" data-type="all" onclick="setTypeFilter('all',this)">Todos</button>
+          <button class="filter-btn" data-type="F" onclick="setTypeFilter('F',this)">Información faltante</button>
+          <button class="filter-btn" data-type="M" onclick="setTypeFilter('M',this)">No entendido</button>
+          <button class="filter-btn" data-type="R" onclick="setTypeFilter('R',this)">Formato</button>
+          <button class="filter-btn" data-type="H" onclick="setTypeFilter('H',this)">Solicitud humano</button>
+          <button class="filter-btn" data-type="E" onclick="setTypeFilter('E',this)">Enojo/Queja</button>
+          <button class="filter-btn" data-type="T" onclick="setTypeFilter('T',this)">Error técnico</button>
+        </div>
+        <div class="level-filter-wrap">
+          <button class="level-filter la" data-level="A" onclick="setLevelFilter('A',this)">A</button>
+          <button class="level-filter lb" data-level="B" onclick="setLevelFilter('B',this)">B</button>
+          <button class="level-filter lc" data-level="C" onclick="setLevelFilter('C',this)">C</button>
+        </div>
+        <span class="results-count" id="results-count">25 casos</span>
+      </div>
+
+      <div class="reveal">
+        <table class="cases-table" id="cases-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Situación</th>
+              <th>Tipo</th>
+              <th>Nivel</th>
+              <th>Responsable</th>
+            </tr>
+          </thead>
+          <tbody id="cases-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 4 · MENSAJES ════════════════════════════ -->
+    <section class="section" id="sec-messages">
+      <div class="section-eyebrow reveal">04 · Biblioteca de mensajes</div>
+      <h2 class="section-title reveal">Mensajes exactos del bot</h2>
+      <p class="section-subtitle reveal">Doble click en cualquier burbuja para editarla inline. El botón "Copiar" copia el texto al portapapeles.</p>
+
+      <div class="messages-levels reveal">
+
+        <!-- Nivel A -->
+        <div class="msg-level-section">
+          <div class="msg-level-header">
+            <div class="msg-level-dot" style="background:var(--salvia)"></div>
+            <div>
+              <div class="msg-level-title">Nivel A — Cierre autónomo</div>
+              <div class="msg-level-desc">El cliente no sabe que el bot actuó de forma independiente.</div>
+            </div>
+          </div>
+          <div class="messages-grid" id="msgs-A"></div>
+        </div>
+
+        <!-- Nivel B -->
+        <div class="msg-level-section">
+          <div class="msg-level-header">
+            <div class="msg-level-dot" style="background:var(--terracota)"></div>
+            <div>
+              <div class="msg-level-title">Nivel B — Notificación silenciosa</div>
+              <div class="msg-level-desc">Igual al Nivel A de cara al cliente. El sistema notifica al dueño en segundo plano.</div>
+            </div>
+          </div>
+          <div class="messages-grid" id="msgs-B"></div>
+        </div>
+
+        <!-- Nivel C -->
+        <div class="msg-level-section">
+          <div class="msg-level-header">
+            <div class="msg-level-dot" style="background:var(--rojo)"></div>
+            <div>
+              <div class="msg-level-title">Nivel C — Transferencia en tiempo real</div>
+              <div class="msg-level-desc">El bot avisa al cliente y escala al dueño con alerta inmediata.</div>
+            </div>
+          </div>
+          <div class="messages-grid" id="msgs-C"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 5 · PROTOCOLO ═══════════════════════════ -->
+    <section class="section" id="sec-protocol">
+      <div class="section-eyebrow reveal">05 · Mejora continua</div>
+      <h2 class="section-title reveal">Protocolo para nuevos casos</h2>
+      <p class="section-subtitle reveal">El proceso para incorporar casos borde que aparezcan durante la beta. Cadencia semanal.</p>
+
+      <div class="protocol-flow reveal">
+        <div class="protocol-step">
+          <div class="protocol-num">1</div>
+          <div class="protocol-owner">Guido</div>
+          <div class="protocol-step-title">Detección</div>
+          <div class="protocol-step-text">Un caso nuevo aparece durante el onboarding o en conversaciones reales. Guido lo documenta: mensaje del cliente, respuesta actual del bot, respuesta esperada.</div>
+        </div>
+        <div class="protocol-step">
+          <div class="protocol-num">2</div>
+          <div class="protocol-owner">Seba</div>
+          <div class="protocol-step-title">Clasificación</div>
+          <div class="protocol-step-text">Seba revisa el reporte, asigna ID, tipo y nivel de fallback. Decide si es urgente (afecta conversiones) o puede esperar al siguiente ciclo.</div>
+        </div>
+        <div class="protocol-step">
+          <div class="protocol-num">3</div>
+          <div class="protocol-owner">Tomi</div>
+          <div class="protocol-step-title">Implementación</div>
+          <div class="protocol-step-text">Tomi actualiza el system prompt o la lógica del bot. Menos de 2 horas si es de prompt. Más tiempo si requiere cambio en lógica de sistema.</div>
+        </div>
+        <div class="protocol-step">
+          <div class="protocol-num">4</div>
+          <div class="protocol-owner">Fede</div>
+          <div class="protocol-step-title">Documentación</div>
+          <div class="protocol-step-text">El caso se agrega al catálogo de esta herramienta. Se actualiza el árbol si el caso genera una rama nueva.</div>
+        </div>
+      </div>
+
+      <div class="cadencia-card reveal">
+        <div class="cadencia-icon">📅</div>
+        <div>
+          <div class="cadencia-title">Cadencia de revisión</div>
+          <div class="cadencia-text">Revisión <strong>semanal</strong> durante la beta. El árbol se actualiza cada vez que se agrega o modifica un caso. Los cambios urgentes (Nivel C que afecta conversiones) se implementan en el día.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-brand">Serú<span>.</span></div>
+      <div class="footer-meta">Fallback Decision Tree v1.0 · G17 Bootcamp · Rosario, Argentina · Abril 2026</div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════════════ */
+
+const ORIGINAL_TREE = {
+  branches: {
+    all:    true,
+    info:   true,
+    intent: true,
+    format: true,
+    human:  true,
+    anger:  true,
+    error:  true
+  }
+};
+
+const CASES = [
+  {id:'F01',situation:'Cliente pregunta si aceptan pago con tarjeta (no configurado)',type:'F',typeLabel:'Información faltante',level:'B',msg:'Ese detalle te lo confirma [Dueño] directamente. ¿Querés que te deje la consulta para que te contacte?',action:'Bot responde con alternativa genérica. Sistema notifica al dueño para que complete la configuración de medios de pago.',responsible:'Dueño'},
+  {id:'F02',situation:'Cliente pregunta por precio de un servicio no cargado',type:'F',typeLabel:'Información faltante',level:'B',msg:'Los precios actualizados los tiene [Dueño]. Puedo pasarle tu consulta para que te responda a la brevedad.',action:'Bot ofrece alternativa. Sistema notifica al dueño para que cargue el precio faltante en el dashboard.',responsible:'Dueño'},
+  {id:'F03',situation:'Cliente pregunta por un profesional específico que no está en el sistema',type:'F',typeLabel:'Información faltante',level:'B',msg:'No tengo info de ese profesional en este momento. Le paso la consulta a [Dueño] para que te confirme.',action:'Notificación silenciosa al dueño. Se sugiere agregar el profesional al sistema.',responsible:'Dueño'},
+  {id:'F04',situation:'Cliente pregunta si tienen estacionamiento',type:'F',typeLabel:'Información faltante',level:'A',msg:'Ese detalle no lo tengo disponible por acá. Te recomiendo consultar directamente cuando confirmés el turno.',action:'Bot cierra autónomamente. No escala.',responsible:'Bot'},
+  {id:'F05',situation:'Cliente pregunta por descuentos o promociones no configuradas',type:'F',typeLabel:'Información faltante',level:'B',msg:'Las promociones vigentes las maneja [Dueño]. Le dejo tu consulta para que te cuente.',action:'Notificación al dueño para que agregue o comunique las promociones activas.',responsible:'Dueño'},
+  {id:'M01',situation:'Mensaje con errores ortográficos graves (intento 1)',type:'M',typeLabel:'Mensaje no entendido',level:'A',msg:'No te entendí bien. ¿Me lo podés escribir de otra forma?',action:'Bot pide reformulación. Primer intento.',responsible:'Bot'},
+  {id:'M02',situation:'Mensaje en otro idioma (portugués, inglés)',type:'M',typeLabel:'Mensaje no entendido',level:'A',msg:'Por acá atiendo en español. ¿Me podés escribir en español?',action:'Bot detecta idioma diferente y solicita español. No escala.',responsible:'Bot'},
+  {id:'M03',situation:'Mensaje demasiado largo y ambiguo',type:'M',typeLabel:'Mensaje no entendido',level:'A',msg:'Recibí tu mensaje pero no pude entender bien qué necesitás. ¿Me lo podés resumir en una sola pregunta?',action:'Bot solicita reformulación más clara.',responsible:'Bot'},
+  {id:'M04',situation:'Mensaje que mezcla varias solicitudes incompatibles',type:'M',typeLabel:'Mensaje no entendido',level:'A',msg:'Tengo varias consultas en el mensaje. ¿Empezamos por una? ¿Qué es lo más urgente?',action:'Bot prioriza y pide que el cliente enfoque la solicitud.',responsible:'Bot'},
+  {id:'M05',situation:'Respuesta de sí/no a pregunta que el bot no recuerda',type:'M',typeLabel:'Mensaje no entendido',level:'A',msg:'Perdón, perdí el hilo. ¿Me podés contar de qué se trata lo que querés hacer?',action:'Bot reconoce la pérdida de contexto y pide reinicio.',responsible:'Bot'},
+  {id:'R01',situation:'Audio de WhatsApp',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Por acá solo proceso texto. Si me escribís lo que necesitás, te ayudo enseguida.',action:'Bot informa limitación y solicita texto. No escala.',responsible:'Bot'},
+  {id:'R02',situation:'Imagen (foto del local, referencia de corte)',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Las imágenes no las puedo procesar por acá. Escribime lo que necesitás y te ayudo.',action:'Bot informa limitación. No escala.',responsible:'Bot'},
+  {id:'R03',situation:'Video',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Los videos no los proceso por acá. ¿Me escribís lo que necesitás?',action:'Bot informa limitación. No escala.',responsible:'Bot'},
+  {id:'R04',situation:'Sticker o GIF',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Solo proceso texto. ¿En qué te puedo ayudar?',action:'Bot ignora el formato y redirige a texto.',responsible:'Bot'},
+  {id:'R05',situation:'Ubicación compartida',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Recibí una ubicación pero no la puedo procesar. ¿En qué te puedo ayudar?',action:'Bot informa limitación. No escala.',responsible:'Bot'},
+  {id:'R06',situation:'Contacto compartido',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Recibí un contacto pero por acá solo proceso texto. ¿Qué necesitás?',action:'Bot informa limitación. No escala.',responsible:'Bot'},
+  {id:'R07',situation:'Documento PDF',type:'R',typeLabel:'Formato no soportado',level:'A',msg:'Los documentos no los proceso por acá. Escribime lo que necesitás.',action:'Bot informa limitación. No escala.',responsible:'Bot'},
+  {id:'H01',situation:'Cliente pide hablar con el dueño (dentro de horario)',type:'H',typeLabel:'Solicitud de humano',level:'C',msg:'Ya le avisé a [Dueño]. En cuanto pueda te escribe directamente. Gracias por la paciencia.',action:'Alerta inmediata al dueño. Bot pausa el flujo y espera respuesta del dueño.',responsible:'Dueño'},
+  {id:'H02',situation:'Cliente pide hablar con el dueño (fuera de horario)',type:'H',typeLabel:'Solicitud de humano',level:'B',msg:'En este momento [Dueño] no puede atender, pero mañana a partir de las [hora inicio] te va a escribir. Disculpá la demora.',action:'Notificación al dueño para que responda cuando pueda. Bot informa al cliente el horario de respuesta.',responsible:'Dueño'},
+  {id:'H03',situation:'Cliente pregunta "¿Sos un bot o una persona?"',type:'H',typeLabel:'Solicitud de humano',level:'A',msg:'Soy el asistente digital de [Negocio]. Puedo ayudarte con turnos, consultas y más. ¿En qué te puedo ayudar?',action:'Bot se identifica como asistente digital (no como bot ni como humano). No escala.',responsible:'Bot'},
+  {id:'H04',situation:'Cliente dice "Necesito hablar con alguien" (sin especificar)',type:'H',typeLabel:'Solicitud de humano',level:'C',msg:'Entendido. Ya le avisé a [Dueño] para que te contacte. ¿Hay algo urgente que pueda contarle?',action:'Transferencia al dueño. Bot intenta capturar contexto antes de cerrar.',responsible:'Dueño'},
+  {id:'E01',situation:'Cliente enojado porque no hay turnos disponibles',type:'E',typeLabel:'Enojo o queja',level:'C',msg:'Entiendo, no es lo ideal. Lamentablemente no tenemos disponibilidad en esa fecha. Puedo conectarte con [Dueño] para ver alguna alternativa.',action:'Bot intenta resolver mostrando alternativas de fecha. Si no hay solución, escala.',responsible:'Dueño'},
+  {id:'E02',situation:'Cliente enojado porque el local estaba cerrado',type:'E',typeLabel:'Enojo o queja',level:'C',msg:'Lamento mucho lo que pasó. Eso no debería haber ocurrido. Ya le avisé a [Dueño] para que lo contacte y lo resuelvan juntos.',action:'Escalado inmediato. Se registra incidente para análisis posterior.',responsible:'Dueño'},
+  {id:'E03',situation:'Cliente usa lenguaje agresivo o insultos',type:'E',typeLabel:'Enojo o queja',level:'C',msg:'Entiendo que estás frustrado. Quiero ayudarte a resolver esto. ¿Me contás qué pasó para que [Dueño] pueda contactarte?',action:'Bot mantiene tono calmado. Si persiste la agresividad, escala sin dudar.',responsible:'Dueño'},
+  {id:'E04',situation:'Cliente amenaza con dejar reseña negativa',type:'E',typeLabel:'Enojo o queja',level:'C',msg:'Entiendo tu molestia y quiero que quede resuelto. Ya le avisé a [Dueño] para que te contacte a la brevedad.',action:'Escalado inmediato. Se prioriza resolución rápida.',responsible:'Dueño'},
+  {id:'E05',situation:'Cliente dice que el bot le dio información incorrecta',type:'E',typeLabel:'Enojo o queja',level:'C',msg:'Gracias por avisarme. Puede que haya habido un error. Le paso esto a [Dueño] para que te confirme la información correcta.',action:'Escalado. Se registra error para corrección del sistema.',responsible:'Tomi + Dueño'},
+  {id:'T01',situation:'El calendario no devuelve disponibilidad (timeout)',type:'T',typeLabel:'Error técnico',level:'C',msg:'Hay un inconveniente técnico en este momento. El equipo ya fue notificado. Te escribimos en cuanto se resuelva.',action:'Alerta inmediata a Tomi (no al dueño). Bot no muestra datos erróneos.',responsible:'Tomi'},
+  {id:'T02',situation:'Turno confirmado pero no guardado en la base de datos',type:'T',typeLabel:'Error técnico',level:'C',msg:'Hubo un problema al guardar tu turno. Ya notificamos al equipo. Te confirmamos a la brevedad.',action:'Alerta a Tomi. Se intenta reenvío. Si falla, escalado al dueño también.',responsible:'Tomi'},
+  {id:'T03',situation:'Recordatorio automático no enviado',type:'T',typeLabel:'Error técnico',level:'C',msg:'(El cliente no recibe mensaje. El sistema alerta internamente.)',action:'Alerta silenciosa a Tomi. Se reintenta el envío del recordatorio.',responsible:'Tomi'},
+];
+
+const MESSAGES = {
+  A: [
+    {id:'mA1', text:'Ese detalle te lo confirma [Nombre dueño] directamente. Si querés, podés escribirle o consultar cuando pasés por el local.'},
+    {id:'mA2', text:'Por acá solo proceso texto. Si me escribís lo que necesitás, te ayudo enseguida.'},
+    {id:'mA3', text:'No tengo esa información disponible. ¿Te puedo ayudar con algo más?'},
+    {id:'mA4', text:'Soy el asistente digital de [Negocio]. Puedo ayudarte con turnos, consultas y más. ¿En qué te puedo ayudar?'},
+  ],
+  B: [
+    {id:'mB1', text:'Ese detalle te lo confirma [Nombre dueño] directamente. Le dejo tu consulta para que te contacte a la brevedad.'},
+    {id:'mB2', text:'En este momento [Nombre dueño] no puede atender, pero mañana a partir de las [hora inicio] te va a escribir. Disculpá la demora.'},
+    {id:'mB3', text:'Esa información no la tengo cargada. Le paso tu consulta a [Nombre dueño] para que te responda.'},
+  ],
+  C: [
+    {id:'mC1', text:'Ya le avisé a [Nombre dueño]. En cuanto pueda te escribe directamente. Gracias por la paciencia.'},
+    {id:'mC2', text:'Ahora mismo [Nombre dueño] no está disponible, pero ya queda anotado. Te va a contactar a la brevedad.'},
+    {id:'mC3', text:'Entiendo, a veces pasan estas cosas. Ya notifiqué a [Nombre dueño] para que te contacten y lo resuelvan juntos.'},
+    {id:'mC4', text:'Hay un inconveniente técnico en este momento. El equipo ya fue notificado. Te escribimos en cuanto se resuelva.'},
+    {id:'mC5', text:'Ya le informé al profesional, pero está tardando un poco en responder. Seguimos en contacto.'},
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   ÁRBOL D3
+══════════════════════════════════════════════════════════ */
+
+const COLOR_A = '#7A9E8A';
+const COLOR_B = '#D97B4F';
+const COLOR_C = '#C0392B';
+const COLOR_N = '#1C1712';
+
+function getNodeColor(level){
+  if(level==='A') return COLOR_A;
+  if(level==='B') return COLOR_B;
+  if(level==='C') return COLOR_C;
+  return '#8C7B6E';
+}
+
+// Tree data: branches with nodes
+const TREE_DATA = {
+  all: [
+    // ROOT
+    {id:'root',label:'El bot recibe\nun mensaje',x:0,y:0,level:null,type:'root',
+      detail:{title:'Entrada del sistema',desc:'Cualquier mensaje entrante en WhatsApp activa el árbol de decisión de fallback. El bot evalúa si puede responder normalmente antes de entrar en este flujo.',msg:'(Flujo normal de atención)',action:'El sistema evalúa el mensaje y determina si hay un caso de fallback.',responsible:'Bot (automático)'}},
+    // DEC: Entiende?
+    {id:'d-entiende',label:'¿El bot entiende\nel mensaje?',x:-3,y:1,level:null,type:'decision',
+      detail:{title:'¿Comprensión del mensaje?',desc:'El bot evalúa si puede interpretar correctamente la intención del cliente.',msg:'(Evaluación interna)',action:'Análisis semántico del mensaje entrante.',responsible:'Bot (automático)'}},
+    // DEC: Tiene info?
+    {id:'d-info',label:'¿Tiene la\ninformación?',x:0,y:1,level:null,type:'decision',
+      detail:{title:'¿Información disponible?',desc:'El bot verifica si la respuesta está en su base de conocimiento configurada.',msg:'(Verificación interna)',action:'Consulta a la base de datos del negocio.',responsible:'Bot (automático)'}},
+    // DEC: Formato
+    {id:'d-format',label:'¿Es formato\nno soportado?',x:3,y:1,level:null,type:'decision',
+      detail:{title:'Formato no soportado',desc:'Audio, imagen, video, sticker, documento.',msg:'(Detección automática de tipo de archivo)',action:'El sistema identifica el tipo de media y activa el fallback de formato.',responsible:'Bot (automático)'}},
+    // --- RAMA INFO ---
+    {id:'d-configurable',label:'¿Info configurable\nno cargada?',x:-1,y:2,level:null,type:'decision',
+      detail:{title:'¿Debería estar cargado?',desc:'El bot determina si la info faltante es algo que el dueño debería haber configurado (precios, servicios, horarios).',msg:'(Evaluación interna)',action:'Clasifica el tipo de información faltante.',responsible:'Bot (automático)'}},
+    {id:'n-B-faltante',label:'Nivel B\nNotifica al dueño',x:-0.5,y:3,level:'B',type:'leaf',
+      detail:{title:'Información configurable faltante',desc:'El dueño no cargó información que debería estar en el sistema (precio, servicio, disponibilidad).',msg:'Ese detalle te lo confirma [Dueño] directamente. Le dejo tu consulta para que te contacte.',action:'Bot responde con alternativa genérica. Sistema notifica al dueño para que complete la configuración.',responsible:'Dueño'}},
+    {id:'n-A-cierre',label:'Nivel A\nCierre autónomo',x:-1.5,y:3,level:'A',type:'leaf',
+      detail:{title:'Información fuera de scope',desc:'El cliente pregunta algo que genuinamente está fuera del alcance del negocio.',msg:'Ese detalle no lo tengo disponible por acá. ¿Te puedo ayudar con algo más?',action:'Bot cierra la consulta autónomamente. No escala.',responsible:'Bot'}},
+    // --- RAMA ENTIENDE ---
+    {id:'n-intent1',label:'Intento 1\nPide reformular',x:-4,y:2,level:null,type:'action',
+      detail:{title:'Primer intento de reformulación',desc:'El bot no entiende el mensaje y pide al cliente que lo reformule.',msg:'No te entendí bien. ¿Me lo podés escribir de otra forma?',action:'Bot solicita reformulación. No escala aún.',responsible:'Bot'}},
+    {id:'n-intent2',label:'Intento 2\nOtra manera',x:-4,y:3,level:null,type:'action',
+      detail:{title:'Segundo intento de reformulación',desc:'Sigue sin entender. Pide que lo intente de otra manera.',msg:'Todavía no te entiendo bien. ¿Podés contarme con otras palabras qué necesitás?',action:'Segundo intento. No escala aún.',responsible:'Bot'}},
+    {id:'n-intent3',label:'Intento 3 (último)\nDos opciones',x:-4,y:4,level:null,type:'action',
+      detail:{title:'Tercer intento — punto de decisión',desc:'Último intento. El bot ofrece dos caminos: reformular o ser conectado con el profesional.',msg:'No pude entenderte bien. ¿Querés intentar escribirlo de otra forma o preferís que te conecte con [Dueño]?',action:'El cliente elige: reformular o transferir.',responsible:'Bot'}},
+    {id:'n-C-intent',label:'Nivel C\nTransfiere',x:-4,y:5,level:'C',type:'leaf',
+      detail:{title:'Transferencia por incomprensión reiterada',desc:'Después de 3 intentos sin éxito, el bot transfiere al dueño.',msg:'Ya le avisé a [Dueño]. En cuanto pueda te escribe directamente. Gracias por la paciencia.',action:'Alerta inmediata al dueño. Bot finaliza el flujo de atención.',responsible:'Dueño'}},
+    // --- RAMA FORMATO ---
+    {id:'n-A-format',label:'Nivel A\nInforma limitación',x:3,y:2,level:'A',type:'leaf',
+      detail:{title:'Formato no soportado',desc:'El cliente envió audio, imagen, video, sticker, documento o ubicación.',msg:'Por acá solo proceso texto. Si me escribís lo que necesitás, te ayudo enseguida.',action:'Bot informa que solo procesa texto. No escala.',responsible:'Bot'}},
+    // --- RAMA PIDE PERSONA ---
+    {id:'d-persona',label:'¿Pide hablar\ncon persona?',x:1.5,y:1,level:null,type:'decision',
+      detail:{title:'Solicitud de atención humana',desc:'El cliente pide explícitamente hablar con el dueño o con una persona.',msg:'(Detección de intención)',action:'El sistema identifica la solicitud de atención humana.',responsible:'Bot (automático)'}},
+    {id:'d-horario',label:'¿Dueño disponible\n(en horario)?',x:2,y:2,level:null,type:'decision',
+      detail:{title:'Verificación de disponibilidad',desc:'El sistema consulta la ventana horaria configurada por el dueño.',msg:'(Verificación automática de horario)',action:'Compara hora actual con ventana horaria configurada.',responsible:'Bot (automático)'}},
+    {id:'n-C-horario',label:'Nivel C\nAlerta inmediata',x:1.5,y:3,level:'C',type:'leaf',
+      detail:{title:'Transferencia en horario disponible',desc:'El dueño está disponible. El bot transfiere inmediatamente.',msg:'Ya le avisé a [Dueño]. En cuanto pueda te escribe directamente. Gracias por la paciencia.',action:'Alerta inmediata al dueño con datos del cliente. Bot pausa el flujo.',responsible:'Dueño'}},
+    {id:'n-B-horario',label:'Nivel B\nFuera de horario',x:2.5,y:3,level:'B',type:'leaf',
+      detail:{title:'Fuera de horario configurado',desc:'El dueño está fuera de su ventana de disponibilidad.',msg:'En este momento [Dueño] no puede atender, pero mañana a partir de las [hora inicio] te va a escribir.',action:'Notificación al dueño para responder cuando pueda. Bot informa horario esperado de respuesta.',responsible:'Dueño'}},
+    // --- RAMA ENOJO ---
+    {id:'d-anger',label:'¿Enojo\no queja?',x:-1.5,y:1,level:null,type:'decision',
+      detail:{title:'Detección de malestar',desc:'El bot detecta señales de enojo, frustración o queja en el mensaje.',msg:'(Análisis de sentimiento)',action:'El sistema activa el flujo especial de manejo de malestar.',responsible:'Bot (automático)'}},
+    {id:'d-scope',label:'¿Tiene solución\ndentro del sistema?',x:-2,y:2,level:null,type:'decision',
+      detail:{title:'¿El problema es resoluble?',desc:'El bot evalúa si el motivo del enojo tiene solución dentro de las funciones del sistema.',msg:'(Evaluación interna de scope)',action:'Determina si puede resolver o debe escalar directamente.',responsible:'Bot (automático)'}},
+    {id:'n-C-anger-in',label:'Nivel C\nResolvió / no resolvió',x:-2,y:3,level:'C',type:'leaf',
+      detail:{title:'Escalado tras intento de resolución',desc:'El bot intentó resolver pero no pudo, o el cliente sigue molesto.',msg:'Entiendo, a veces pasan estas cosas. Ya notifiqué a [Dueño] para que te contacte y lo resuelvan juntos.',action:'Escalado al dueño. Se registra el caso para análisis.',responsible:'Dueño'}},
+    {id:'n-C-anger-out',label:'Nivel C\nFuera de scope',x:-3,y:3,level:'C',type:'leaf',
+      detail:{title:'Escalado directo por scope',desc:'El motivo del enojo está fuera del sistema. No hay nada que el bot pueda resolver.',msg:'Entiendo tu molestia. Esto es algo que tiene que resolver [Dueño] directamente. Ya le avisé.',action:'Escalado inmediato. Bot no intenta resolver.',responsible:'Dueño'}},
+    // --- RAMA ERROR TÉCNICO ---
+    {id:'n-error',label:'Error técnico\ndel sistema',x:4,y:1,level:null,type:'action',
+      detail:{title:'Error técnico',desc:'La base de datos no responde, el calendario está caído, o hay un error de sistema.',msg:'Hay un inconveniente técnico en este momento. El equipo ya fue notificado.',action:'Alerta a Tomi (no al dueño). Bot no muestra datos erróneos ni hace suposiciones.',responsible:'Tomi'}},
+    {id:'n-C-error',label:'Nivel C\nEscala a Tomi',x:4,y:2,level:'C',type:'leaf',
+      detail:{title:'Error técnico — Escalado a Tomi',desc:'Se alerta al equipo técnico, no al dueño. El cliente recibe aviso de inconveniente técnico.',msg:'Hay un inconveniente técnico en este momento. El equipo ya fue notificado. Te escribimos en cuanto se resuelva.',action:'Alerta inmediata a Tomi. Se registra el error para debugging.',responsible:'Tomi'}},
+  ]
+};
+
+const EDGES = [
+  // root → decisiones nivel 1
+  {from:'root',to:'d-entiende',label:'no entiende',color:COLOR_N},
+  {from:'root',to:'d-info',label:'entiende',color:COLOR_N},
+  {from:'root',to:'d-format',label:'formato?',color:COLOR_N},
+  {from:'root',to:'d-persona',label:'pide persona',color:COLOR_N},
+  {from:'root',to:'d-anger',label:'enojo',color:COLOR_N},
+  {from:'root',to:'n-error',label:'error técnico',color:COLOR_N},
+  // info
+  {from:'d-info',to:'d-configurable',label:'no tiene',color:COLOR_N},
+  {from:'d-configurable',to:'n-B-faltante',label:'sí, falta cargar',color:COLOR_B},
+  {from:'d-configurable',to:'n-A-cierre',label:'no, fuera de scope',color:COLOR_A},
+  // entiende
+  {from:'d-entiende',to:'n-intent1',label:'NO',color:COLOR_N},
+  {from:'n-intent1',to:'n-intent2',label:'sigue sin entender',color:COLOR_N},
+  {from:'n-intent2',to:'n-intent3',label:'sigue sin entender',color:COLOR_N},
+  {from:'n-intent3',to:'n-C-intent',label:'elige B o no entiende',color:COLOR_C},
+  // formato
+  {from:'d-format',to:'n-A-format',label:'SÍ',color:COLOR_A},
+  // persona
+  {from:'d-persona',to:'d-horario',label:'SÍ',color:COLOR_N},
+  {from:'d-horario',to:'n-C-horario',label:'SÍ (disponible)',color:COLOR_C},
+  {from:'d-horario',to:'n-B-horario',label:'NO (fuera horario)',color:COLOR_B},
+  // enojo
+  {from:'d-anger',to:'d-scope',label:'SÍ',color:COLOR_N},
+  {from:'d-scope',to:'n-C-anger-in',label:'SÍ (pero no resuelve)',color:COLOR_C},
+  {from:'d-scope',to:'n-C-anger-out',label:'NO (fuera scope)',color:COLOR_C},
+  // error
+  {from:'n-error',to:'n-C-error',label:'siempre',color:COLOR_C},
+];
+
+let treeNodes = JSON.parse(JSON.stringify(TREE_DATA.all));
+let currentBranch = 'all';
+
+const BRANCH_FILTER = {
+  all: ['root','d-entiende','d-info','d-format','d-persona','d-anger','n-error','d-configurable','n-B-faltante','n-A-cierre','n-intent1','n-intent2','n-intent3','n-C-intent','n-A-format','d-horario','n-C-horario','n-B-horario','d-scope','n-C-anger-in','n-C-anger-out','n-C-error'],
+  info: ['root','d-info','d-configurable','n-B-faltante','n-A-cierre'],
+  intent: ['root','d-entiende','n-intent1','n-intent2','n-intent3','n-C-intent'],
+  format: ['root','d-format','n-A-format'],
+  human: ['root','d-persona','d-horario','n-C-horario','n-B-horario'],
+  anger: ['root','d-anger','d-scope','n-C-anger-in','n-C-anger-out'],
+  error: ['root','n-error','n-C-error'],
+};
+
+// Grid positions per branch for better readability
+const POSITIONS = {
+  all: {
+    root:         {col:4, row:0},
+    'd-entiende': {col:1, row:1},
+    'd-info':     {col:4, row:1},
+    'd-format':   {col:7, row:1},
+    'd-persona':  {col:6, row:1},
+    'd-anger':    {col:2, row:1},
+    'n-error':    {col:8, row:1},
+    'd-configurable':{col:4,row:2},
+    'n-B-faltante':{col:4.8,row:3},
+    'n-A-cierre': {col:3.2,row:3},
+    'n-intent1':  {col:1,row:2},
+    'n-intent2':  {col:1,row:3},
+    'n-intent3':  {col:1,row:4},
+    'n-C-intent': {col:1,row:5},
+    'n-A-format': {col:7,row:2},
+    'd-horario':  {col:6,row:2},
+    'n-C-horario':{col:5.5,row:3},
+    'n-B-horario':{col:6.5,row:3},
+    'd-scope':    {col:2,row:2},
+    'n-C-anger-in':{col:2.2,row:3},
+    'n-C-anger-out':{col:1.5,row:3},
+    'n-C-error':  {col:8,row:2},
+  },
+  info: {
+    root:         {col:2,row:0},
+    'd-info':     {col:2,row:1},
+    'd-configurable':{col:2,row:2},
+    'n-B-faltante':{col:2.7,row:3},
+    'n-A-cierre': {col:1.3,row:3},
+  },
+  intent: {
+    root:     {col:2,row:0},
+    'd-entiende':{col:2,row:1},
+    'n-intent1':{col:2,row:2},
+    'n-intent2':{col:2,row:3},
+    'n-intent3':{col:2,row:4},
+    'n-C-intent':{col:2,row:5},
+  },
+  format: {
+    root:       {col:2,row:0},
+    'd-format': {col:2,row:1},
+    'n-A-format':{col:2,row:2},
+  },
+  human: {
+    root:       {col:2,row:0},
+    'd-persona':{col:2,row:1},
+    'd-horario':{col:2,row:2},
+    'n-C-horario':{col:1.5,row:3},
+    'n-B-horario':{col:2.5,row:3},
+  },
+  anger: {
+    root:       {col:2,row:0},
+    'd-anger':  {col:2,row:1},
+    'd-scope':  {col:2,row:2},
+    'n-C-anger-in':{col:2.5,row:3},
+    'n-C-anger-out':{col:1.5,row:3},
+  },
+  error: {
+    root:       {col:2,row:0},
+    'n-error':  {col:2,row:1},
+    'n-C-error':{col:2,row:2},
+  },
+};
+
+function buildTree(branch){
+  const svg = d3.select('#tree-svg');
+  svg.selectAll('*').remove();
+
+  const container = document.querySelector('.tree-canvas-inner');
+  const W = container.clientWidth || 900;
+  const H = 580;
+
+  const pos = POSITIONS[branch];
+  const ids = BRANCH_FILTER[branch];
+
+  // Calculate cols used
+  const cols = ids.map(id => pos[id]?.col ?? 0);
+  const rows = ids.map(id => pos[id]?.row ?? 0);
+  const maxCol = Math.max(...cols);
+  const maxRow = Math.max(...rows);
+
+  const colCount = maxCol + 1;
+  const rowCount = maxRow + 1;
+
+  const CELL_W = Math.max(140, Math.min(200, (W - 80) / colCount));
+  const CELL_H = 100;
+  const totalW = Math.max(W, colCount * CELL_W + 80);
+  const totalH = Math.max(H, rowCount * CELL_H + 80);
+
+  svg.attr('width', totalW).attr('height', totalH);
+
+  const g = svg.append('g').attr('transform','translate(40,40)');
+
+  // Zoom
+  const zoom = d3.zoom()
+    .scaleExtent([0.4, 2])
+    .on('zoom', (event) => { g.attr('transform', event.transform); });
+  svg.call(zoom);
+
+  // defs arrow
+  const defs = svg.append('defs');
+  ['A','B','C','N'].forEach(lv => {
+    const col = lv==='A'?COLOR_A:lv==='B'?COLOR_B:lv==='C'?COLOR_C:'#8C7B6E';
+    defs.append('marker').attr('id','arrow-'+lv)
+      .attr('viewBox','0 -5 10 10').attr('refX',8).attr('refY',0)
+      .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
+      .append('path').attr('d','M0,-5L10,0L0,5').attr('fill',col);
+  });
+
+  // Node map
+  const nodeMap = {};
+  treeNodes.filter(n=>ids.includes(n.id)).forEach(n=>{
+    nodeMap[n.id] = n;
+    const p = pos[n.id] || {col:2,row:0};
+    n._x = p.col * CELL_W;
+    n._y = p.row * CELL_H;
+  });
+
+  // Edges
+  const filteredEdges = EDGES.filter(e=>ids.includes(e.from)&&ids.includes(e.to));
+  const edgeGroup = g.append('g').attr('class','edges');
+
+  filteredEdges.forEach(edge=>{
+    const s = nodeMap[edge.from];
+    const t = nodeMap[edge.to];
+    if(!s||!t) return;
+
+    const lv = edge.color===COLOR_A?'A':edge.color===COLOR_B?'B':edge.color===COLOR_C?'C':'N';
+    const x1=s._x+70, y1=s._y+24, x2=t._x+70, y2=t._y;
+    const midY=(y1+y2)/2;
+
+    const path = edgeGroup.append('path')
+      .attr('d',`M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`)
+      .attr('fill','none')
+      .attr('stroke',edge.color)
+      .attr('stroke-width',2)
+      .attr('stroke-opacity',0.6)
+      .attr('marker-end',`url(#arrow-${lv})`);
+
+    // Edge label
+    if(edge.label){
+      edgeGroup.append('text')
+        .attr('x',(x1+x2)/2)
+        .attr('y',midY)
+        .attr('text-anchor','middle')
+        .attr('dy','-3')
+        .attr('font-size','9')
+        .attr('font-family','Plus Jakarta Sans, sans-serif')
+        .attr('font-weight','600')
+        .attr('fill',edge.color)
+        .attr('opacity',0.8)
+        .text(edge.label);
+    }
+  });
+
+  // Nodes
+  const nodeGroup = g.append('g').attr('class','nodes');
+  const visNodes = treeNodes.filter(n=>ids.includes(n.id));
+
+  visNodes.forEach(node=>{
+    const ng = nodeGroup.append('g')
+      .attr('transform',`translate(${node._x},${node._y})`)
+      .attr('class','tree-node')
+      .attr('data-id',node.id)
+      .style('cursor','pointer');
+
+    const isDecision = node.type==='decision';
+    const isRoot = node.type==='root';
+    const nodeColor = node.level ? getNodeColor(node.level) : (isRoot ? '#1C1712' : '#8C7B6E');
+    const fillColor = node.level ? (node.level==='A' ? 'rgba(122,158,138,.12)' : node.level==='B' ? 'rgba(217,123,79,.12)' : 'rgba(192,57,43,.10)') : (isRoot ? 'rgba(28,23,18,.08)' : 'rgba(140,123,110,.08)');
+
+    const w=140, h=44;
+
+    if(isDecision){
+      // Diamond
+      const pts = `${w/2},0 ${w},${h/2} ${w/2},${h} 0,${h/2}`;
+      ng.append('polygon')
+        .attr('points',pts)
+        .attr('fill',fillColor)
+        .attr('stroke',nodeColor)
+        .attr('stroke-width',1.5)
+        .attr('rx',4);
+    } else {
+      ng.append('rect')
+        .attr('width',w).attr('height',h)
+        .attr('rx', isRoot ? 22 : node.type==='leaf' ? 8 : 12)
+        .attr('fill', isRoot ? '#1C1712' : fillColor)
+        .attr('stroke',nodeColor)
+        .attr('stroke-width',node.type==='leaf' ? 2 : 1.5);
+    }
+
+    // Level dot
+    if(node.level){
+      ng.append('circle')
+        .attr('cx',w-10).attr('cy',10).attr('r',5)
+        .attr('fill',nodeColor);
+    }
+
+    // Label
+    const lines = node.label.split('\n');
+    const textY = isDecision ? h/2 : h/2;
+    const textColor = isRoot ? 'white' : (node.level ? nodeColor : '#1C1712');
+
+    lines.forEach((line,i)=>{
+      ng.append('text')
+        .attr('x',w/2)
+        .attr('y',textY + (i - (lines.length-1)/2) * 13)
+        .attr('text-anchor','middle')
+        .attr('dominant-baseline','middle')
+        .attr('font-size', isRoot ? '11' : '10')
+        .attr('font-weight', node.type==='leaf' ? '700' : '600')
+        .attr('font-family','Plus Jakarta Sans, sans-serif')
+        .attr('fill',textColor)
+        .attr('class','node-label')
+        .attr('data-id',node.id)
+        .text(line);
+    });
+
+    // Click → panel
+    ng.on('click', (event)=>{
+      event.stopPropagation();
+      openPanel(node);
+    });
+
+    // Double click → edit label
+    ng.on('dblclick', (event)=>{
+      event.stopPropagation();
+      const labelEl = event.currentTarget.querySelector('.node-label');
+      if(!labelEl) return;
+      const currentText = node.label;
+      const inp = document.createElement('input');
+      inp.value = currentText.replace(/\n/g,' ');
+      inp.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:500;padding:10px 16px;border:2px solid var(--terracota);border-radius:8px;font-size:14px;font-family:Plus Jakarta Sans,sans-serif;font-weight:600;outline:none;background:white;min-width:260px;';
+      document.body.appendChild(inp);
+      inp.focus();
+      inp.select();
+      const commit = ()=>{
+        node.label = inp.value;
+        document.body.removeChild(inp);
+        buildTree(currentBranch);
+      };
+      inp.onblur = commit;
+      inp.onkeydown = (e)=>{ if(e.key==='Enter') commit(); if(e.key==='Escape'){document.body.removeChild(inp);} };
+    });
+
+    // Hover
+    ng.on('mouseenter',function(){
+      d3.select(this).select('rect,polygon')
+        .attr('stroke-width',2.5)
+        .attr('filter','drop-shadow(0 3px 10px rgba(28,23,18,.15))');
+    }).on('mouseleave',function(){
+      d3.select(this).select('rect,polygon')
+        .attr('stroke-width',node.type==='leaf'?2:1.5)
+        .attr('filter','none');
+    });
+  });
+
+  // Click on SVG to close panel
+  svg.on('click',()=>closePanel());
+
+  // Initial zoom fit
+  setTimeout(()=>resetZoom(),100);
+}
+
+function openPanel(node){
+  const d = node.detail;
+  const panel = document.getElementById('node-panel');
+  const levelColors = {'A':COLOR_A,'B':COLOR_B,'C':COLOR_C};
+  const levelLabels = {'A':'Nivel A — Bot resuelve','B':'Nivel B — Notificación silenciosa','C':'Nivel C — Transferencia'};
+
+  const badge = document.getElementById('panel-level-badge');
+  if(node.level){
+    badge.innerHTML = `<span class="node-panel-level" style="background:${levelColors[node.level]}20;color:${levelColors[node.level]}">${levelLabels[node.level]}</span>`;
+  } else {
+    badge.innerHTML = '';
+  }
+  document.getElementById('panel-title').textContent = d.title;
+  document.getElementById('panel-desc').textContent = d.desc;
+  document.getElementById('panel-msg').textContent = d.msg;
+  document.getElementById('panel-action').textContent = d.action;
+  document.getElementById('panel-responsible').innerHTML = `<span class="responsible-badge">${d.responsible}</span>`;
+  panel.classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('node-panel').classList.remove('open');
+}
+
+function switchBranch(branch){
+  currentBranch = branch;
+  document.querySelectorAll('.branch-tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  buildTree(branch);
+}
+
+function resetZoom(){
+  const svg = document.getElementById('tree-svg');
+  const W = svg.clientWidth;
+  const H = svg.clientHeight;
+  const inner = svg.querySelector('g');
+  if(!inner) return;
+  const bbox = inner.getBBox();
+  const scale = Math.min(W / (bbox.width + 80), H / (bbox.height + 80), 1.2);
+  const tx = (W - bbox.width * scale) / 2 - bbox.x * scale;
+  const ty = (H - bbox.height * scale) / 2 - bbox.y * scale;
+  d3.select('#tree-svg').transition().duration(500)
+    .call(d3.zoom().transform, d3.zoomIdentity.translate(tx,ty).scale(scale));
+}
+
+function exportJSON(){
+  const data = { version:'1.0', nodes: treeNodes, edges: EDGES, generated: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fallback-tree-seru.json';
+  a.click();
+}
+
+function resetTree(){
+  if(!confirm('¿Resetear el árbol al estado original?')) return;
+  treeNodes = JSON.parse(JSON.stringify(TREE_DATA.all));
+  buildTree(currentBranch);
+}
+
+/* ══════════════════════════════════════════════════════════
+   CONFIG PANEL
+══════════════════════════════════════════════════════════ */
+function updateIntentos(val){
+  document.getElementById('intentos-val').textContent = val;
+  highlightConfig('cfg-intentos','intent');
+}
+
+function updateNombre(val){
+  document.getElementById('nombre-preview').textContent = val || '[Dueño]';
+}
+
+function highlightConfig(cardId, branch){
+  const card = document.getElementById(cardId);
+  card.classList.remove('highlighted');
+  void card.offsetWidth;
+  card.classList.add('highlighted');
+  // Flash the corresponding branch nodes
+  if(branch && branch !== currentBranch){
+    // Flash tab
+    document.querySelectorAll('.branch-tab').forEach(t=>{
+      if(t.textContent.toLowerCase().includes(branch.substring(0,4))){
+        t.style.borderColor='var(--terracota)';
+        t.style.color='var(--terracota)';
+        setTimeout(()=>{t.style.borderColor='';t.style.color='';},1500);
+      }
+    });
+  }
+  // Flash toggles
+  const toggleInputs = document.querySelectorAll('.toggle input');
+  toggleInputs.forEach(inp=>{
+    const label = inp.parentElement.nextElementSibling;
+    if(label) label.textContent = inp.checked ? 'Activado' : 'Desactivado';
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABLA DE CASOS
+══════════════════════════════════════════════════════════ */
+let typeFilter = 'all';
+let levelFilter = null;
+let searchTerm = '';
+
+function renderTable(){
+  const tbody = document.getElementById('cases-tbody');
+  const filtered = CASES.filter(c=>{
+    const matchType = typeFilter==='all' || c.type===typeFilter;
+    const matchLevel = !levelFilter || c.level===levelFilter;
+    const matchSearch = !searchTerm || c.id.toLowerCase().includes(searchTerm) || c.situation.toLowerCase().includes(searchTerm) || c.typeLabel.toLowerCase().includes(searchTerm);
+    return matchType && matchLevel && matchSearch;
+  });
+  document.getElementById('results-count').textContent = `${filtered.length} casos`;
+
+  tbody.innerHTML = '';
+  filtered.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="case-id">${c.id}</span></td>
+      <td>${c.situation}</td>
+      <td><span class="case-type-badge">${c.typeLabel}</span></td>
+      <td><span class="level-pill ${c.level}">${c.level}</span></td>
+      <td style="font-size:12px;color:var(--gris);font-weight:500;">${c.responsible}</td>
+    `;
+    tr.onclick = ()=>toggleExpand(c.id, tr, c);
+
+    const expandTr = document.createElement('tr');
+    expandTr.className = 'case-expand-row';
+    expandTr.id = 'expand-'+c.id;
+    expandTr.innerHTML = `
+      <td class="case-expand-cell" colspan="5">
+        <div class="case-expand-inner">
+          <div class="case-detail-block">
+            <div class="case-detail-label">Mensaje del bot</div>
+            <div class="case-bot-msg">${c.msg}</div>
+          </div>
+          <div class="case-detail-block">
+            <div class="case-detail-label">Acción del sistema</div>
+            <div class="case-detail-text">${c.action}</div>
+          </div>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+    tbody.appendChild(expandTr);
+  });
+}
+
+function toggleExpand(id, tr, c){
+  const expandRow = document.getElementById('expand-'+id);
+  const isVisible = expandRow.classList.contains('visible');
+  document.querySelectorAll('.case-expand-row').forEach(r=>r.classList.remove('visible'));
+  document.querySelectorAll('#cases-tbody tr:not(.case-expand-row)').forEach(r=>r.classList.remove('expanded'));
+  if(!isVisible){
+    expandRow.classList.add('visible');
+    tr.classList.add('expanded');
+  }
+}
+
+function setTypeFilter(type, btn){
+  typeFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function setLevelFilter(level, btn){
+  if(levelFilter===level){ levelFilter=null; btn.classList.remove('active'); }
+  else {
+    levelFilter=level;
+    document.querySelectorAll('.level-filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  renderTable();
+}
+
+function filterTable(){
+  searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+  renderTable();
+}
+
+/* ══════════════════════════════════════════════════════════
+   MENSAJES
+══════════════════════════════════════════════════════════ */
+function renderMessages(){
+  ['A','B','C'].forEach(level=>{
+    const container = document.getElementById('msgs-'+level);
+    container.innerHTML = '';
+    MESSAGES[level].forEach(msg=>{
+      const card = document.createElement('div');
+      card.className = 'msg-card';
+      card.innerHTML = `
+        <div class="wa-bubble" id="${msg.id}" contenteditable="false" ondblclick="enableEdit('${msg.id}')">${msg.text}</div>
+        <div class="msg-hint">Doble click para editar</div>
+        <div class="msg-card-actions">
+          <button class="msg-action-btn" onclick="copyMsg('${msg.id}')">Copiar</button>
+          <button class="msg-action-btn" onclick="enableEdit('${msg.id}')">Editar</button>
+        </div>
+        <div class="wa-tick">✓✓</div>
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+function enableEdit(id){
+  const el = document.getElementById(id);
+  el.contentEditable = 'true';
+  el.focus();
+  el.style.borderColor = 'var(--terracota)';
+  el.style.background = 'white';
+  el.onblur = ()=>{ el.contentEditable='false'; el.style.borderColor=''; el.style.background=''; };
+}
+
+function copyMsg(id){
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    const btn = el.closest('.msg-card').querySelector('.msg-action-btn');
+    const orig = btn.textContent;
+    btn.textContent = '¡Copiado!';
+    btn.style.color = 'var(--salvia)';
+    setTimeout(()=>{btn.textContent=orig;btn.style.color='';},1500);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   SCROLL & NAV
+══════════════════════════════════════════════════════════ */
+function initScroll(){
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll',()=>{
+    const d = document.documentElement;
+    const pct = (window.scrollY/(d.scrollHeight-d.clientHeight))*100;
+    bar.style.width = Math.min(pct,100)+'%';
+  });
+
+  // Reveal
+  const revObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); revObs.unobserve(e.target); }});
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+
+  // Nav active
+  const sections = ['hero','sec-tree','sec-config','sec-catalog','sec-messages','sec-protocol'];
+  const navObs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const id = e.target.id;
+        document.querySelectorAll('.nav-link').forEach(a=>{
+          a.classList.toggle('active', a.getAttribute('href')==='#'+id);
+        });
+      }
+    });
+  },{threshold:0.3});
+  sections.forEach(id=>{ const el=document.getElementById(id); if(el) navObs.observe(el); });
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  buildTree('all');
+  renderTable();
+  renderMessages();
+  initScroll();
+});
+
+window.addEventListener('resize', ()=>{
+  buildTree(currentBranch);
+});
+</script>
+</body>
+</html>

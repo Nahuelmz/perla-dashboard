@@ -1,0 +1,199 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+  .dir-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 8px;
+  }
+  .dir-card {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+  }
+  .dir-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
+  .dir-card.selected { border-color: #6D28D9; box-shadow: 0 0 0 4px rgba(109,40,217,.15); }
+
+  .dir-preview {
+    height: 260px;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  /* ── A: Zen Sage ── */
+  .preview-sage {
+    background:
+      radial-gradient(ellipse 70% 60% at 20% 15%, rgba(122,158,138,.35) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(217,123,79,.18) 0%, transparent 55%),
+      #EEF4F0;
+  }
+  /* ── B: Cream Float ── */
+  .preview-cream {
+    background:
+      radial-gradient(ellipse 60% 50% at 10% 10%, rgba(217,123,79,.22) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 85% 75%, rgba(168,148,255,.18) 0%, transparent 55%),
+      #FAF8F4;
+  }
+  /* ── C: Dark Jade ── */
+  .preview-dark {
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(74,160,120,.25) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 50% at 80% 75%, rgba(217,123,79,.15) 0%, transparent 55%),
+      #111A14;
+  }
+
+  /* Glass card */
+  .g-card {
+    border-radius: 14px;
+    padding: 12px 14px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .g-card-light {
+    background: rgba(255,255,255,.52);
+    border: 1px solid rgba(255,255,255,.70);
+    box-shadow: 0 2px 12px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  .g-card-dark {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 2px 12px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .g-greeting { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+  .g-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 800; line-height: 1.15; }
+  .g-row { display: flex; gap: 6px; }
+  .g-stat { flex: 1; border-radius: 10px; padding: 7px 8px; text-align: center; }
+  .g-stat-n { font-family: 'Bricolage Grotesque', sans-serif; font-size: 18px; font-weight: 800; line-height: 1; }
+  .g-stat-l { font-size: 8px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; margin-top: 2px; }
+  .g-pill { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .g-cta { border-radius: 8px; padding: 7px 12px; font-size: 9px; font-weight: 700; text-align: center; letter-spacing: .05em; text-transform: uppercase; }
+
+  .dir-label {
+    padding: 14px 16px;
+    background: white;
+    border-top: 1px solid #eee;
+  }
+  .dir-label h3 { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; font-family: 'Bricolage Grotesque', sans-serif; }
+  .dir-label p { font-size: 12px; color: #666; line-height: 1.5; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  .select-hint { text-align: center; margin-top: 16px; font-size: 12px; color: #888; }
+</style>
+
+<h2>Estética glass — 3 variantes</h2>
+<p class="subtitle">Todas usan glassmorphism + gradient mesh, como tus referencias. Difieren en temperatura de color y fondo.</p>
+
+<div class="dir-grid">
+
+  <!-- A: Zen Sage -->
+  <div class="dir-card" onclick="toggleSelect(this)" data-choice="sage">
+    <div class="dir-preview preview-sage">
+      <div class="g-card g-card-light">
+        <div class="g-greeting" style="color:#5A7A6A;">Buenos días</div>
+        <div class="g-name" style="color:#1A2A22;">Hoy tenés <span style="color:#7A9E8A;">8 turnos</span></div>
+      </div>
+      <div class="g-row">
+        <div class="g-card g-card-light g-stat" style="background:rgba(122,158,138,.18);border-color:rgba(122,158,138,.3);">
+          <div class="g-stat-n" style="color:#1A2A22;">6</div>
+          <div class="g-stat-l" style="color:#5A7A6A;">Confirm.</div>
+        </div>
+        <div class="g-card g-card-light g-stat" style="background:rgba(217,123,79,.12);border-color:rgba(217,123,79,.25);">
+          <div class="g-stat-n" style="color:#1A2A22;">2</div>
+          <div class="g-stat-l" style="color:#7A5A3A;">Pendientes</div>
+        </div>
+      </div>
+      <div class="g-card g-card-light">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:9px;font-weight:600;color:#5A7A6A;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;">Próximo</div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:12px;font-weight:700;color:#1A2A22;">Valentina M. · 10:30</div>
+          </div>
+          <span class="g-pill" style="background:rgba(122,158,138,.2);color:#3D7A5E;">Corte</span>
+        </div>
+      </div>
+      <div class="g-cta" style="background:#7A9E8A;color:white;margin-top:auto;">Ver agenda completa →</div>
+    </div>
+    <div class="dir-label">
+      <h3>Zen Sage</h3>
+      <p>Fondo verde salvia cálido + cards translúcidas blancas. Terracota como acento. Cercano a las referencias de tablet y health app.</p>
+    </div>
+  </div>
+
+  <!-- B: Cream Float -->
+  <div class="dir-card" onclick="toggleSelect(this)" data-choice="cream">
+    <div class="dir-preview preview-cream">
+      <div class="g-card g-card-light">
+        <div class="g-greeting" style="color:#8C7B6E;">Buenos días</div>
+        <div class="g-name" style="color:#1C1712;">Hoy tenés <span style="color:#D97B4F;">8 turnos</span></div>
+      </div>
+      <div class="g-row">
+        <div class="g-card g-card-light g-stat" style="background:rgba(217,123,79,.1);border-color:rgba(217,123,79,.22);">
+          <div class="g-stat-n" style="color:#1C1712;">6</div>
+          <div class="g-stat-l" style="color:#8C7B6E;">Confirm.</div>
+        </div>
+        <div class="g-card g-card-light g-stat" style="background:rgba(168,148,255,.1);border-color:rgba(168,148,255,.2);">
+          <div class="g-stat-n" style="color:#1C1712;">2</div>
+          <div class="g-stat-l" style="color:#7060AA;">Pendientes</div>
+        </div>
+      </div>
+      <div class="g-card g-card-light">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:9px;font-weight:600;color:#8C7B6E;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;">Próximo</div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:12px;font-weight:700;color:#1C1712;">Valentina M. · 10:30</div>
+          </div>
+          <span class="g-pill" style="background:rgba(217,123,79,.15);color:#B05A2A;">Corte</span>
+        </div>
+      </div>
+      <div class="g-cta" style="background:#D97B4F;color:white;margin-top:auto;">Ver agenda completa →</div>
+    </div>
+    <div class="dir-label">
+      <h3>Cream Float</h3>
+      <p>Fondo crema con glow terracota + lavanda. Paleta del brand book aplicada sobre estética glass. La más cercana al concepto original.</p>
+    </div>
+  </div>
+
+  <!-- C: Dark Jade -->
+  <div class="dir-card" onclick="toggleSelect(this)" data-choice="darkjade">
+    <div class="dir-preview preview-dark">
+      <div class="g-card g-card-dark">
+        <div class="g-greeting" style="color:rgba(255,255,255,.4);">Buenos días</div>
+        <div class="g-name" style="color:rgba(255,255,255,.9);">Hoy tenés <span style="color:#4ADE80;">8 turnos</span></div>
+      </div>
+      <div class="g-row">
+        <div class="g-card g-card-dark g-stat" style="background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.2);">
+          <div class="g-stat-n" style="color:white;">6</div>
+          <div class="g-stat-l" style="color:rgba(255,255,255,.35);">Confirm.</div>
+        </div>
+        <div class="g-card g-card-dark g-stat">
+          <div class="g-stat-n" style="color:white;">2</div>
+          <div class="g-stat-l" style="color:rgba(255,255,255,.35);">Pendientes</div>
+        </div>
+      </div>
+      <div class="g-card g-card-dark">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:9px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;">Próximo</div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:12px;font-weight:700;color:rgba(255,255,255,.88);">Valentina M. · 10:30</div>
+          </div>
+          <span class="g-pill" style="background:rgba(74,222,128,.15);color:#4ADE80;">Corte</span>
+        </div>
+      </div>
+      <div class="g-cta" style="background:#4ADE80;color:#0F1A14;margin-top:auto;">Ver agenda completa →</div>
+    </div>
+    <div class="dir-label">
+      <h3>Dark Jade</h3>
+      <p>Fondo oscuro con glow verde esmeralda y terracota. Glass oscuro translúcido. Premium, nocturno, más cercano al dashboard actual.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="select-hint">Hacé click en la que más se acerca a lo que tenías en mente — después iteramos sobre esa.</p>

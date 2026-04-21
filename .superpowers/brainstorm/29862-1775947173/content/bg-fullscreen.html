@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
+
+  /* ── Toggle buttons ── */
+  .toggle {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    z-index: 100; display: flex; gap: 8px;
+    background: rgba(255,255,255,.6); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.8); border-radius: 99px; padding: 5px;
+  }
+  .toggle button {
+    padding: 7px 20px; border-radius: 99px; border: none; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600;
+    transition: background .2s, color .2s;
+    background: transparent; color: #555;
+  }
+  .toggle button.active { background: white; color: #1a1a1a; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+
+  /* ── Backgrounds ── */
+  .bg {
+    position: fixed; inset: 0; transition: opacity .6s ease;
+  }
+
+  /* Sage */
+  #bg-sage {
+    background: linear-gradient(165deg, #A8CCBE 0%, #C8DDD4 30%, #E2EEE8 65%, #F5FAF7 100%);
+  }
+  #bg-sage::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 30% 80% at 18% 50%, rgba(255,255,255,.55) 0%, transparent 100%),
+      radial-gradient(ellipse 20% 90% at 48% 50%, rgba(255,255,255,.45) 0%, transparent 100%),
+      radial-gradient(ellipse 25% 85% at 76% 50%, rgba(255,255,255,.50) 0%, transparent 100%),
+      radial-gradient(ellipse 15% 70% at 92% 50%, rgba(255,255,255,.35) 0%, transparent 100%);
+    filter: blur(32px);
+  }
+  #bg-sage::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 40% at 30% 20%, rgba(122,158,138,.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 35% at 75% 75%, rgba(217,123,79,.10) 0%, transparent 55%);
+  }
+
+  /* Cream */
+  #bg-cream {
+    background: linear-gradient(165deg, #E8C4A8 0%, #F0D8C4 30%, #FAF0E8 65%, #FDF8F4 100%);
+    opacity: 0;
+  }
+  #bg-cream::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 28% 80% at 15% 50%, rgba(255,255,255,.58) 0%, transparent 100%),
+      radial-gradient(ellipse 22% 90% at 44% 50%, rgba(255,255,255,.48) 0%, transparent 100%),
+      radial-gradient(ellipse 20% 85% at 70% 50%, rgba(255,255,255,.52) 0%, transparent 100%),
+      radial-gradient(ellipse 18% 75% at 90% 50%, rgba(255,255,255,.38) 0%, transparent 100%);
+    filter: blur(32px);
+  }
+  #bg-cream::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 55% 40% at 25% 18%, rgba(217,123,79,.20) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 38% at 78% 78%, rgba(160,140,210,.12) 0%, transparent 55%);
+  }
+
+  /* ── Content layer ── */
+  .content {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center; gap: 20px;
+    padding: 80px 60px 40px;
+  }
+
+  .fc {
+    border-radius: 18px;
+    padding: 20px 22px;
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    background: rgba(255,255,255,.50);
+    border: 1px solid rgba(255,255,255,.75);
+    box-shadow: 0 4px 24px rgba(0,0,0,.07), inset 0 1px 0 rgba(255,255,255,.9);
+    min-width: 220px;
+  }
+  .fc-sm { padding: 14px 18px; min-width: 160px; }
+  .fc-greeting { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+  .fc-title { font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 800; line-height: 1.15; }
+  .fc-num { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; }
+  .fc-lbl { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
+  .fc-sub { font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 5px; }
+  .fc-name { font-family: 'Bricolage Grotesque', sans-serif; font-size: 15px; font-weight: 700; }
+  .fc-meta { font-size: 12px; margin-top: 2px; }
+  .pill { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; margin-top: 10px; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .btn { border-radius: 10px; padding: 11px 18px; font-size: 11px; font-weight: 700; text-align: center; letter-spacing: .05em; text-transform: uppercase; border: none; cursor: pointer; font-family: inherit; width: 100%; }
+
+  /* Sage colors */
+  .sage-text { color: #1A2A22; }
+  .sage-muted { color: #5A7A6A; }
+  .sage-accent { color: #4A8A68; }
+  .sage-pill { background: rgba(74,138,104,.15); color: #2D6B4A; }
+  .sage-btn { background: #5A9070; color: white; }
+
+  /* Cream colors */
+  .cream-text { color: #1C1712; }
+  .cream-muted { color: #8C7B6E; }
+  .cream-accent { color: #C06A3A; }
+  .cream-pill { background: rgba(217,123,79,.16); color: #A0501E; }
+  .cream-btn { background: #D97B4F; color: white; }
+
+  .sage-el { display: block; }
+  .cream-el { display: none; }
+
+  /* ── Label bottom ── */
+  .bg-label {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 100; background: rgba(255,255,255,.55); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.7); border-radius: 12px;
+    padding: 10px 20px; font-size: 12px; color: #444; text-align: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .bg-label strong { font-weight: 700; color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<div class="bg" id="bg-sage"></div>
+<div class="bg" id="bg-cream"></div>
+
+<div class="toggle">
+  <button class="active" onclick="setMode('sage')">Sage Glow</button>
+  <button onclick="setMode('cream')">Cream Glow</button>
+</div>
+
+<div class="content">
+  <!-- Card principal — saludo -->
+  <div class="fc">
+    <p class="fc-greeting sage-el sage-muted cream-muted">Buenos días, Rodrigo</p>
+    <h2 class="fc-title">
+      <span class="sage-el sage-text">Hoy tenés <span class="sage-accent">8 turnos</span></span>
+      <span class="cream-el cream-text">Hoy tenés <span class="cream-accent">8 turnos</span></span>
+    </h2>
+    <div style="margin-top:16px;">
+      <p class="sage-el" style="font-size:13px;color:#5A7A6A;">Tu asistente está trabajando. Todo tranquilo.</p>
+      <p class="cream-el" style="font-size:13px;color:#8C7B6E;display:none;">Tu asistente está trabajando. Todo tranquilo.</p>
+    </div>
+  </div>
+
+  <!-- Stack de stats -->
+  <div class="stack">
+    <div class="fc fc-sm" style="text-align:center;">
+      <p class="fc-lbl sage-el sage-muted" style="display:block;">Confirmados</p>
+      <p class="fc-lbl cream-el cream-muted" style="display:none;">Confirmados</p>
+      <p class="fc-num sage-el sage-text" style="display:block;">6</p>
+      <p class="fc-num cream-el cream-text" style="display:none;">6</p>
+    </div>
+    <div class="fc fc-sm" style="text-align:center;">
+      <p class="fc-lbl sage-el sage-muted" style="display:block;">Pendientes</p>
+      <p class="fc-lbl cream-el cream-muted" style="display:none;">Pendientes</p>
+      <p class="fc-num sage-el sage-accent" style="display:block;">2</p>
+      <p class="fc-num cream-el cream-accent" style="display:none;">2</p>
+    </div>
+  </div>
+
+  <!-- Card próximo turno -->
+  <div class="fc stack">
+    <div>
+      <p class="fc-sub sage-el sage-muted" style="display:block;">Próximo turno</p>
+      <p class="fc-sub cream-el cream-muted" style="display:none;">Próximo turno</p>
+      <p class="fc-name sage-el sage-text" style="display:block;">Valentina M.</p>
+      <p class="fc-name cream-el cream-text" style="display:none;">Valentina M.</p>
+      <p class="fc-meta sage-el sage-muted" style="display:block;">10:30 · Corte + Mechas</p>
+      <p class="fc-meta cream-el cream-muted" style="display:none;">10:30 · Corte + Mechas</p>
+      <span class="pill sage-el sage-pill" style="display:inline-block;">Confirmado</span>
+      <span class="pill cream-el cream-pill" style="display:none;">Confirmado</span>
+    </div>
+    <button class="btn sage-el sage-btn" style="display:block;">Ver agenda completa →</button>
+    <button class="btn cream-el cream-btn" style="display:none;">Ver agenda completa →</button>
+  </div>
+</div>
+
+<div class="bg-label">
+  Fondo fijo — el contenido floata y scrollea sobre él · <strong id="current-label">Sage Glow</strong>
+</div>
+
+<script>
+  function setMode(mode) {
+    const isSage = mode === 'sage';
+    document.getElementById('bg-sage').style.opacity = isSage ? '1' : '0';
+    document.getElementById('bg-cream').style.opacity = isSage ? '0' : '1';
+    document.querySelectorAll('.sage-el').forEach(el => el.style.display = isSage ? '' : 'none');
+    document.querySelectorAll('.cream-el').forEach(el => el.style.display = isSage ? 'none' : '');
+    document.querySelectorAll('.toggle button').forEach((btn, i) => {
+      btn.classList.toggle('active', (i === 0) === isSage);
+    });
+    document.getElementById('current-label').textContent = isSage ? 'Sage Glow' : 'Cream Glow';
+  }
+</script>
+</body>
+</html>

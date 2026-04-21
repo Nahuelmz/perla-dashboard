@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Dashboard — Invisible Clarity v6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────────
+       TOKENS — Laboratorio blanco
+    ───────────────────────────────────────────── */
+    :root {
+      /* Fondo */
+      --bg:             #FFFFFF;
+      --bg-subtle:      #FAFAFA;
+
+      /* Texto */
+      --ink:            #111111;
+      --ink-mid:        #555555;
+      --ink-soft:       #888888;
+      --ink-ghost:      #BBBBBB;
+
+      /* Acento — un solo color funcional, muy contenido */
+      --accent:         #1A1A1A;
+      --accent-soft:    rgba(17, 17, 17, 0.08);
+
+      /* Glass / surface — blur real sobre fondo con variaciones */
+      --surface:        rgba(255, 255, 255, 0.65);
+      --surface-solid:  #FFFFFF;
+      --surface-border: rgba(0, 0, 0, 0.06);
+      --shadow-card:
+        0 2px 12px rgba(0, 0, 0, 0.05),
+        0 8px 32px rgba(0, 0, 0, 0.06),
+        0 1px 0 rgba(255, 255, 255, 0.92) inset;
+      --shadow-card-lg:
+        0 4px 24px rgba(0, 0, 0, 0.07),
+        0 16px 48px rgba(0, 0, 0, 0.08),
+        0 1px 0 rgba(255, 255, 255, 0.92) inset;
+
+      /* Badge confirmed — acento verde muy apagado */
+      --badge-ok-bg:    rgba(0, 0, 0, 0.04);
+      --badge-ok-text:  #333333;
+      --badge-ok-bd:    rgba(0, 0, 0, 0.08);
+      --badge-pend-bg:  rgba(0, 0, 0, 0.03);
+      --badge-pend-text:#777777;
+      --badge-pend-bd:  rgba(0, 0, 0, 0.06);
+
+      /* Radios */
+      --r-sm:   10px;
+      --r-md:   16px;
+      --r-lg:   22px;
+      --r-xl:   28px;
+
+      /* Animaciones */
+      --ease-glass: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-snap:  cubic-bezier(0.34, 1.56, 0.64, 1);
+      --t-fast: 160ms;
+      --t-mid:  260ms;
+      --t-slow: 340ms;
+    }
+
+    /* ─────────────────────────────────────────────
+       RESET
+    ───────────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      font-weight: 300;
+      color: var(--ink);
+      overflow-x: hidden;
+      /* Fondo con variaciones sutiles de luminosidad — necesarias para que el glass funcione */
+      background: #FFFFFF;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    /* ─────────────────────────────────────────────
+       FILM GRAIN — neutro sobre blanco, 0.018 opacidad
+    ───────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      pointer-events: none;
+      opacity: 0.018;
+      mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' fill='%23333333'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
+    /* ─────────────────────────────────────────────
+       SHELL — con gradiente de fondo para que el glass tenga algo
+    ───────────────────────────────────────────── */
+    .shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      /* Gradientes radiales muy sutiles — nubes imperceptibles de luminosidad */
+      background:
+        radial-gradient(ellipse 70% 45% at 20% 10%, #F4F4F2 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 85% 35%, #F0F0EE 0%, transparent 65%),
+        radial-gradient(ellipse 50% 50% at 50% 75%, #F5F5F3 0%, transparent 70%),
+        #FFFFFF;
+    }
+
+    /* ─────────────────────────────────────────────
+       HEADLINE — header centrado, sin reloj gráfico
+       Jerarquía: saludo / fecha / hora textual
+    ───────────────────────────────────────────── */
+    .app-greeting {
+      padding: calc(env(safe-area-inset-top) + 18px) 28px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      text-align: center;
+    }
+
+    .greeting-title {
+      font-size: 52px;
+      font-weight: 450;
+      color: var(--ink);
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+    }
+
+    .greeting-date {
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--ink-mid);
+      margin-top: 12px;
+    }
+
+    .greeting-time {
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: var(--ink-soft);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .time-pill {
+      display: inline-flex;
+      align-items: center;
+      background: #1A1A1A;
+      color: #FFFFFF;
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    /* ─────────────────────────────────────────────
+       NAV ÍCONOS — sin labels, solo stroke
+       Flotando centrado bajo el greeting
+    ───────────────────────────────────────────── */
+    .top-nav {
+      margin-top: 36px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      cursor: pointer;
+      border-radius: var(--r-md);
+      transition: all var(--t-fast) var(--ease-glass);
+      min-width: 48px;
+      min-height: 48px;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.5;
+      stroke: var(--ink-soft);
+      fill: none;
+      transition: stroke var(--t-fast) var(--ease-glass);
+    }
+
+    .nav-item.active svg {
+      stroke: var(--ink);
+    }
+
+    .nav-item.active {
+      background: var(--accent-soft);
+    }
+
+    .nav-item:active {
+      transform: scale(0.91);
+    }
+
+    /* ─────────────────────────────────────────────
+       SCROLL CONTENT
+    ───────────────────────────────────────────── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 32px 16px 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ─────────────────────────────────────────────
+       PRÓXIMA CITA — card glass real, sin reloj
+    ───────────────────────────────────────────── */
+    .temporal-zone {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    /* Card de próxima cita — glass completo */
+    .next-card {
+      flex: 1;
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--surface-border);
+      border-top: 1px solid rgba(255, 255, 255, 0.80);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-card);
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition:
+        transform var(--t-fast) var(--ease-glass),
+        box-shadow var(--t-fast) var(--ease-glass);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Línea de acento top — solo 3px, casi imperceptible */
+    .next-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 0 0 2px 2px;
+      opacity: 0.10;
+    }
+
+    .next-card:active {
+      transform: scale(0.985);
+      box-shadow: var(--shadow-card), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+
+    .next-eyebrow {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+    }
+
+    .next-time {
+      font-size: 38px;
+      font-weight: 200;
+      color: var(--ink);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .next-patient {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-top: 2px;
+    }
+
+    .next-type {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--ink-soft);
+    }
+
+    .next-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 14px;
+      background: var(--ink);
+      color: #FFFFFF;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      transition: opacity var(--t-fast),
+                  transform var(--t-fast) var(--ease-snap);
+    }
+
+    .btn-primary:active {
+      opacity: 0.80;
+      transform: scale(0.96);
+    }
+
+    .btn-ghost {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 12px;
+      background: var(--accent-soft);
+      color: var(--ink-mid);
+      border-radius: var(--r-sm);
+      border: 1px solid rgba(0,0,0,0.08);
+      font-size: 12px;
+      font-weight: 400;
+      transition: opacity var(--t-fast);
+    }
+
+    .btn-ghost:active {
+      opacity: 0.65;
+    }
+
+    /* ─────────────────────────────────────────────
+       BLOQUE AGENDA — glass card grande, protagonista
+       Surface glass flotante sobre el fondo con variaciones
+    ───────────────────────────────────────────── */
+    .agenda-block {
+      margin-top: 24px;
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--surface-border);
+      border-top: 1px solid rgba(255, 255, 255, 0.80);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-card-lg);
+      overflow: hidden;
+    }
+
+    /* ── Week strip — dentro del bloque ── */
+    .week-strip-wrap {
+      padding: 20px 16px 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .week-strip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .week-strip-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+    }
+
+    .week-strip-count {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+    }
+
+    .week-strip {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .week-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .week-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 9px;
+      cursor: pointer;
+      transition: all var(--t-fast) var(--ease-glass);
+      scroll-snap-align: start;
+      flex-shrink: 0;
+      min-width: 42px;
+      border-radius: var(--r-sm);
+    }
+
+    .week-day-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+    }
+
+    .week-day-num {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--ink-soft);
+      letter-spacing: -0.01em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .week-day-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: transparent;
+      transition: background var(--t-fast);
+    }
+
+    .week-day.active {
+      background: var(--accent-soft);
+    }
+
+    .week-day.active .week-day-label {
+      color: var(--ink-mid);
+    }
+
+    .week-day.active .week-day-num {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .week-day.active .week-day-dot {
+      background: var(--ink);
+    }
+
+    .week-day.has-appts .week-day-dot {
+      background: var(--ink-ghost);
+    }
+
+    .week-day.active.has-appts .week-day-dot {
+      background: var(--ink);
+    }
+
+    .week-day:active {
+      transform: scale(0.91);
+    }
+
+    /* ── Lista de turnos — dentro del bloque ── */
+    .turnos-list {
+      padding: 4px 0 8px;
+    }
+
+    .turnos-list-header {
+      padding: 12px 20px 8px;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+    }
+
+    .turno-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      cursor: pointer;
+      transition: background var(--t-fast) var(--ease-glass);
+    }
+
+    .turno-row:last-child {
+      border-bottom: none;
+    }
+
+    .turno-row:active {
+      background: var(--accent-soft);
+    }
+
+    .turno-row.cancelled {
+      opacity: 0.35;
+    }
+
+    .turno-row.cancelled .turno-name {
+      text-decoration: line-through;
+    }
+
+    .turno-hora {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--ink-mid);
+      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
+      min-width: 38px;
+      flex-shrink: 0;
+    }
+
+    .turno-sep {
+      width: 1px;
+      height: 22px;
+      background: rgba(0,0,0,0.06);
+      flex-shrink: 0;
+    }
+
+    .turno-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .turno-name {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .turno-tipo {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--ink-soft);
+    }
+
+    .turno-badge {
+      flex-shrink: 0;
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .turno-badge.confirmed {
+      background: var(--badge-ok-bg);
+      color: var(--badge-ok-text);
+      border: 1px solid var(--badge-ok-bd);
+    }
+
+    .turno-badge.pending {
+      background: var(--badge-pend-bg);
+      color: var(--badge-pend-text);
+      border: 1px solid var(--badge-pend-bd);
+    }
+
+    .turno-chevron {
+      flex-shrink: 0;
+      color: var(--ink-ghost);
+    }
+
+    /* ─────────────────────────────────────────────
+       MÉTRICAS — colapsables, afuera del bloque
+    ───────────────────────────────────────────── */
+    .metrics-section {
+      margin-top: 24px;
+      padding-bottom: 8px;
+    }
+
+    .metrics-toggle {
+      width: 100%;
+      padding: 10px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--ink-ghost);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color var(--t-fast);
+    }
+
+    .metrics-toggle:active {
+      color: var(--ink-soft);
+    }
+
+    .metrics-chevron {
+      transition: transform var(--t-mid) var(--ease-glass);
+    }
+
+    .metrics-chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height var(--t-mid) var(--ease-glass),
+                  opacity var(--t-mid) var(--ease-glass);
+    }
+
+    .metrics-grid.open {
+      max-height: 120px;
+      opacity: 1;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 16px 8px;
+      gap: 5px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 200;
+      color: var(--ink);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+      line-height: 1.3;
+    }
+
+    /* ─────────────────────────────────────────────
+       MODAL — bottom sheet glass
+    ───────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0, 0, 0, 0.12);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--t-slow) var(--ease-glass);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 600;
+      max-height: 75vh;
+      /* Glass real — fondo semitransparente con blur */
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(32px) saturate(1.2);
+      -webkit-backdrop-filter: blur(32px) saturate(1.2);
+      border-radius: 28px 28px 0 0;
+      border: 1px solid rgba(255, 255, 255, 0.80);
+      border-bottom: none;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.95) inset,
+        0 -8px 48px rgba(0,0,0,0.08),
+        0 -2px 12px rgba(0,0,0,0.04);
+      transform: translateY(100%);
+      transition: transform var(--t-slow) var(--ease-glass);
+      overflow: hidden;
+    }
+
+    .modal-sheet.open {
+      transform: translateY(0);
+    }
+
+    .modal-handle {
+      width: 32px;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(0,0,0,0.10);
+      margin: 14px auto 0;
+    }
+
+    .modal-content {
+      padding: 20px 20px;
+      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      max-height: calc(75vh - 32px);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--ink-soft);
+      margin-top: 3px;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-soft);
+      flex-shrink: 0;
+      transition: background var(--t-fast);
+    }
+
+    .modal-close:active {
+      background: rgba(0,0,0,0.10);
+    }
+
+    .modal-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .modal-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .modal-row-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--ink-mid);
+    }
+
+    .modal-row-text {
+      flex: 1;
+    }
+
+    .modal-row-label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+      margin-bottom: 2px;
+    }
+
+    .modal-row-value {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ink);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .modal-actions .btn-primary,
+    .modal-actions .btn-ghost {
+      flex: 1;
+      justify-content: center;
+    }
+
+    /* ─────────────────────────────────────────────
+       DESKTOP — simulación de teléfono centrado
+    ───────────────────────────────────────────── */
+    @media (min-width: 768px) {
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 32px 0 80px;
+        background: #E8E8E6;
+      }
+
+      .shell {
+        max-width: 390px;
+        width: 390px;
+        min-height: 844px;
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,0.06),
+          0 24px 80px rgba(0,0,0,0.14);
+        border-radius: 44px;
+        overflow: hidden;
+      }
+
+      .modal-sheet {
+        max-width: 390px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%) translateY(100%);
+        border-radius: 28px 28px 0 0;
+      }
+
+      .modal-sheet.open {
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Modal overlay -->
+  <div class="modal-overlay" id="overlay" onclick="closeModal()"></div>
+
+  <!-- Bottom sheet modal — detalle de turno -->
+  <div class="modal-sheet" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <p class="modal-title" id="modal-title-text">María González</p>
+          <p class="modal-subtitle">Sesión individual · 50 min</p>
+        </div>
+        <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M1 1l12 12M13 1L1 13"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-row">
+        <div class="modal-row-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div class="modal-row-text">
+          <p class="modal-row-label">Horario</p>
+          <p class="modal-row-value">09:00 — 09:50 hs</p>
+        </div>
+      </div>
+
+      <div class="modal-row">
+        <div class="modal-row-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.1 0h3a2 2 0 012 1.72c.128.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.11 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.572 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+        </div>
+        <div class="modal-row-text">
+          <p class="modal-row-label">Contacto</p>
+          <p class="modal-row-value">+54 9 341 555-0100</p>
+        </div>
+      </div>
+
+      <div class="modal-row">
+        <div class="modal-row-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+          </svg>
+        </div>
+        <div class="modal-row-text">
+          <p class="modal-row-label">Estado</p>
+          <p class="modal-row-value">Confirmada</p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.1 0h3a2 2 0 012 1.72c.128.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.11 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.572 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+          WhatsApp
+        </button>
+        <button class="btn-ghost" onclick="closeModal()">Cancelar turno</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SHELL PRINCIPAL
+  ═══════════════════════════════════════════ -->
+  <main class="shell">
+
+    <!-- ─── 1. HEADLINE — CENTRADO, SIN RELOJ ─── -->
+    <header class="app-greeting">
+      <h1 class="greeting-title" id="greeting-title">Buenos días</h1>
+      <p class="greeting-date" id="greeting-date">Lunes 30 de marzo</p>
+      <p class="greeting-time" id="greeting-time">
+        <span id="time-prefix">Son las</span>
+        <span class="time-pill" id="time-pill">08:00</span>
+        <span id="time-suffix">de la mañana</span>
+      </p>
+    </header>
+
+    <!-- ─── 2. NAV — SOLO ÍCONOS, SIN LABELS ─── -->
+    <nav class="top-nav" aria-label="Navegación principal">
+
+      <div class="nav-item active" role="button" tabindex="0" aria-label="Agenda">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+      </div>
+
+      <div class="nav-item" role="button" tabindex="0" aria-label="Clientes">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+      </div>
+
+      <div class="nav-item" role="button" tabindex="0" aria-label="Mensajes">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+
+      <div class="nav-item" role="button" tabindex="0" aria-label="Estadísticas">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+
+      <div class="nav-item" role="button" tabindex="0" aria-label="Configuración">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </div>
+
+    </nav>
+
+    <!-- SCROLL CONTENT -->
+    <div class="content">
+
+      <!-- ─── 3. PRÓXIMA CITA — sin reloj gráfico ─── -->
+      <div class="temporal-zone">
+
+        <!-- Próxima cita — ocupa todo el ancho -->
+        <div class="next-card"
+             role="button"
+             tabindex="0"
+             onclick="openModal()"
+             aria-label="Abrir detalle: María González, 09:00">
+          <p class="next-eyebrow">Próxima cita</p>
+          <div>
+            <p class="next-time">09:00</p>
+            <p class="next-patient">María González</p>
+            <p class="next-type">Sesión individual · 50 min</p>
+          </div>
+          <div class="next-actions">
+            <button class="btn-primary" onclick="event.stopPropagation()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.1 0h3a2 2 0 012 1.72c.128.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.11 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.572 2.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+              WhatsApp
+            </button>
+            <button class="btn-ghost" onclick="event.stopPropagation()">Confirmar</button>
+          </div>
+        </div>
+
+      </div><!-- /temporal-zone -->
+
+      <!-- ─── 4. BLOQUE DE AGENDA — surface propia, flotante ─── -->
+      <div class="agenda-block">
+
+        <!-- Week strip -->
+        <div class="week-strip-wrap">
+          <div class="week-strip-header">
+            <span class="week-strip-label">Semana</span>
+            <span class="week-strip-count">5 turnos hoy</span>
+          </div>
+          <div class="week-strip" role="tablist" aria-label="Semana">
+
+            <div class="week-day" role="tab" aria-selected="false" aria-label="Martes 25">
+              <span class="week-day-label">Mar</span>
+              <span class="week-day-num">25</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day" role="tab" aria-selected="false" aria-label="Miércoles 26">
+              <span class="week-day-label">Mié</span>
+              <span class="week-day-num">26</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day has-appts" role="tab" aria-selected="false" aria-label="Jueves 27">
+              <span class="week-day-label">Jue</span>
+              <span class="week-day-num">27</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day" role="tab" aria-selected="false" aria-label="Viernes 28">
+              <span class="week-day-label">Vie</span>
+              <span class="week-day-num">28</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day" role="tab" aria-selected="false" aria-label="Sábado 29">
+              <span class="week-day-label">Sáb</span>
+              <span class="week-day-num">29</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day active has-appts" role="tab" aria-selected="true" aria-label="Hoy, lunes 30">
+              <span class="week-day-label">Lun</span>
+              <span class="week-day-num">30</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day has-appts" role="tab" aria-selected="false" aria-label="Martes 31">
+              <span class="week-day-label">Mar</span>
+              <span class="week-day-num">31</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day" role="tab" aria-selected="false" aria-label="Miércoles 1">
+              <span class="week-day-label">Mié</span>
+              <span class="week-day-num">1</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+            <div class="week-day" role="tab" aria-selected="false" aria-label="Jueves 2">
+              <span class="week-day-label">Jue</span>
+              <span class="week-day-num">2</span>
+              <span class="week-day-dot"></span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Lista de turnos -->
+        <div class="turnos-list">
+          <p class="turnos-list-header">Hoy · Lunes 30</p>
+
+          <div class="turno-row" role="button" tabindex="0" onclick="openModal()">
+            <span class="turno-hora">09:00</span>
+            <div class="turno-sep"></div>
+            <div class="turno-info">
+              <span class="turno-name">María González</span>
+              <span class="turno-tipo">Sesión individual</span>
+            </div>
+            <span class="turno-badge confirmed">Confirmada</span>
+            <svg class="turno-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="turno-row" role="button" tabindex="0">
+            <span class="turno-hora">10:00</span>
+            <div class="turno-sep"></div>
+            <div class="turno-info">
+              <span class="turno-name">Carlos Ruiz</span>
+              <span class="turno-tipo">Sesión de pareja · 80 min</span>
+            </div>
+            <span class="turno-badge pending">Pendiente</span>
+            <svg class="turno-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="turno-row" role="button" tabindex="0">
+            <span class="turno-hora">11:30</span>
+            <div class="turno-sep"></div>
+            <div class="turno-info">
+              <span class="turno-name">Ana Ferreyra</span>
+              <span class="turno-tipo">Evaluación inicial</span>
+            </div>
+            <span class="turno-badge confirmed">Confirmada</span>
+            <svg class="turno-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="turno-row cancelled" role="button" tabindex="0">
+            <span class="turno-hora">14:00</span>
+            <div class="turno-sep"></div>
+            <div class="turno-info">
+              <span class="turno-name">Pedro Soria</span>
+              <span class="turno-tipo">Sesión individual</span>
+            </div>
+            <span class="turno-badge pending">Cancelado</span>
+            <svg class="turno-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+          <div class="turno-row" role="button" tabindex="0">
+            <span class="turno-hora">16:00</span>
+            <div class="turno-sep"></div>
+            <div class="turno-info">
+              <span class="turno-name">Lucía Torres</span>
+              <span class="turno-tipo">Seguimiento · 50 min</span>
+            </div>
+            <span class="turno-badge confirmed">Confirmada</span>
+            <svg class="turno-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+
+        </div>
+      </div><!-- /agenda-block -->
+
+      <!-- MÉTRICAS — colapsables, afuera del bloque -->
+      <div class="metrics-section">
+        <button class="metrics-toggle" onclick="toggleMetrics()" aria-expanded="false" aria-controls="metrics-grid">
+          <span>Resumen del mes</span>
+          <svg class="metrics-chevron" id="metrics-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="metrics-grid" id="metrics-grid" role="region" aria-label="Métricas del mes">
+          <div class="metric-item">
+            <span class="metric-value">24</span>
+            <span class="metric-label">Turnos<br>realizados</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">3</span>
+            <span class="metric-label">Clientes<br>nuevos</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-value">96%</span>
+            <span class="metric-label">Tasa de<br>asist.</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+  </main>
+
+  <script>
+    /* ──────────────────────────────────────────
+       SALUDO DINÁMICO
+    ────────────────────────────────────────── */
+    (function() {
+      const h  = new Date().getHours();
+      const el = document.getElementById('greeting-title');
+      if (!el) return;
+      if (h < 12)      el.textContent = 'Buenos días';
+      else if (h < 20) el.textContent = 'Buenas tardes';
+      else             el.textContent = 'Buenas noches';
+    })();
+
+    /* ──────────────────────────────────────────
+       FECHA DINÁMICA — "Lunes 30 de marzo"
+    ────────────────────────────────────────── */
+    (function() {
+      const el = document.getElementById('greeting-date');
+      if (!el) return;
+      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      const now   = new Date();
+      el.textContent = `${dias[now.getDay()]} ${now.getDate()} de ${meses[now.getMonth()]}`;
+    })();
+
+    /* ──────────────────────────────────────────
+       HORA — pill digital inline con hora real
+    ────────────────────────────────────────── */
+    (function() {
+      const pill   = document.getElementById('time-pill');
+      const suffix = document.getElementById('time-suffix');
+      if (!pill || !suffix) return;
+
+      function updateTimePill() {
+        const now = new Date();
+        const h   = now.getHours();
+        const m   = now.getMinutes();
+        const hh  = String(h).padStart(2, '0');
+        const mm  = String(m).padStart(2, '0');
+        pill.textContent = `${hh}:${mm}`;
+
+        let periodo;
+        if (h >= 6 && h < 12)       periodo = 'de la mañana';
+        else if (h >= 12 && h < 14) periodo = 'del mediodía';
+        else if (h >= 14 && h < 20) periodo = 'de la tarde';
+        else                        periodo = 'de la noche';
+        suffix.textContent = periodo;
+      }
+
+      updateTimePill();
+      setInterval(updateTimePill, 30000);
+    })();
+
+    /* ──────────────────────────────────────────
+       MODAL
+    ────────────────────────────────────────── */
+    function openModal() {
+      document.getElementById('modal').classList.add('open');
+      document.getElementById('overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('open');
+      document.getElementById('overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* ──────────────────────────────────────────
+       MÉTRICAS TOGGLE
+    ────────────────────────────────────────── */
+    function toggleMetrics() {
+      const grid    = document.getElementById('metrics-grid');
+      const chevron = document.getElementById('metrics-chevron');
+      const btn     = chevron.closest('button');
+      const isOpen  = grid.classList.toggle('open');
+      chevron.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    }
+
+    /* ──────────────────────────────────────────
+       WEEK STRIP — selección de día
+    ────────────────────────────────────────── */
+    document.querySelectorAll('.week-day').forEach(day => {
+      day.addEventListener('click', () => {
+        document.querySelectorAll('.week-day').forEach(d => {
+          d.classList.remove('active');
+          d.setAttribute('aria-selected', 'false');
+        });
+        day.classList.add('active');
+        day.setAttribute('aria-selected', 'true');
+      });
+    });
+
+    /* ──────────────────────────────────────────
+       NAV ITEMS — toggle activo
+    ────────────────────────────────────────── */
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnoBot — Brandbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal:       #5B8FA6;
+    --teal2:      #6FA4BC;
+    --teal3:      #99C3D6;
+    --teal-light: rgba(91,143,166,0.10);
+    --dark:       #1B2D3B;
+    --dark2:      #12212E;
+    --text:       #243542;
+    --text2:      #5E7A8A;
+    --text3:      #8FA4AE;
+    --border:     rgba(27,45,59,0.08);
+    --borderO:    rgba(91,143,166,0.22);
+    --bg:         #f6f8fa;
+  }
+
+  html, body {
+    background: #edf1f4;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 56px 32px 80px; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 64px; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid rgba(27,45,59,0.08); }
+  .section-num { font-family: 'Geist', monospace; font-size: 11px; color: var(--teal); font-weight: 500; letter-spacing: 0.04em; }
+  .section-title { font-family: 'Bricolage Grotesque', system-ui; font-size: 20px; font-weight: 700; color: var(--dark); letter-spacing: -0.02em; }
+
+  /* ── Cards ── */
+  .card { background: rgba(255,255,255,0.72); border: 1px solid var(--border); border-radius: 14px; backdrop-filter: blur(12px); }
+  .card-white { background: white; border: 1px solid var(--border); border-radius: 14px; }
+
+  /* ── Grid helpers ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+  /* ── Label ── */
+  .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text3); font-weight: 400; margin-bottom: 6px; }
+
+  /* ── Pill ── */
+  .pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .pill-confirmed { background: rgba(16,185,129,0.10); color: #059669; }
+  .pill-pending   { background: rgba(245,158,11,0.10);  color: #D97706; }
+  .pill-noshow    { background: rgba(107,114,128,0.10); color: #6B7280; }
+  .pill-cancelled { background: rgba(239,68,68,0.09);   color: #DC2626; }
+
+  /* ── Avatar ── */
+  .avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; flex-shrink: 0; }
+  .avatar-jp { background: #C49580; }
+  .avatar-ag { background: #7FA8C4; }
+  .avatar-lh { background: #6BABA4; }
+
+  /* ── Chip ── */
+  .chip { display: inline-flex; align-items: baseline; gap: 2px; padding: 1px 6px 2px; border-radius: 5px; font-weight: 700; line-height: 1; vertical-align: middle; border: 1px solid transparent; white-space: nowrap; font-family: 'Geist','DM Sans',system-ui; }
+  .chip-val  { font-size: 14px; letter-spacing: -0.03em; }
+  .chip-unit { font-size: 12px; font-weight: 400; opacity: 0.78; }
+  .chip-blue  { background: rgba(59,130,246,0.07);  border-color: rgba(59,130,246,0.16); color: #2563EB; }
+  .chip-teal  { background: rgba(91,143,166,0.09);  border-color: rgba(91,143,166,0.22); color: #4A7A94; }
+  .chip-green { background: rgba(16,185,129,0.07);  border-color: rgba(16,185,129,0.18); color: #059669; }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: rgba(27,45,59,0.06); }
+
+  @keyframes sagePulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(91,143,166,0.20); }
+    50%      { box-shadow: 0 0 0 5px rgba(91,143,166,0.07); }
+  }
+  .active-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); display: inline-block; animation: sagePulse 2s infinite; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Cover ── -->
+  <div style="margin-bottom:72px;padding:48px;background:var(--dark);border-radius:24px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(91,143,166,0.30) 0%,transparent 70%)"></div>
+    <div style="position:absolute;bottom:-40px;left:40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(153,195,214,0.12) 0%,transparent 70%)"></div>
+    <div style="position:relative;z-index:1">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--teal),var(--teal3));display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',system-ui;font-size:14px;font-weight:700;color:white">TB</div>
+        <div>
+          <div style="font-family:'Bricolage Grotesque',system-ui;font-size:20px;font-weight:700;color:white;letter-spacing:-0.02em">
+            Turno<span style="color:var(--teal3)">Bot</span>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.40);letter-spacing:0.04em">Gestión de turnos</div>
+        </div>
+      </div>
+      <h1 style="font-family:'Bricolage Grotesque',system-ui;font-size:clamp(32px,5vw,48px);font-weight:800;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:12px">
+        Design<br>Brandbook
+      </h1>
+      <p style="font-size:14px;color:rgba(255,255,255,0.45);font-weight:400">Versión 2.0 · Abril 2026</p>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       1. PALETA DE COLOR
+  ══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Paleta de color</span>
+    </div>
+
+    <!-- Principales -->
+    <div class="label" style="margin-bottom:12px">Colores principales</div>
+    <div class="grid-4" style="margin-bottom:24px">
+      <div class="card-white" style="overflow:hidden">
+        <div style="height:72px;background:#5B8FA6"></div>
+        <div style="padding:10px 12px">
+          <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:2px">Teal</div>
+          <div style="font-family:'Geist',monospace;font-size:11px;color:var(--text2)">#5B8FA6</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">Acento principal</div>
+        </div>
+      </div>
+      <div class="card-white" style="overflow:hidden">
+        <div style="height:72px;background:#1B2D3B"></div>
+        <div style="padding:10px 12px">
+          <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:2px">Forest</div>
+          <div style="font-family:'Geist',monospace;font-size:11px;color:var(--text2)">#1B2D3B</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">Texto principal, dark UI</div>
+        </div>
+      </div>
+      <div class="card-white" style="overflow:hidden">
+        <div style="height:72px;background:#f6f8fa"></div>
+        <div style="padding:10px 12px">
+          <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:2px">Background</div>
+          <div style="font-family:'Geist',monospace;font-size:11px;color:var(--text2)">#f6f8fa</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">Fondo de pantalla</div>
+        </div>
+      </div>
+      <div class="card-white" style="overflow:hidden">
+        <div style="height:72px;background:linear-gradient(135deg,#5B8FA6,#99C3D6)"></div>
+        <div style="padding:10px 12px">
+          <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:2px">Teal Gradient</div>
+          <div style="font-family:'Geist',monospace;font-size:11px;color:var(--text2)">#5B8FA6 → #99C3D6</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">Gradiente de acento</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Texto -->
+    <div class="label" style="margin-bottom:12px">Escala de texto</div>
+    <div class="card-white" style="padding:16px 20px;margin-bottom:24px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);width:80px">--text</div>
+          <div style="width:20px;height:20px;border-radius:50%;background:#243542;flex-shrink:0"></div>
+          <div style="font-size:13px;color:#243542;flex:1">Texto principal — títulos de cards, nombres de clientes</div>
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3)">#243542</div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);width:80px">--text2</div>
+          <div style="width:20px;height:20px;border-radius:50%;background:#5E7A8A;flex-shrink:0"></div>
+          <div style="font-size:13px;color:#5E7A8A;flex:1">Texto secundario — subtítulos, detalles de servicios</div>
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3)">#5E7A8A</div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);width:80px">--text3</div>
+          <div style="width:20px;height:20px;border-radius:50%;background:#8FA4AE;flex-shrink:0"></div>
+          <div style="font-size:13px;color:#8FA4AE;flex:1">Texto terciario — labels, metadatos, timestamps</div>
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3)">#8FA4AE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semánticos -->
+    <div class="label" style="margin-bottom:12px">Colores semánticos</div>
+    <div class="grid-4">
+      <div class="card-white" style="padding:12px">
+        <div style="height:4px;border-radius:99px;background:#10B981;margin-bottom:10px"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--dark)">Confirmado</div>
+        <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:2px">#10B981</div>
+      </div>
+      <div class="card-white" style="padding:12px">
+        <div style="height:4px;border-radius:99px;background:#F59E0B;margin-bottom:10px"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--dark)">Pendiente</div>
+        <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:2px">#F59E0B</div>
+      </div>
+      <div class="card-white" style="padding:12px">
+        <div style="height:4px;border-radius:99px;background:#6B7280;margin-bottom:10px"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--dark)">No show</div>
+        <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:2px">#6B7280</div>
+      </div>
+      <div class="card-white" style="padding:12px">
+        <div style="height:4px;border-radius:99px;background:#EF4444;margin-bottom:10px"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--dark)">Cancelado</div>
+        <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:2px">#EF4444</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       2. TIPOGRAFÍA
+  ══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Tipografía</span>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:24px">
+      <!-- Bricolage -->
+      <div class="card-white" style="padding:20px">
+        <div class="label">Display / Headings</div>
+        <div style="font-family:'Bricolage Grotesque',system-ui;font-size:28px;font-weight:700;color:var(--dark);letter-spacing:-0.03em;line-height:1.1;margin-bottom:8px">Bricolage<br>Grotesque</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.6">Títulos de sección, números editoriales grandes, nombre de la app. Peso 700–800.</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="font-family:'Bricolage Grotesque',system-ui;font-size:11px;color:var(--text3)">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>0123456789</div>
+        </div>
+      </div>
+      <!-- DM Sans -->
+      <div class="card-white" style="padding:20px">
+        <div class="label">Body / UI</div>
+        <div style="font-family:'DM Sans',system-ui;font-size:24px;font-weight:400;color:var(--dark);line-height:1.2;margin-bottom:8px">DM Sans<br><span style="font-weight:500">Regular · Medium</span></div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.6">Todo el texto de interfaz. Labels, listas, botones, inputs. Mínimo 12px. Sin font-light (300).</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text3)">Regular 400 · Medium 500 · Bold 700</div>
+        </div>
+      </div>
+      <!-- Instrument Serif -->
+      <div class="card-white" style="padding:20px">
+        <div class="label">Accent / Serif</div>
+        <div style="font-family:'Instrument Serif',Georgia,serif;font-size:28px;font-style:italic;color:var(--dark);line-height:1.1;margin-bottom:8px">Instrument<br>Serif</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.6">Uso puntual en nombres propios dentro del saludo. Añade calidez sin romper la neutralidad del sistema.</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="font-family:'Instrument Serif',Georgia,serif;font-size:11px;font-style:italic;color:var(--text3)">Uso: italic únicamente</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Geist -->
+    <div class="card-white" style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="flex:1">
+          <div class="label">Monoespaciado / Datos</div>
+          <div style="font-family:'Geist',monospace;font-size:20px;font-weight:500;color:var(--dark);letter-spacing:-0.01em">Geist — 14:30 · $12.000 · #5B8FA6</div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);max-width:260px;line-height:1.6">Para horarios, precios, hex codes y datos tabulares. Garantiza alineación perfecta en listas.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       3. AVATARES DE PROFESIONALES
+  ══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Avatares de profesionales</span>
+    </div>
+    <div class="label" style="margin-bottom:12px">Colores desaturados — guía visual, no decorativa</div>
+    <div class="grid-3">
+      <div class="card-white" style="padding:20px;display:flex;align-items:center;gap:16px">
+        <div class="avatar avatar-jp" style="width:48px;height:48px;font-size:15px;flex-shrink:0">JP</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--dark)">José Pérez</div>
+          <div style="font-size:11px;color:var(--text2)">Owner</div>
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:4px">#C49580 — terra cotta</div>
+        </div>
+      </div>
+      <div class="card-white" style="padding:20px;display:flex;align-items:center;gap:16px">
+        <div class="avatar avatar-ag" style="width:48px;height:48px;font-size:15px;flex-shrink:0">AG</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--dark)">Ana Gómez</div>
+          <div style="font-size:11px;color:var(--text2)">Staff</div>
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:4px">#7FA8C4 — steel blue</div>
+        </div>
+      </div>
+      <div class="card-white" style="padding:20px;display:flex;align-items:center;gap:16px">
+        <div class="avatar avatar-lh" style="width:48px;height:48px;font-size:15px;flex-shrink:0">LH</div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--dark)">Lucas Herrera</div>
+          <div style="font-size:11px;color:var(--text2)">Staff</div>
+          <div style="font-family:'Geist',monospace;font-size:10px;color:var(--text3);margin-top:4px">#6BABA4 — teal suave</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:12px 16px;border-radius:10px;background:rgba(91,143,166,0.06);border:1px solid rgba(91,143,166,0.14)">
+      <p style="font-size:12px;color:var(--text2);line-height:1.6"><strong style="color:var(--dark)">Principio:</strong> Los colores de avatar son desaturados para actuar como guía visual sin competir con el contenido. La saturación debe ser similar a la de los status pills (confirmado / pendiente). Aplicar igual en <em>todas</em> las pantallas — Inicio, Agenda, Clientes, Configuración.</p>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       4. COMPONENTES
+  ══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Componentes</span>
+    </div>
+
+    <!-- Status pills -->
+    <div class="label" style="margin-bottom:10px">Status Pills — ancho fijo 96px, centrado</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px">
+      <div class="pill pill-confirmed" style="min-width:96px;justify-content:center">confirmado</div>
+      <div class="pill pill-pending"   style="min-width:96px;justify-content:center">pendiente</div>
+      <div class="pill pill-noshow"    style="min-width:96px;justify-content:center">no show</div>
+      <div class="pill pill-cancelled" style="min-width:96px;justify-content:center">cancelado</div>
+    </div>
+
+    <!-- Narrative chips -->
+    <div class="label" style="margin-bottom:10px">Narrative Chips — datos inline en texto</div>
+    <div class="card-white" style="padding:18px 20px;margin-bottom:24px">
+      <p style="font-size:15px;line-height:2.1;color:var(--text);margin-bottom:8px">
+        Hoy tenés
+        <span class="chip chip-blue"><span class="chip-val">7</span> <span class="chip-unit">turnos</span></span>,
+        de los cuales
+        <span class="chip chip-green"><span class="chip-val">5</span> <span class="chip-unit">confirmados</span></span>
+        y quedan
+        <span class="chip chip-teal"><span class="chip-val">3</span> <span class="chip-unit">vacantes</span></span>.
+        Facturación estimada:
+        <span class="chip chip-green"><span class="chip-val">$12.000</span></span>.
+      </p>
+      <div class="divider" style="margin-bottom:10px"></div>
+      <p style="font-size:11px;color:var(--text3);line-height:1.6">
+        Padding <code style="font-family:'Geist',monospace;background:rgba(27,45,59,0.05);padding:1px 4px;border-radius:3px">1px 6px 2px</code> ·
+        Border-radius <code style="font-family:'Geist',monospace;background:rgba(27,45,59,0.05);padding:1px 4px;border-radius:3px">5px</code> ·
+        Font Geist 14px/700 · Unidad 12px/400
+      </p>
+    </div>
+
+    <!-- Glass card -->
+    <div class="label" style="margin-bottom:10px">Glass Card — para elementos accionables de turnos</div>
+    <div class="card" style="padding:16px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatar avatar-ag" style="width:36px;height:36px;font-size:13px">AG</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--dark)">María García</div>
+          <div style="font-size:12px;color:var(--text2)">Coloración Completa · 120 min</div>
+        </div>
+        <div>
+          <div style="font-family:'Bricolage Grotesque',system-ui;font-size:24px;font-weight:700;color:var(--dark);letter-spacing:-0.03em">14:30</div>
+        </div>
+        <div class="pill pill-confirmed">confirmado</div>
+      </div>
+    </div>
+    <div style="margin-bottom:24px;padding:10px 14px;border-radius:8px;background:rgba(27,45,59,0.03);border:1px solid var(--border)">
+      <p style="font-size:11px;color:var(--text3);line-height:1.6">
+        <code style="font-family:'Geist',monospace;background:rgba(27,45,59,0.05);padding:1px 4px;border-radius:3px">rgba(255,255,255,0.62)</code> + border <code style="font-family:'Geist',monospace;background:rgba(27,45,59,0.05);padding:1px 4px;border-radius:3px">rgba(27,45,59,0.08)</code> + backdrop-filter blur(16px)
+      </p>
+    </div>
+
+    <!-- Slot buttons -->
+    <div class="label" style="margin-bottom:10px">Slot Buttons — acciones rápidas</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div style="padding:3px 10px;border-radius:99px;font-size:11px;color:var(--teal);background:rgba(255,255,255,0.72);border:1px solid var(--borderO)">09:00</div>
+      <div style="padding:3px 10px;border-radius:99px;font-size:11px;color:var(--teal);background:rgba(255,255,255,0.72);border:1px solid var(--borderO)">13:00</div>
+      <div style="padding:3px 10px;border-radius:99px;font-size:11px;color:var(--teal);background:rgba(255,255,255,0.72);border:1px solid var(--borderO)">16:00</div>
+      <div style="padding:3px 10px;border-radius:99px;font-size:11px;color:var(--text3);background:rgba(255,255,255,0.72);border:1px solid var(--border)">+3 más</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       5. PRINCIPIOS DE DISEÑO
+  ══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Principios de diseño</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="card-white" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">✦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Materialidad como jerarquía</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">Los datos estadísticos (KPIs) flotan sobre el fondo sin contenedor — son contexto. Los elementos accionables (turnos) tienen glass card + borde — son acciones. La distinción surge de la materialidad, no del color.</div>
+      </div>
+      <div class="card-white" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">✦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Narrativa sobre grilla</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">Los KPIs se presentan como una oración legible con chips inline. Evitar las grillas de tarjetas genéricas. El texto narrativo crea ritmo visual porque las palabras y los números se alternan con colores distintos.</div>
+      </div>
+      <div class="card-white" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">✦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Editorial sin perder legibilidad</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">Bricolage Grotesque en tamaños grandes para crear momentos tipográficos (el horario del próximo turno). El `:` en teal es el único guiño de color de identidad en la tipografía. Fuente mínima: 12px en todo el sistema.</div>
+      </div>
+      <div class="card-white" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">✦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Teal como único acento</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">El teal (#5B8FA6) es el único color de marca. Los colores semánticos (verde confirmado, ámbar pendiente, etc.) son utilitarios. Los avatares de proveedores son pastel desaturado para guía visual sin competir con la UI.</div>
+      </div>
+      <div class="card-white" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">✦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Sin font-light</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">Prohibido font-weight: 300 en toda la app. El background con imagen de alta clave (serubg2.png) hace que los textos delgados no se lean. Usar siempre 400 (regular) o 500 (medium). El contraste activo/inactivo se logra con color, no con peso.</div>
+      </div>
+      <div class="card-white" style="padding:20px">
+        <div style="font-size:22px;margin-bottom:10px">✦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">Glass morfismo contenido</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.7">El glass se usa en dos niveles: screen-level (CONTENT_GLASS, muy sutil) y card-level (CARD_GLASS, rgba(255,255,255,0.62)). No saturar la UI con bordes y fondos en todos lados. El vidrio solo aparece donde el contenido es accionable.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       6. INICIO SCREEN — dirección editorial
+  ══════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">InicioScreen — nueva dirección</span>
+    </div>
+
+    <div class="card-white" style="overflow:hidden">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
+        <div style="width:8px;height:8px;border-radius:50%;background:rgba(27,45,59,0.15)"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:rgba(27,45,59,0.15)"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:rgba(27,45,59,0.15)"></div>
+        <div style="flex:1;text-align:center;font-family:'Geist',monospace;font-size:11px;color:var(--text3)">InicioScreen</div>
+      </div>
+      <div style="padding:24px;background:var(--bg)">
+
+        <!-- Greeting -->
+        <div style="margin-bottom:20px">
+          <div style="font-family:'Bricolage Grotesque',system-ui;font-size:22px;font-weight:700;color:var(--dark);letter-spacing:-0.02em;margin-bottom:8px">
+            Buenas tardes,
+            <span style="font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400">José</span>.
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:rgba(91,143,166,0.07);border:1px solid rgba(91,143,166,0.15)">
+            <div class="active-dot"></div>
+            <span style="font-size:11px;color:var(--text2)">Asistente activo</span>
+          </div>
+        </div>
+
+        <!-- Narrative KPIs -->
+        <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(27,45,59,0.07)">
+          <p style="font-size:14px;line-height:2.1;color:var(--text)">
+            Hoy tenés
+            <span class="chip chip-blue"><span class="chip-val">7</span> <span class="chip-unit">turnos</span></span>,
+            de los cuales
+            <span class="chip chip-green"><span class="chip-val">5</span> <span class="chip-unit">confirmados</span></span>
+            y quedan
+            <span class="chip chip-teal"><span class="chip-val">3</span> <span class="chip-unit">vacantes</span></span>.
+            Facturación estimada:
+            <span class="chip chip-green"><span class="chip-val">$12.000</span></span>.
+          </p>
+        </div>
+
+        <!-- Próximo turno -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:5px">Próximo turno</div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px">
+            <div style="font-family:'Bricolage Grotesque',system-ui;font-size:40px;font-weight:700;letter-spacing:-0.05em;color:var(--dark);line-height:1">
+              14<span style="color:var(--teal)">:</span>30
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;padding-bottom:4px">
+              <div class="pill pill-confirmed" style="font-size:10px">confirmado</div>
+              <div style="font-size:11px;color:var(--text3)">hoy · lunes 14</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar avatar-ag" style="width:30px;height:30px;font-size:11px">AG</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--dark)">María García</div>
+              <div style="font-size:11px;color:var(--text2)">Coloración Completa · 120 min · Ana G.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider" style="margin-bottom:14px"></div>
+
+        <!-- Agenda -->
+        <div style="margin-bottom:10px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:6px">Agenda de hoy</div>
+          <div class="card" style="overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(91,143,166,0.05);border-bottom:1px solid rgba(27,45,59,0.05)">
+              <span style="font-family:'Geist',monospace;font-size:11px;font-weight:500;color:var(--teal);width:34px">15:00</span>
+              <span style="font-size:12px;flex:1;color:var(--text)">Laura Martínez</span>
+              <div class="avatar avatar-lh" style="width:18px;height:18px;font-size:7px">LH</div>
+              <div class="pill pill-pending" style="font-size:9px;padding:2px 6px">pend.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px">
+              <span style="font-family:'Geist',monospace;font-size:11px;font-weight:500;color:var(--teal);width:34px">17:00</span>
+              <span style="font-size:12px;flex:1;color:var(--text)">Juan Pérez</span>
+              <div class="avatar avatar-jp" style="width:18px;height:18px;font-size:7px">JP</div>
+              <div class="pill pill-confirmed" style="font-size:9px;padding:2px 6px">conf.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <div style="padding:2px 8px;border-radius:99px;font-size:10px;color:var(--teal);background:rgba(255,255,255,0.72);border:1px solid var(--borderO)">09:00</div>
+          <div style="padding:2px 8px;border-radius:99px;font-size:10px;color:var(--teal);background:rgba(255,255,255,0.72);border:1px solid var(--borderO)">13:00</div>
+          <div style="padding:2px 8px;border-radius:99px;font-size:10px;color:var(--text3);background:rgba(255,255,255,0.72);border:1px solid var(--border)">+3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Footer -->
+  <div style="text-align:center;padding-top:32px;border-top:1px solid var(--border)">
+    <div style="font-family:'Bricolage Grotesque',system-ui;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:4px">
+      Turno<span style="color:var(--teal)">Bot</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">Brandbook v2.0 · Abril 2026 · Uso interno</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Brief — Serú</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #FAF6F0;
+  --sf:       #FFFFFF;
+  --sf2:      #FFF9F4;
+  --ac:       #D97B4F;
+  --ac-l:     rgba(217,123,79,.10);
+  --ac-m:     rgba(217,123,79,.22);
+  --ac2:      #7A9E8A;
+  --ac2-l:    rgba(122,158,138,.10);
+  --ac2-m:    rgba(122,158,138,.22);
+  --tx:       #1C1712;
+  --tx2:      #5A4A3E;
+  --mu:       #8C7B6E;
+  --bd:       #E8DDD4;
+  --bd2:      #D4C8BC;
+  --shadow:   0 1px 3px rgba(28,23,18,.06), 0 4px 16px rgba(28,23,18,.05);
+  --shadow-h: 0 4px 24px rgba(217,123,79,.14), 0 1px 4px rgba(28,23,18,.06);
+  --r:        20px;
+  --r-sm:     12px;
+  --display:  'Bricolage Grotesque', sans-serif;
+  --body:     'Plus Jakarta Sans', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.022;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px;}
+
+/* PROGRESS */
+#prog{position:fixed;top:0;left:0;height:2.5px;width:0%;background:linear-gradient(90deg,var(--ac),#EBA87C,var(--ac2));z-index:1001;transition:width .08s linear;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:54px;background:rgba(250,246,240,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
+.nav-brand{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.02em;color:var(--tx);}
+.nav-brand span{color:var(--ac);}
+.nav-links{display:flex;gap:6px;list-style:none;}
+.nav-links a{font-size:11px;font-weight:600;color:var(--mu);text-decoration:none;padding:5px 11px;border-radius:100px;transition:all .18s;letter-spacing:.02em;}
+.nav-links a:hover{color:var(--tx);background:var(--ac-l);}
+.nav-pill{background:var(--ac);color:#fff!important;border-radius:100px;padding:5px 14px!important;}
+.nav-pill:hover{background:var(--tx)!important;color:#fff!important;}
+
+/* CONTAINER */
+.wrap{max-width:1160px;margin:0 auto;padding:0 40px;position:relative;z-index:1;}
+section{padding:96px 0;position:relative;z-index:1;}
+section+section{border-top:1px solid var(--bd);}
+
+/* COVER */
+.cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 40px 96px;position:relative;overflow:hidden;background:var(--bg);}
+.cover-mesh{position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 15% 10%, rgba(217,123,79,.18) 0%, transparent 55%),
+  radial-gradient(ellipse 60% 70% at 85% 85%, rgba(122,158,138,.14) 0%, transparent 55%),
+  radial-gradient(ellipse 50% 50% at 50% 50%, rgba(235,168,124,.10) 0%, transparent 65%);
+pointer-events:none;}
+.cover-tag{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);background:var(--ac-l);border:1px solid var(--ac-m);padding:7px 18px;border-radius:100px;margin-bottom:32px;animation:fadeUp .8s both;}
+.cover h1{font-family:var(--display);font-size:clamp(52px,7vw,96px);font-weight:800;letter-spacing:-.04em;line-height:.92;color:var(--tx);margin-bottom:24px;animation:fadeUp .8s .1s both;}
+.cover h1 em{font-style:normal;background:linear-gradient(135deg,var(--ac),#EBA87C,var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cover-sub{font-size:18px;color:var(--mu);max-width:520px;margin:0 auto 52px;line-height:1.65;animation:fadeUp .8s .2s both;}
+.cover-meta{display:inline-flex;background:var(--sf);border:1px solid var(--bd);border-radius:100px;overflow:hidden;font-size:11.5px;animation:fadeUp .8s .3s both;}
+.cover-meta-item{padding:9px 20px;color:var(--mu);border-right:1px solid var(--bd);font-weight:500;}
+.cover-meta-item:last-child{border-right:none;}
+.cover-meta-item.hi{color:var(--ac);font-weight:700;}
+.cover-meta-item.hi2{color:var(--ac2);font-weight:700;}
+.cover-scroll{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .8s .5s both;opacity:.5;}
+.cover-scroll span{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);}
+.cover-scroll-line{width:1px;height:32px;background:linear-gradient(to bottom,var(--ac),transparent);}
+
+/* SECTION HEADERS */
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);margin-bottom:10px;}
+.sec-title{font-family:var(--display);font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-.03em;color:var(--tx);margin-bottom:14px;line-height:1.05;}
+.sec-desc{font-size:16px;color:var(--tx2);max-width:580px;margin-bottom:56px;line-height:1.68;}
+
+/* CARDS */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:28px 32px;box-shadow:var(--shadow);transition:box-shadow .22s,border-color .22s,transform .22s;}
+.card:hover{box-shadow:var(--shadow-h);border-color:var(--bd2);transform:translateY(-2px);}
+.card.ac{border-color:var(--ac-m);background:linear-gradient(160deg,#FFF9F4,#FFF4EE);}
+.card.ac2{border-color:var(--ac2-m);background:linear-gradient(160deg,#F7FDFA,#F0FAF5);}
+.card.mu{background:var(--sf2);}
+.card-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;background:var(--ac-l);}
+.card-icon.g{background:var(--ac2-l);}
+.card-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.card-title{font-family:var(--display);font-size:19px;font-weight:700;color:var(--tx);margin-bottom:10px;letter-spacing:-.015em;}
+.card-text{font-size:14px;color:var(--tx2);line-height:1.68;}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.g-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+
+/* PILLS */
+.pill{display:inline-block;padding:3px 12px;border-radius:100px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.p-ac{background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.p-ac2{background:var(--ac2-l);color:var(--ac2);border:1px solid var(--ac2-m);}
+.p-mu{background:rgba(140,123,110,.08);color:var(--mu);border:1px solid var(--bd);}
+.p-ok{background:rgba(122,158,138,.12);color:#4A8A70;border:1px solid rgba(122,158,138,.25);}
+.p-warn{background:rgba(192,138,53,.10);color:#8A6020;border:1px solid rgba(192,138,53,.22);}
+.p-open{background:rgba(140,123,110,.06);color:var(--mu);border:1px solid var(--bd);}
+.p-risk{background:rgba(190,60,50,.08);color:#A03030;border:1px solid rgba(190,60,50,.20);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s,transform .7s;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* INDEX BAR */
+.index-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:56px;}
+.idx{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--mu);text-decoration:none;transition:color .18s;}
+.idx:hover{color:var(--ac);}
+.idx-num{font-family:var(--display);font-size:10px;font-weight:700;color:var(--ac);}
+
+/* DARK CARD */
+.dark-card{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:24px;padding:48px 56px;position:relative;overflow:hidden;}
+.dark-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 90% 10%,rgba(217,123,79,.18) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 10% 90%,rgba(122,158,138,.14) 0%,transparent 55%);pointer-events:none;}
+.dark-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.9);margin-bottom:16px;}
+.dark-title{font-family:var(--display);font-size:clamp(18px,2.2vw,26px);font-weight:800;letter-spacing:-.03em;line-height:1.2;color:#fff;margin-bottom:14px;}
+.dark-title em{font-style:normal;color:var(--ac);}
+.dark-sub{font-size:14px;color:rgba(255,255,255,.55);line-height:1.68;}
+
+/* VALUE PROP LAYERS */
+.vp-layer{border-radius:18px;padding:28px 32px;margin-bottom:14px;position:relative;overflow:hidden;}
+.vp-layer.func{background:linear-gradient(145deg,#FFF5EE,#FFF0E8);border:1px solid var(--ac-m);}
+.vp-layer.emoc{background:linear-gradient(145deg,#F5FDFA,#EEF8F4);border:1px solid var(--ac2-m);}
+.vp-layer.stra{background:linear-gradient(145deg,#1C1712,#2E2018);border:1px solid transparent;}
+.vp-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px;}
+.vp-layer.func .vp-label{color:var(--ac);}
+.vp-layer.emoc .vp-label{color:var(--ac2);}
+.vp-layer.stra .vp-label{color:rgba(217,123,79,.8);}
+.vp-text{font-family:var(--display);font-size:clamp(15px,1.6vw,19px);font-weight:700;letter-spacing:-.02em;line-height:1.4;margin-bottom:8px;}
+.vp-layer.func .vp-text,.vp-layer.emoc .vp-text{color:var(--tx);}
+.vp-layer.stra .vp-text{color:rgba(255,255,255,.92);}
+.vp-sub{font-size:13.5px;line-height:1.65;}
+.vp-layer.func .vp-sub,.vp-layer.emoc .vp-sub{color:var(--tx2);}
+.vp-layer.stra .vp-sub{color:rgba(255,255,255,.5);}
+.vp-num{position:absolute;bottom:-16px;right:20px;font-family:var(--display);font-size:120px;font-weight:800;opacity:.06;line-height:1;}
+.vp-layer.func .vp-num{color:var(--ac);}
+.vp-layer.emoc .vp-num{color:var(--ac2);}
+.vp-layer.stra .vp-num{color:var(--ac);}
+
+/* CLAIM BLOCK */
+.claim-block{background:linear-gradient(145deg,#1C1712,#2A1E14);border-radius:24px;padding:48px 64px;text-align:center;position:relative;overflow:hidden;margin-bottom:28px;}
+.claim-block::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(217,123,79,.2) 0%,transparent 60%);pointer-events:none;}
+.claim-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:16px;}
+.claim-text{font-family:var(--display);font-size:clamp(36px,5vw,68px);font-weight:800;letter-spacing:-.04em;line-height:1.0;color:#fff;margin-bottom:12px;}
+.claim-text em{font-style:normal;background:linear-gradient(135deg,var(--ac),#EBA87C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.claim-sub{font-size:15px;color:rgba(255,255,255,.5);max-width:400px;margin:0 auto;}
+
+/* FEATURE BLOCKS */
+.feature-group{margin-bottom:32px;}
+.feature-group-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bd);}
+.feature-list{display:flex;flex-direction:column;gap:8px;}
+.feature-item{display:flex;align-items:flex-start;gap:12px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;}
+.fi-dot{width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:6px;}
+.fi-dot.g{background:var(--ac2);}
+.fi-text{font-size:13.5px;color:var(--tx2);line-height:1.55;}
+.fi-text strong{color:var(--tx);font-weight:600;}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto;padding:24px 0;margin-bottom:32px;}
+.flow-step{display:flex;flex-direction:column;align-items:center;text-align:center;flex-shrink:0;}
+.flow-bubble{width:80px;height:80px;border-radius:20px;background:var(--sf);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--shadow);position:relative;}
+.flow-bubble.hi{border-color:var(--ac-m);background:linear-gradient(145deg,#FFF9F4,#FFF4EE);}
+.flow-bubble.hi2{border-color:var(--ac2-m);background:linear-gradient(145deg,#F5FDFA,#EEF8F4);}
+.flow-label{font-size:11px;font-weight:600;color:var(--tx2);margin-top:10px;max-width:80px;line-height:1.35;}
+.flow-arrow{color:var(--bd2);font-size:18px;margin:0 6px;padding-bottom:28px;flex-shrink:0;}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.price-card{background:var(--sf);border:1px solid var(--bd);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);transition:all .22s;position:relative;}
+.price-card:hover{box-shadow:var(--shadow-h);transform:translateY(-3px);}
+.price-card.featured{border-color:var(--ac-m);box-shadow:0 4px 24px rgba(217,123,79,.14);}
+.price-badge{position:absolute;top:18px;right:18px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--ac);color:#fff;padding:4px 12px;border-radius:100px;}
+.price-header{padding:28px 28px 20px;}
+.price-plan{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.price-name{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.025em;color:var(--tx);margin-bottom:8px;}
+.price-amount{display:flex;align-items:baseline;gap:4px;margin-bottom:6px;}
+.price-num{font-family:var(--display);font-size:40px;font-weight:800;letter-spacing:-.04em;color:var(--tx);}
+.price-cur{font-size:18px;font-weight:700;color:var(--mu);margin-top:6px;}
+.price-period{font-size:13px;color:var(--mu);}
+.price-desc{font-size:13px;color:var(--tx2);line-height:1.6;padding:0 28px 20px;border-bottom:1px solid var(--bd);}
+.price-features{padding:20px 28px 28px;}
+.price-feat{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13px;color:var(--tx2);}
+.price-feat:last-child{margin-bottom:0;}
+.pf-check{color:var(--ac2);font-weight:700;flex-shrink:0;margin-top:1px;}
+.price-target{display:inline-block;background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;margin-top:6px;}
+.price-target.g{background:var(--ac2-l);color:var(--ac2);border-color:var(--ac2-m);}
+.trial-banner{background:linear-gradient(145deg,#FFF5EE,#FFF0E8);border:1px solid var(--ac-m);border-radius:18px;padding:24px 32px;margin-bottom:28px;display:flex;align-items:center;gap:20px;}
+.trial-icon{font-size:32px;flex-shrink:0;}
+.trial-title{font-family:var(--display);font-size:17px;font-weight:700;color:var(--tx);margin-bottom:4px;letter-spacing:-.01em;}
+.trial-text{font-size:13.5px;color:var(--tx2);line-height:1.6;}
+.pricing-note{background:var(--sf2);border:1px solid var(--bd);border-radius:14px;padding:18px 24px;margin-top:20px;font-size:13px;color:var(--tx2);line-height:1.65;}
+.pricing-note strong{color:var(--tx);}
+
+/* PERSONA */
+.persona-wrap{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;}
+.persona-id{background:var(--sf);border:1px solid var(--bd);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);}
+.persona-id-header{background:linear-gradient(145deg,#FFF5EE,#FFF0E8);border-bottom:1px solid var(--bd);padding:32px 28px;}
+.persona-avatar{width:60px;height:60px;border-radius:18px;background:var(--ac-l);border:1px solid var(--ac-m);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px;}
+.persona-name{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.025em;color:var(--tx);margin-bottom:3px;}
+.persona-role{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);}
+.persona-id-body{padding:20px 28px;}
+.persona-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);}
+.persona-stat:last-child{border-bottom:none;}
+.ps-label{font-size:11px;font-weight:700;color:var(--mu);letter-spacing:.05em;text-transform:uppercase;}
+.ps-val{font-size:13px;font-weight:600;color:var(--tx);}
+.persona-detail{display:flex;flex-direction:column;gap:16px;}
+.pd-card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:22px 26px;box-shadow:var(--shadow);}
+.pd-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.pd-text{font-size:14px;color:var(--tx2);line-height:1.65;}
+.pd-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.pd-tag{font-size:12px;font-weight:600;padding:4px 12px;border-radius:100px;background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.pd-tag.red{background:rgba(190,60,50,.08);color:#A03030;border-color:rgba(190,60,50,.2);}
+.objection-box{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:14px;padding:18px 22px;margin-top:12px;position:relative;overflow:hidden;}
+.objection-box::before{content:'"';position:absolute;top:-14px;left:12px;font-family:var(--display);font-size:100px;font-weight:800;color:var(--ac);opacity:.08;line-height:1;}
+.obj-label{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(217,123,79,.7);margin-bottom:8px;}
+.obj-text{font-size:14px;color:rgba(255,255,255,.8);line-height:1.6;font-style:italic;}
+.obj-answer{font-size:12.5px;color:rgba(255,255,255,.45);margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);}
+
+/* COMPETITION TABLE */
+.comp-table{width:100%;border-collapse:collapse;background:var(--sf);border-radius:18px;overflow:hidden;border:1px solid var(--bd);box-shadow:var(--shadow);}
+.comp-table th{background:var(--sf2);font-family:var(--body);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:14px 20px;text-align:left;border-bottom:1px solid var(--bd);}
+.comp-table td{padding:15px 20px;font-size:13.5px;border-bottom:1px solid var(--bd);vertical-align:middle;line-height:1.5;color:var(--tx2);}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:#FFFCF9;}
+.comp-table td.strong{font-weight:700;color:var(--tx);}
+.comp-table td.hi{color:var(--ac);font-weight:700;}
+.comp-seru td{background:linear-gradient(to right,#FFF9F4,#FFFCF9)!important;}
+.comp-seru td.strong{color:var(--ac)!important;}
+.diff-box{background:linear-gradient(145deg,#FFF5EE,#FFF0E8);border:1px solid var(--ac-m);border-radius:18px;padding:28px 36px;margin-top:24px;}
+.diff-box-text{font-family:var(--display);font-size:clamp(15px,1.8vw,20px);font-weight:700;letter-spacing:-.02em;color:var(--tx);line-height:1.45;}
+.diff-box-text em{font-style:normal;color:var(--ac);}
+
+/* GTM */
+.phase-row{display:flex;gap:24px;padding:28px 0;border-bottom:1px solid var(--bd);align-items:flex-start;}
+.phase-row:last-child{border-bottom:none;}
+.phase-marker{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:800;flex-shrink:0;}
+.pm-now{background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.pm-next{background:var(--sf2);color:var(--tx);border:1px solid var(--bd);}
+.pm-fut{background:var(--sf2);color:var(--mu);border:1px solid var(--bd);}
+.phase-content{flex:1;}
+.phase-timeline{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:5px;}
+.phase-title{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.015em;color:var(--tx);margin-bottom:6px;}
+.phase-desc{font-size:13.5px;color:var(--tx2);line-height:1.65;}
+.phase-goal{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;font-weight:600;color:var(--ac);background:var(--ac-l);border:1px solid var(--ac-m);border-radius:100px;padding:4px 12px;}
+
+/* PITCH BOX */
+.pitch-box{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:20px;padding:36px 44px;position:relative;overflow:hidden;margin-top:28px;}
+.pitch-box::before{content:'"';position:absolute;top:-24px;left:32px;font-family:var(--display);font-size:200px;font-weight:800;color:var(--ac);opacity:.05;line-height:1;pointer-events:none;}
+.pitch-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:14px;}
+.pitch-text{font-family:var(--display);font-size:clamp(16px,2vw,22px);font-weight:600;letter-spacing:-.02em;line-height:1.55;color:rgba(255,255,255,.88);}
+.pitch-text em{font-style:normal;color:var(--ac);}
+
+/* TECH STACK */
+.stack-table{width:100%;border-collapse:collapse;background:var(--sf);border-radius:18px;overflow:hidden;border:1px solid var(--bd);box-shadow:var(--shadow);}
+.stack-table th{background:var(--sf2);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:13px 20px;text-align:left;border-bottom:1px solid var(--bd);}
+.stack-table td{padding:14px 20px;font-size:13.5px;border-bottom:1px solid var(--bd);vertical-align:middle;color:var(--tx2);}
+.stack-table tr:last-child td{border-bottom:none;}
+.stack-table td.component{font-weight:700;color:var(--tx);}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.team-card{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow);transition:all .22s;}
+.team-card:hover{box-shadow:var(--shadow-h);transform:translateY(-2px);}
+.team-avatar{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;background:var(--ac-l);}
+.team-avatar.g{background:var(--ac2-l);}
+.team-name{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--tx);margin-bottom:3px;}
+.team-role{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.team-focus{font-size:13px;color:var(--tx2);line-height:1.6;}
+
+/* ROADMAP */
+.roadmap-row{display:flex;gap:24px;padding:24px 0;border-bottom:1px solid var(--bd);align-items:flex-start;}
+.roadmap-row:last-child{border-bottom:none;}
+.rm-marker{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;font-weight:800;flex-shrink:0;}
+.rm-done{background:var(--ac2-l);color:var(--ac2);border:1px solid var(--ac2-m);}
+.rm-active{background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.rm-todo{background:var(--sf2);color:var(--mu);border:1px solid var(--bd);}
+.rm-content{flex:1;}
+.rm-phase{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:4px;}
+.rm-title{font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.015em;color:var(--tx);margin-bottom:5px;}
+.rm-desc{font-size:13.5px;color:var(--tx2);line-height:1.65;}
+
+/* RISKS */
+.risk-table{width:100%;border-collapse:collapse;background:var(--sf);border-radius:18px;overflow:hidden;border:1px solid var(--bd);box-shadow:var(--shadow);}
+.risk-table th{background:var(--sf2);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:13px 20px;text-align:left;border-bottom:1px solid var(--bd);}
+.risk-table td{padding:16px 20px;font-size:13.5px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.58;color:var(--tx2);}
+.risk-table tr:last-child td{border-bottom:none;}
+.risk-table td.risk-name{font-weight:700;color:var(--tx);}
+
+/* METRICS */
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.metric-card{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow);text-align:center;}
+.metric-card.hi{border-color:var(--ac-m);background:linear-gradient(160deg,#FFF9F4,#FFF4EE);}
+.metric-card.hi2{border-color:var(--ac2-m);background:linear-gradient(160deg,#F7FDFA,#F0FAF5);}
+.metric-num{font-family:var(--display);font-size:40px;font-weight:800;letter-spacing:-.04em;color:var(--ac);line-height:1;margin-bottom:6px;}
+.metric-num.g{color:var(--ac2);}
+.metric-label{font-size:12.5px;font-weight:600;color:var(--tx2);line-height:1.4;}
+.metric-sub{font-size:11px;color:var(--mu);margin-top:4px;}
+
+/* OPEN QUESTIONS */
+.oq-list{display:flex;flex-direction:column;gap:12px;}
+.oq-item{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;display:flex;align-items:flex-start;gap:14px;}
+.oq-num{font-family:var(--display);font-size:13px;font-weight:800;color:var(--ac);flex-shrink:0;width:24px;}
+.oq-text{font-size:14px;color:var(--tx2);line-height:1.6;}
+.oq-text strong{color:var(--tx);}
+
+/* VERDICT */
+.verdict{background:linear-gradient(145deg,#1C1712,#2A1E14);border-radius:24px;padding:64px 72px;text-align:center;position:relative;overflow:hidden;}
+.verdict::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(217,123,79,.22) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 90% 90%,rgba(122,158,138,.16) 0%,transparent 55%);pointer-events:none;}
+.verdict-ey{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:18px;}
+.verdict-title{font-family:var(--display);font-size:clamp(28px,3.5vw,48px);font-weight:800;letter-spacing:-.04em;line-height:1.05;color:#fff;margin-bottom:20px;}
+.verdict-title em{font-style:normal;background:linear-gradient(135deg,var(--ac),#EBA87C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.verdict-items{display:flex;flex-direction:column;gap:16px;max-width:620px;margin:0 auto;text-align:left;}
+.vi{display:flex;gap:16px;align-items:flex-start;}
+.vi-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:7px;}
+.vi-dot.g{background:var(--ac2);}
+.vi-txt{font-size:14.5px;color:rgba(255,255,255,.65);line-height:1.65;}
+.vi-txt strong{color:rgba(255,255,255,.92);}
+
+/* FOOTER */
+.footer{padding:40px 0;border-top:1px solid var(--bd);text-align:center;}
+.footer-text{font-size:12px;color:var(--mu);}
+.footer-text span{color:var(--tx);font-weight:600;}
+
+/* NOT INCLUDED */
+.not-included{background:var(--sf2);border:1px solid var(--bd);border-radius:16px;padding:22px 28px;margin-top:24px;}
+.ni-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:12px;}
+.ni-items{display:flex;flex-wrap:wrap;gap:8px;}
+.ni-item{font-size:12.5px;font-weight:600;padding:5px 14px;border-radius:100px;background:#fff;color:var(--mu);border:1px solid var(--bd);text-decoration:line-through;opacity:.65;}
+
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .g2,.g3,.g4,.persona-wrap,.pricing-grid,.team-grid,.metric-grid{grid-template-columns:1fr;}
+  .dark-card{padding:32px 24px;}
+  .claim-block{padding:36px 24px;}
+  .verdict{padding:40px 28px;}
+  .cover h1{font-size:clamp(40px,12vw,64px);}
+  .wrap{padding:0 20px;}
+  section{padding:64px 0;}
+  .flow{gap:0;}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<nav class="nav">
+  <div class="nav-brand">Serú<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#propuesta">Propuesta</a></li>
+    <li><a href="#producto">Producto</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#gtm">GTM</a></li>
+    <li><a href="#equipo">Equipo</a></li>
+    <li><a href="#roadmap" class="nav-pill">Roadmap</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COVER
+═══════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-mesh"></div>
+  <div class="cover-tag">Product Brief · Versión 1.0 · Uso interno</div>
+  <h1>Product<br>Brief<br><em>Serú</em></h1>
+  <p class="cover-sub">El documento de referencia del equipo fundador. Qué construimos, para quién y por qué ahora.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">G17 Bootcamp</div>
+    <div class="cover-meta-item">Rosario, Argentina</div>
+    <div class="cover-meta-item">Abril 2026</div>
+    <div class="cover-meta-item hi">Fase 1</div>
+    <div class="cover-meta-item hi2">13 secciones</div>
+  </div>
+  <div class="cover-scroll">
+    <span>Scroll</span>
+    <div class="cover-scroll-line"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ÍNDICE
+═══════════════════════════════════════════════════════════ -->
+<section style="padding:72px 0;">
+  <div class="wrap">
+    <div class="eyebrow">Índice</div>
+    <h2 class="sec-title">Contenido del documento</h2>
+    <p class="sec-desc">Este brief no reemplaza el PRD técnico ni el backlog. Es la capa de intención estratégica que da coherencia a todas las decisiones de producto.</p>
+    <div class="index-bar">
+      <a href="#problema" class="idx"><span class="idx-num">01</span> Problema y oportunidad</a>
+      <a href="#propuesta" class="idx"><span class="idx-num">02</span> Propuesta de valor</a>
+      <a href="#producto" class="idx"><span class="idx-num">03</span> Arquitectura MVP</a>
+      <a href="#pricing" class="idx"><span class="idx-num">04</span> Modelo y pricing</a>
+      <a href="#persona" class="idx"><span class="idx-num">05</span> Buyer persona</a>
+      <a href="#competencia" class="idx"><span class="idx-num">06</span> Competencia</a>
+      <a href="#gtm" class="idx"><span class="idx-num">07</span> Go-to-market</a>
+      <a href="#stack" class="idx"><span class="idx-num">08</span> Stack técnico</a>
+      <a href="#equipo" class="idx"><span class="idx-num">09</span> Equipo</a>
+      <a href="#roadmap" class="idx"><span class="idx-num">10</span> Roadmap</a>
+      <a href="#riesgos" class="idx"><span class="idx-num">11</span> Riesgos</a>
+      <a href="#metricas" class="idx"><span class="idx-num">12</span> Métricas de éxito</a>
+      <a href="#abiertas" class="idx"><span class="idx-num">13</span> Decisiones abiertas</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     01 PROBLEMA Y OPORTUNIDAD
+═══════════════════════════════════════════════════════════ -->
+<section id="problema">
+  <div class="wrap reveal">
+    <div class="eyebrow">01 — Problema y oportunidad</div>
+    <h2 class="sec-title">El dolor que resolvemos</h2>
+    <p class="sec-desc">El punto de partida de todo. Si no hay dolor real, no hay producto.</p>
+
+    <div class="dark-card" style="margin-bottom:24px;">
+      <div style="position:relative;z-index:1;">
+        <div class="dark-eyebrow">El insight central</div>
+        <div class="dark-title">El dueño de PYME no eligió ser coordinador,<br>secretario ni gestor de WhatsApps.<br><em>Eligió su oficio. Nuestro trabajo es que pueda volver a él.</em></div>
+        <div class="dark-sub" style="margin-top:12px;">Entre corte y corte atiende WhatsApp, anota turnos en papel, responde consultas que llegan a medianoche y gestiona cancelaciones de último momento. El canal ya está — WhatsApp — pero no hay sistema detrás.</div>
+      </div>
+    </div>
+
+    <div class="g3" style="margin-bottom:24px;">
+      <div class="card ac">
+        <div class="card-icon">📱</div>
+        <div class="card-title">WhatsApp ya ganó</div>
+        <div class="card-text">Más del 90% de penetración en Argentina y México. No es un canal futuro — es la infraestructura de comunicación actual. Cada dueño ya lo usa. Cada cliente ya lo usa. Solo falta el sistema detrás.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">El caos es el estándar</div>
+        <div class="card-text">El dueño promedio recibe 20–40 mensajes de WhatsApp por día relacionados con turnos. Los gestiona a mano: papel, memoria o grupos de chat. El error humano es inevitable. El cliente perdido también.</div>
+      </div>
+      <div class="card ac2">
+        <div class="card-icon" style="background:var(--ac2-l);">📊</div>
+        <div class="card-title">El segmento no digitalizado</div>
+        <div class="card-text">~120.000 peluquerías y barberías solo en Argentina. +4 millones de PYMEs de servicios en Argentina y México. La mayoría opera sin ninguna herramienta digital. El mercado está intacto.</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card mu">
+        <div class="card-label">Consecuencias del problema</div>
+        <div class="feature-list" style="margin-top:4px;">
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Clientes perdidos</strong> — mensajes sin respuesta que van a la competencia</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Agenda caótica</strong> — doble-turnos, olvidos, cancelaciones de último momento</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Cero visibilidad</strong> — no sabe cuántos clientes tuvo, quiénes volvieron, cuánto facturó</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Agotamiento mental</strong> — el dueño termina el día más administrador que profesional</div></div>
+        </div>
+      </div>
+      <div class="card mu">
+        <div class="card-label">Por qué las soluciones actuales fallan</div>
+        <div class="feature-list" style="margin-top:4px;">
+          <div class="feature-item"><div class="fi-dot" style="background:var(--mu);"></div><div class="fi-text"><strong>Reservo / TurnosYa</strong> — piden al cliente salir de WhatsApp. Fricción que mata la adopción.</div></div>
+          <div class="feature-item"><div class="fi-dot" style="background:var(--mu);"></div><div class="fi-text"><strong>WhatsApp Business</strong> — sin IA, sin agenda real, sin datos. Solo un número con perfil.</div></div>
+          <div class="feature-item"><div class="fi-dot" style="background:var(--mu);"></div><div class="fi-text"><strong>Agenda en papel</strong> — el estándar actual. No escala, no se comparte, no genera datos.</div></div>
+          <div class="feature-item"><div class="fi-dot" style="background:var(--mu);"></div><div class="fi-text"><strong>Asistente humano</strong> — costo prohibitivo para un local de 1–3 personas.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     02 PROPUESTA DE VALOR
+═══════════════════════════════════════════════════════════ -->
+<section id="propuesta">
+  <div class="wrap reveal">
+    <div class="eyebrow">02 — Propuesta de valor y posicionamiento</div>
+    <h2 class="sec-title">Qué ofrecemos y cómo nos posicionamos</h2>
+    <p class="sec-desc">La propuesta opera en tres capas. Las tres son necesarias para que la oferta sea completa.</p>
+
+    <div class="claim-block" style="margin-bottom:32px;">
+      <div class="claim-tag">Claim principal de marca</div>
+      <div class="claim-text"><em>Enfocate</em> en lo que hacés.</div>
+      <div class="claim-sub">Simple, empoderador, sin tech, escalable a cualquier vertical de LatAm.</div>
+    </div>
+
+    <div style="margin-bottom:24px;">
+      <div class="vp-layer func">
+        <div class="vp-label">Capa funcional</div>
+        <div class="vp-text">Automatiza la coordinación de turnos, responde consultas 24/7 y mantiene el vínculo con cada cliente vía WhatsApp, sin que el dueño tenga que estar disponible.</div>
+        <div class="vp-sub">Un turno gestionado, un cliente respondido, un recordatorio enviado. La misión se cumple cada vez que el dueño puede hacer su trabajo sin interrupciones.</div>
+        <div class="vp-num">F</div>
+      </div>
+      <div class="vp-layer emoc">
+        <div class="vp-label">Capa emocional</div>
+        <div class="vp-text">Devuelve calma, foco y confianza. El dueño deja de ser el cuello de botella de su propio negocio.</div>
+        <div class="vp-sub">El dueño no eligió la administración. La calma que siente cuando puede trabajar sin el teléfono sonando es el producto real.</div>
+        <div class="vp-num">E</div>
+      </div>
+      <div class="vp-layer stra">
+        <div class="vp-label">Capa estratégica</div>
+        <div class="vp-text">Convierte la operación diaria en datos. Con el tiempo, Serú no solo ejecuta — aprende. Y ese aprendizaje acumulado es el activo real.</div>
+        <div class="vp-sub">El activo central no es el chatbot. Es la base de datos de comportamiento de PYMEs que nadie más va a tener.</div>
+        <div class="vp-num">S</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-label">Posicionamiento</div>
+        <div class="card-title">Donde ya ocurre la conversación</div>
+        <div class="card-text">Serú no compite con Reservo o TurnosYa en features. Compite en canal. Estamos donde la conversación ya ocurre. El cliente no aprende nada nuevo. El dueño tampoco. Esa es la barrera de entrada para todos los que vengan después.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Diferenciadores clave</div>
+        <div class="feature-list" style="margin-top:4px;">
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>WhatsApp nativo</strong> — sin redirects, sin apps, sin fricción para el cliente</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Conversación real</strong> — la interfaz del cliente es un chat, no un formulario</div></div>
+          <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Base de datos propia</strong> — el activo que se acumula con cada interacción</div></div>
+          <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Voz configurable</strong> — el asistente habla como el dueño quiere que hable</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     03 ARQUITECTURA DEL PRODUCTO / MVP
+═══════════════════════════════════════════════════════════ -->
+<section id="producto">
+  <div class="wrap reveal">
+    <div class="eyebrow">03 — Arquitectura del producto · Features MVP</div>
+    <h2 class="sec-title">Qué construimos en Fase 1</h2>
+    <p class="sec-desc">Un sistema, N negocios. Simple de operar para el dueño, robusto en datos para nosotros.</p>
+
+    <div class="card" style="margin-bottom:28px;padding:24px 32px;">
+      <div class="card-label">Modelo de producto</div>
+      <div class="card-title" style="margin-bottom:8px;">Multi-tenant SaaS</div>
+      <div class="card-text">Un sistema que sirve a N negocios simultáneamente. Cada negocio tiene su propio número de WhatsApp, su configuración individual y su base de clientes aislada. El dueño lo ve como su asistente. Nosotros lo operamos como plataforma.</div>
+    </div>
+
+    <div style="margin-bottom:32px;">
+      <div class="card-label" style="margin-bottom:16px;">Flujo central del MVP — de punta a punta</div>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-bubble hi">💬</div>
+          <div class="flow-label">Cliente escribe</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-bubble hi">🤖</div>
+          <div class="flow-label">Bot responde</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-bubble hi">📅</div>
+          <div class="flow-label">Turno reservado</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-bubble">✅</div>
+          <div class="flow-label">Confirmación automática</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-bubble hi2">⏰</div>
+          <div class="flow-label">Recordatorio 24hs</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-bubble hi2">🔄</div>
+          <div class="flow-label">Cancelación / reprogramación</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-bubble hi2">📊</div>
+          <div class="flow-label">Dueño ve en dashboard</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div>
+        <div class="feature-group">
+          <div class="feature-group-label">Sistema de turnos</div>
+          <div class="feature-list">
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Reserva conversacional</strong> vía WhatsApp — el cliente nunca sale del chat</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>1 profesional, 1 servicio</strong> por vez — multi-profesional se pospone a Fase 2</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Configuración de disponibilidad</strong> — horarios, días libres, duración de servicio</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Confirmación y recordatorio</strong> automáticos sin intervención del dueño</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Cancelación y reprogramación</strong> gestionada por el bot</div></div>
+          </div>
+        </div>
+        <div class="feature-group">
+          <div class="feature-group-label">Bot conversacional</div>
+          <div class="feature-list">
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Respuestas a consultas frecuentes</strong> — horarios, precios, ubicación, servicios</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>5 perfiles de voz</strong> configurables — el asistente habla como el dueño quiere</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Contexto del negocio</strong> inyectado vía system prompt al LLM</div></div>
+            <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Escalado al dueño</strong> cuando el bot no sabe responder</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="feature-group">
+          <div class="feature-group-label">Dashboard del dueño</div>
+          <div class="feature-list">
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Vista de agenda</strong> — día y semana, con estado de cada turno</div></div>
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Historial de conversaciones</strong> — el dueño puede ver todo lo que pasó</div></div>
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Métricas básicas</strong> — turnos tomados, tasa de confirmación, clientes nuevos vs. recurrentes</div></div>
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Configuración del bot y del negocio</strong> desde el dashboard</div></div>
+          </div>
+        </div>
+        <div class="feature-group">
+          <div class="feature-group-label">Infraestructura de datos</div>
+          <div class="feature-list">
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Schema multi-tenant</strong> — Supabase como candidato principal</div></div>
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Base de clientes por negocio</strong> — aislada, privada, propiedad del dueño</div></div>
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Log completo de interacciones</strong> — input → output, timestamp, resultado</div></div>
+            <div class="feature-item"><div class="fi-dot g"></div><div class="fi-text"><strong>Base para análisis futuro</strong> — el activo estratégico de Serú</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="not-included">
+      <div class="ni-label">Fuera del MVP — deliberadamente</div>
+      <div class="ni-items">
+        <span class="ni-item">Multi-profesional</span>
+        <span class="ni-item">Pagos online</span>
+        <span class="ni-item">Calendarios externos</span>
+        <span class="ni-item">App móvil</span>
+        <span class="ni-item">Reportes avanzados</span>
+        <span class="ni-item">Marketplace de servicios</span>
+        <span class="ni-item">Integración con redes sociales</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     04 MODELO DE NEGOCIO Y PRICING
+═══════════════════════════════════════════════════════════ -->
+<section id="pricing">
+  <div class="wrap reveal">
+    <div class="eyebrow">04 — Modelo de negocio y pricing</div>
+    <h2 class="sec-title">Cómo monetizamos</h2>
+    <p class="sec-desc">Suscripción mensual por negocio (B2B SaaS). Le facturamos al dueño del local, no al cliente final. Hipótesis de precios — validar con los primeros 10 clientes antes de publicar.</p>
+
+    <div class="trial-banner">
+      <div class="trial-icon">🎯</div>
+      <div>
+        <div class="trial-title">14 días de prueba gratuita · Sin tarjeta requerida</div>
+        <div class="trial-text">Recomendamos 14 días en lugar de un mes completo: genera urgencia, reduce el costo de adquisición por cliente gratis, y el "momento de decisión" llega antes de que el hábito desaparezca. El dueño puede vivir la experiencia completa y convertirse cuando ya está enganchado.</div>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- SOLO -->
+      <div class="price-card">
+        <div class="price-header">
+          <div class="price-plan">Plan</div>
+          <div class="price-name">Solo</div>
+          <div class="price-amount">
+            <span class="price-cur">USD</span>
+            <span class="price-num">19</span>
+          </div>
+          <div class="price-period">por mes · por negocio</div>
+          <span class="price-target" style="margin-top:10px;">1 profesional</span>
+        </div>
+        <div class="price-desc">Para el profesional independiente que trabaja solo y quiere empezar a automatizar sin complicaciones.</div>
+        <div class="price-features">
+          <div class="price-feat"><span class="pf-check">✓</span>1 profesional / agenda</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Reservas ilimitadas vía WhatsApp</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Bot con respuestas configurables</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Confirmación y recordatorio automáticos</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Dashboard con agenda y métricas esenciales</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Soporte por email</div>
+        </div>
+      </div>
+
+      <!-- EQUIPO -->
+      <div class="price-card featured">
+        <div class="price-badge">Más elegido</div>
+        <div class="price-header">
+          <div class="price-plan">Plan</div>
+          <div class="price-name">Equipo</div>
+          <div class="price-amount">
+            <span class="price-cur">USD</span>
+            <span class="price-num">39</span>
+          </div>
+          <div class="price-period">por mes · por negocio</div>
+          <span class="price-target" style="margin-top:10px;">Hasta 4 profesionales</span>
+        </div>
+        <div class="price-desc">Para el local con un pequeño equipo. Multi-agenda, múltiples servicios y reportes para tomar mejores decisiones.</div>
+        <div class="price-features">
+          <div class="price-feat"><span class="pf-check">✓</span>Hasta 4 profesionales / agendas</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Todo lo del plan Solo</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Múltiples servicios y duraciones</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Recordatorios personalizables</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Reportes de rendimiento por profesional</div>
+          <div class="price-feat"><span class="pf-check">✓</span>Soporte prioritario</div>
+        </div>
+      </div>
+
+      <!-- PRO -->
+      <div class="price-card">
+        <div class="price-header">
+          <div class="price-plan">Plan</div>
+          <div class="price-name">Pro</div>
+          <div class="price-amount">
+            <span class="price-cur">USD</span>
+            <span class="price-num">69</span>
+          </div>
+          <div class="price-period">por mes · por negocio</div>
+          <span class="price-target g" style="margin-top:10px;">Profesionales ilimitados</span>
+        </div>
+        <div class="price-desc">Para el local que ya creció. Análisis avanzado, voz del asistente 100% personalizable y acceso a features en early access.</div>
+        <div class="price-features">
+          <div class="price-feat"><span class="pf-check" style="color:var(--ac2);">✓</span>Profesionales ilimitados</div>
+          <div class="price-feat"><span class="pf-check" style="color:var(--ac2);">✓</span>Todo lo del plan Equipo</div>
+          <div class="price-feat"><span class="pf-check" style="color:var(--ac2);">✓</span>Dashboard avanzado con análisis de retención</div>
+          <div class="price-feat"><span class="pf-check" style="color:var(--ac2);">✓</span>Voz del asistente 100% configurable</div>
+          <div class="price-feat"><span class="pf-check" style="color:var(--ac2);">✓</span>Acceso anticipado a nuevas features</div>
+          <div class="price-feat"><span class="pf-check" style="color:var(--ac2);">✓</span>Onboarding dedicado</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pricing-note">
+      <strong>Nota sobre el modelo financiero:</strong> Precios en USD para protegerse de la inflación argentina. Se cobran en pesos al tipo de cambio vigente. En México: misma estructura en MXN. El LTV real está en el activo de datos, no solo en la suscripción — el pricing debe ser accesible para maximizar la base instalada en Fase 1. Validar precio con los primeros 10 clientes antes de publicar la landing.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     05 BUYER PERSONA
+═══════════════════════════════════════════════════════════ -->
+<section id="persona">
+  <div class="wrap reveal">
+    <div class="eyebrow">05 — Buyer persona principal</div>
+    <h2 class="sec-title">Rodrigo, el dueño que lo hace todo solo</h2>
+    <p class="sec-desc">El MVP está diseñado para una sola persona. Si Rodrigo lo adopta, el modelo funciona.</p>
+
+    <div class="persona-wrap">
+      <div class="persona-id">
+        <div class="persona-id-header">
+          <div class="persona-avatar">✂️</div>
+          <div class="persona-name">Rodrigo</div>
+          <div class="persona-role">Barbero / Peluquero · MVP target</div>
+        </div>
+        <div class="persona-id-body">
+          <div class="persona-stat"><span class="ps-label">Edad</span><span class="ps-val">28–42 años</span></div>
+          <div class="persona-stat"><span class="ps-label">Equipo</span><span class="ps-val">Solo o 1–2 personas</span></div>
+          <div class="persona-stat"><span class="ps-label">Local</span><span class="ps-val">Propio, 2–4 años</span></div>
+          <div class="persona-stat"><span class="ps-label">Agenda</span><span class="ps-val">Papel o de memoria</span></div>
+          <div class="persona-stat"><span class="ps-label">WA/día</span><span class="ps-val">20–40 mensajes</span></div>
+          <div class="persona-stat"><span class="ps-label">Tech</span><span class="ps-val">Básico, desconfiado</span></div>
+        </div>
+      </div>
+      <div class="persona-detail">
+        <div class="pd-card">
+          <div class="pd-label">Día típico</div>
+          <div class="pd-text">Abre el local a las 9. Tiene 3 mensajes sin responder de la noche anterior. Entre corte y corte mira el teléfono, responde a medias, pierde el hilo. A las 7 de la tarde termina agotado — más por administrar que por trabajar. No sabe si le fue bien o mal ese día.</div>
+        </div>
+        <div class="pd-card">
+          <div class="pd-label">Pain points principales</div>
+          <div class="pd-tags">
+            <span class="pd-tag red">Clientes que no confirman</span>
+            <span class="pd-tag red">Mensajes a medianoche</span>
+            <span class="pd-tag red">No sabe cuántos clientes nuevos tuvo</span>
+            <span class="pd-tag red">Vergüenza de cobrar adelantado</span>
+            <span class="pd-tag red">Doble-turnos por olvido</span>
+          </div>
+        </div>
+        <div class="pd-card">
+          <div class="pd-label">Perfil tecnológico</div>
+          <div class="pd-text">Usa WhatsApp Business pero no lo configura bien. Tiene Instagram para el negocio. Intentó alguna vez una app de turnos pero se olvidó. Desconfía de la tecnología al principio pero se convence con una demo en vivo. <strong>El momento de conversión es cuando ve su nombre de negocio funcionando.</strong></div>
+        </div>
+        <div class="pd-card">
+          <div class="pd-label">Objeción principal y respuesta</div>
+          <div class="objection-box">
+            <div class="obj-label">Lo que dice Rodrigo</div>
+            <div class="obj-text">"¿Y si el bot le dice algo mal a un cliente mío?"</div>
+            <div class="obj-answer">Respuesta de producto: El bot siempre puede escalar al dueño. Y el dueño puede ver toda la conversación en el dashboard en tiempo real.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     06 COMPETENCIA
+═══════════════════════════════════════════════════════════ -->
+<section id="competencia">
+  <div class="wrap reveal">
+    <div class="eyebrow">06 — Competencia</div>
+    <h2 class="sec-title">El mercado actual y cómo nos diferenciamos</h2>
+    <p class="sec-desc">No competimos en features — competimos en canal. Esa es la diferencia que importa.</p>
+
+    <table class="comp-table" style="margin-bottom:24px;">
+      <thead>
+        <tr>
+          <th>Atributo</th>
+          <th style="color:var(--ac);">Serú</th>
+          <th>Reservo</th>
+          <th>TurnosYa</th>
+          <th>Turnito</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="comp-seru">
+          <td class="strong">Canal</td>
+          <td class="hi">WhatsApp nativo</td>
+          <td>Web / App</td>
+          <td>Web / App</td>
+          <td>WhatsApp básico</td>
+        </tr>
+        <tr class="comp-seru">
+          <td class="strong">IA conversacional</td>
+          <td class="hi">Sí (LLM)</td>
+          <td>No</td>
+          <td>No</td>
+          <td>Limitado</td>
+        </tr>
+        <tr class="comp-seru">
+          <td class="strong">Fricción para el cliente</td>
+          <td class="hi">Ninguna</td>
+          <td>Alta (app / registro)</td>
+          <td>Alta (web)</td>
+          <td>Media</td>
+        </tr>
+        <tr class="comp-seru">
+          <td class="strong">Base de datos propia</td>
+          <td class="hi">Sí (activo central)</td>
+          <td>No</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr class="comp-seru">
+          <td class="strong">Disponible 24/7</td>
+          <td class="hi">Sí</td>
+          <td>Sí</td>
+          <td>Sí</td>
+          <td>Parcial</td>
+        </tr>
+        <tr class="comp-seru">
+          <td class="strong">Precio AR aprox.</td>
+          <td class="hi">A definir</td>
+          <td>~$8.000/mes</td>
+          <td>~$7.000/mes</td>
+          <td>~$5.000/mes</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="diff-box">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ac);margin-bottom:12px;">Ventaja defensible</div>
+      <div class="diff-box-text">El activo de datos acumulado. Con el tiempo, Serú sabe más de cada negocio y de cada cliente que cualquier competidor. <em>Eso no se copia.</em> El canal es la puerta de entrada — los datos son el foso.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     07 GO-TO-MARKET
+═══════════════════════════════════════════════════════════ -->
+<section id="gtm">
+  <div class="wrap reveal">
+    <div class="eyebrow">07 — Go-to-market</div>
+    <h2 class="sec-title">Cómo llegamos a Rodrigo</h2>
+    <p class="sec-desc">Distribuido + boca a boca. El canal más barato y más creíble para Rodrigo es otro Rodrigo. Densidad geográfica antes que alcance masivo.</p>
+
+    <div class="phase-row">
+      <div class="phase-marker pm-now">0</div>
+      <div class="phase-content">
+        <div class="phase-timeline">Ahora · Próximos 30 días</div>
+        <div class="phase-title">Beta privada en Rosario</div>
+        <div class="phase-desc">5–10 barberías y peluquerías seleccionadas. Onboarding presencial con soporte directo de Guido. El objetivo no es escalar — es aprender: qué funciona, qué frena, qué dice Rodrigo en sus propias palabras.</div>
+        <div class="phase-goal">🎯 1 testimonio en video + datos reales de retención</div>
+      </div>
+      <span class="pill p-ac">En curso</span>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-marker pm-next">1</div>
+      <div class="phase-content">
+        <div class="phase-timeline">30–90 días</div>
+        <div class="phase-title">Argentina: 3–5 ciudades</div>
+        <div class="phase-desc">Rosario, Buenos Aires, Córdoba, Mendoza. Canal: DM directo en Instagram + referidos de la beta + WhatsApp propio de Serú. Contenido: "El video del dolor" — caos vs. calma, antes y después. Sin narración técnica.</div>
+        <div class="phase-goal">🎯 30 negocios activos y pagando</div>
+      </div>
+      <span class="pill p-warn">Pendiente</span>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-marker pm-fut">2</div>
+      <div class="phase-content">
+        <div class="phase-timeline">90–180 días</div>
+        <div class="phase-title">México · CDMX primero</div>
+        <div class="phase-desc">Expansión geográfica con el modelo validado en Argentina. Canal: partnerships con distribuidores de insumos de peluquería y asociaciones del rubro. El mismo producto, adaptado al contexto mexicano.</div>
+        <div class="phase-goal">🎯 100 negocios activos · unit economics validados</div>
+      </div>
+      <span class="pill p-open">Futuro</span>
+    </div>
+
+    <div class="pitch-box">
+      <div class="pitch-label">El pitch en 30 segundos · Para usar en DMs y demos en vivo</div>
+      <div class="pitch-text">
+        "¿Cuántos mensajes de WhatsApp tenés sin responder <em>ahora mismo</em>?<br>
+        Serú los responde por vos, reserva el turno y le manda el recordatorio al cliente.<br>
+        Y vos no cambiás nada — el cliente te sigue escribiendo al mismo número."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     08 STACK TÉCNICO
+═══════════════════════════════════════════════════════════ -->
+<section id="stack">
+  <div class="wrap reveal">
+    <div class="eyebrow">08 — Stack técnico</div>
+    <h2 class="sec-title">Estado de la arquitectura</h2>
+    <p class="sec-desc">Las decisiones tomadas, las que están en evaluación y las que aún están abiertas.</p>
+
+    <table class="stack-table" style="margin-bottom:28px;">
+      <thead>
+        <tr>
+          <th>Componente</th>
+          <th>Decisión</th>
+          <th>Estado</th>
+          <th>Responsable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="component">Canal</td>
+          <td>WhatsApp Business API</td>
+          <td><span class="pill p-ok">Definido</span></td>
+          <td>Tomi / Seba</td>
+        </tr>
+        <tr>
+          <td class="component">Base de datos</td>
+          <td>Supabase (candidato principal)</td>
+          <td><span class="pill p-warn">En evaluación</span></td>
+          <td>Tomi / Nico</td>
+        </tr>
+        <tr>
+          <td class="component">LLM</td>
+          <td>Claude / GPT-4o / open source</td>
+          <td><span class="pill p-open">Pendiente</span></td>
+          <td>Tomi</td>
+        </tr>
+        <tr>
+          <td class="component">Backend</td>
+          <td>Stack principal de Tomi</td>
+          <td><span class="pill p-ac">En construcción</span></td>
+          <td>Tomi / Nico</td>
+        </tr>
+        <tr>
+          <td class="component">Dashboard</td>
+          <td>Por definir</td>
+          <td><span class="pill p-open">Pendiente</span></td>
+          <td>Tomi / Nahue</td>
+        </tr>
+        <tr>
+          <td class="component">Automatización BOT</td>
+          <td>Stack de Seba</td>
+          <td><span class="pill p-ac">En progreso</span></td>
+          <td>Seba / Nico</td>
+        </tr>
+        <tr>
+          <td class="component">Infraestructura</td>
+          <td>Por definir</td>
+          <td><span class="pill p-ac">En construcción</span></td>
+          <td>Nico</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="g2">
+      <div class="card ac">
+        <div class="card-label">Decisiones técnicas clave pendientes</div>
+        <div class="feature-list" style="margin-top:4px;">
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Elección del LLM</strong> — costo por token vs. calidad de respuesta vs. latencia</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Estrategia de fallback</strong> — qué hace el bot cuando no sabe responder</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Número de WhatsApp</strong> — ¿uno por negocio o compartido con subidentidades?</div></div>
+          <div class="feature-item"><div class="fi-dot"></div><div class="fi-text"><strong>Retención de datos</strong> — política de privacidad y tiempo de vida de conversaciones</div></div>
+        </div>
+      </div>
+      <div class="card ac2">
+        <div class="card-label">Prototipo completado · Fase 0</div>
+        <div class="card-title" style="font-size:16px;">Bot en Telegram funcionando</div>
+        <div class="card-text">El prototipo de Fase 0 validó el flujo conversacional básico en Telegram. El aprendizaje migra a WhatsApp API en Fase 1. La arquitectura conceptual está documentada y lista para implementar.</div>
+        <br>
+        <span class="pill p-ok">Completado</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     09 EQUIPO
+═══════════════════════════════════════════════════════════ -->
+<section id="equipo">
+  <div class="wrap reveal">
+    <div class="eyebrow">09 — Equipo</div>
+    <h2 class="sec-title">Quiénes somos</h2>
+    <p class="sec-desc">Seis roles, una dirección. Cada persona tiene un área de ownership clara.</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">🧭</div>
+        <div class="team-name">Fede</div>
+        <div class="team-role">Product Owner · CEO · Brand</div>
+        <div class="team-focus">Visión de producto, estrategia de marca, decisiones de negocio. El responsable de que todo cohesione.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">⚙️</div>
+        <div class="team-name">Tomi</div>
+        <div class="team-role">Desarrollo técnico</div>
+        <div class="team-focus">Stack principal, arquitectura del sistema, integración de APIs. El que construye lo que Serú necesita ser.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar g">🚀</div>
+        <div class="team-name">Seba</div>
+        <div class="team-role">COO · Automatización BOT · GTM</div>
+        <div class="team-focus">Organización interna, automatización del bot, estrategia de go-to-market. El que lo lleva al mundo real.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">🎨</div>
+        <div class="team-name">Nahue</div>
+        <div class="team-role">UX/UI · Identidad visual</div>
+        <div class="team-focus">Diseño del dashboard, identidad visual, experiencia del dueño. Que Serú se sienta como debe sentirse.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar g">💬</div>
+        <div class="team-name">Guido</div>
+        <div class="team-role">Flujo de mensajes · Clientes</div>
+        <div class="team-focus">Diseño de conversaciones del bot, onboarding de clientes beta, relación con el mercado. La voz de Rodrigo adentro del equipo.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">🔧</div>
+        <div class="team-name">Nico</div>
+        <div class="team-role">Infraestructura</div>
+        <div class="team-focus">Infraestructura técnica, soporte a Tomi y Seba. El que mantiene todo funcionando cuando el sistema escala.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     10 ROADMAP
+═══════════════════════════════════════════════════════════ -->
+<section id="roadmap">
+  <div class="wrap reveal">
+    <div class="eyebrow">10 — Roadmap</div>
+    <h2 class="sec-title">El camino de Fase 0 a México</h2>
+    <p class="sec-desc">Cuatro fases, cada una con un objetivo claro antes de avanzar a la siguiente.</p>
+
+    <div class="roadmap-row">
+      <div class="rm-marker rm-done">✓</div>
+      <div class="rm-content">
+        <div class="rm-phase">Fase 0</div>
+        <div class="rm-title">Arquitectura conceptual y brand strategy</div>
+        <div class="rm-desc">Investigación de mercado, definición de producto, prototipo conversacional en Telegram funcionando, brand strategy documentada. La base conceptual está completa y alineada en el equipo.</div>
+      </div>
+      <span class="pill p-ok">Completado</span>
+    </div>
+
+    <div class="roadmap-row">
+      <div class="rm-marker rm-active">→</div>
+      <div class="rm-content">
+        <div class="rm-phase">Fase 1 · Target: Q2 2026</div>
+        <div class="rm-title">MVP funcional de punta a punta</div>
+        <div class="rm-desc">Integración de WhatsApp Business API. Schema de base de datos multi-tenant. Flujo completo de turno (reserva → confirmación → recordatorio → cancelación). Dashboard básico del dueño. 1 profesional, 1 servicio.</div>
+      </div>
+      <span class="pill p-ac">En progreso</span>
+    </div>
+
+    <div class="roadmap-row">
+      <div class="rm-marker rm-todo">2</div>
+      <div class="rm-content">
+        <div class="rm-phase">Fase 2</div>
+        <div class="rm-title">Beta privada + primer GTM</div>
+        <div class="rm-desc">10 negocios reales en Rosario. Onboarding presencial. Validación de pricing con usuarios reales. Primer testimonio en video. Landing page pública. Primeros pesos que entran.</div>
+      </div>
+      <span class="pill p-open">Pendiente</span>
+    </div>
+
+    <div class="roadmap-row">
+      <div class="rm-marker rm-todo">3</div>
+      <div class="rm-content">
+        <div class="rm-phase">Fase 3</div>
+        <div class="rm-title">Escala en Argentina</div>
+        <div class="rm-desc">30+ negocios activos en 3–5 ciudades. Segunda vertical (nail studios o centros de estética). Features de retención. Unit economics validados. Modelo de referidos funcionando.</div>
+      </div>
+      <span class="pill p-open">Pendiente</span>
+    </div>
+
+    <div class="roadmap-row">
+      <div class="rm-marker rm-todo">4</div>
+      <div class="rm-content">
+        <div class="rm-phase">Fase 4</div>
+        <div class="rm-title">Expansión a México</div>
+        <div class="rm-desc">CDMX como primer mercado. Partnerships con distribuidores de insumos del rubro. 100+ negocios activos totales. El modelo de datos empieza a generar ventaja competitiva real.</div>
+      </div>
+      <span class="pill p-open">Pendiente</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     11 RIESGOS Y MITIGACIÓN
+═══════════════════════════════════════════════════════════ -->
+<section id="riesgos">
+  <div class="wrap reveal">
+    <div class="eyebrow">11 — Riesgos y mitigación</div>
+    <h2 class="sec-title">Lo que puede salir mal y cómo lo manejamos</h2>
+    <p class="sec-desc">Honestidad ante todo. Identificar el riesgo antes de que ocurra es la mitad de la solución.</p>
+
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>Riesgo</th>
+          <th>Probabilidad</th>
+          <th>Impacto</th>
+          <th>Mitigación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="risk-name">El LLM da respuestas incorrectas a clientes</td>
+          <td><span class="pill p-warn">Media</span></td>
+          <td><span class="pill p-risk">Alto</span></td>
+          <td>Fallback automático al dueño. Modo supervisado durante el onboarding. Dashboard con historial de conversaciones en tiempo real.</td>
+        </tr>
+        <tr>
+          <td class="risk-name">WhatsApp API cambia políticas o costos</td>
+          <td><span class="pill p-warn">Media</span></td>
+          <td><span class="pill p-risk">Alto</span></td>
+          <td>Acumular base de datos propia como activo independiente del canal. Diseñar arquitectura que permita diversificar a largo plazo.</td>
+        </tr>
+        <tr>
+          <td class="risk-name">Competidor copia el canal WhatsApp</td>
+          <td><span class="pill p-risk">Alta</span></td>
+          <td><span class="pill p-warn">Medio</span></td>
+          <td>El diferenciador son los datos acumulados, no el canal. Quien llega segundo parte desde cero en datos. Velocidad de ejecución es clave.</td>
+        </tr>
+        <tr>
+          <td class="risk-name">El dueño abandona durante el onboarding</td>
+          <td><span class="pill p-warn">Media</span></td>
+          <td><span class="pill p-risk">Alto</span></td>
+          <td>Demo en vivo con el nombre del negocio real. Soporte presencial de Guido en Fase 2. El tiempo de onboarding objetivo es menor a 30 minutos.</td>
+        </tr>
+        <tr>
+          <td class="risk-name">Inflación argentina afecta el pricing</td>
+          <td><span class="pill p-risk">Alta</span></td>
+          <td><span class="pill p-warn">Medio</span></td>
+          <td>Precios en USD, cobrados en pesos al tipo de cambio vigente. En México: precios en MXN desde el inicio.</td>
+        </tr>
+        <tr>
+          <td class="risk-name">Costo de tokens LLM impacta el margen</td>
+          <td><span class="pill p-warn">Media</span></td>
+          <td><span class="pill p-warn">Medio</span></td>
+          <td>Evaluar modelos open source para reducir costos. Caché de respuestas frecuentes. Pricing que cubra el costo de tokens desde el plan Solo.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     12 MÉTRICAS DE ÉXITO
+═══════════════════════════════════════════════════════════ -->
+<section id="metricas">
+  <div class="wrap reveal">
+    <div class="eyebrow">12 — Métricas de éxito del MVP</div>
+    <h2 class="sec-title">Cómo sabemos si Fase 1 funcionó</h2>
+    <p class="sec-desc">Seis números. Si los alcanzamos al día 90, el modelo está validado y pasamos a escalar.</p>
+
+    <div class="metric-grid">
+      <div class="metric-card hi">
+        <div class="metric-num">30</div>
+        <div class="metric-label">Negocios activos</div>
+        <div class="metric-sub">Al día 90 post-lanzamiento</div>
+      </div>
+      <div class="metric-card hi2">
+        <div class="metric-num g">>80%</div>
+        <div class="metric-label">Retención mensual</div>
+        <div class="metric-sub">Negocios que renuevan al mes siguiente</div>
+      </div>
+      <div class="metric-card hi">
+        <div class="metric-num">&lt;30'</div>
+        <div class="metric-label">Tiempo de onboarding</div>
+        <div class="metric-sub">De cero a bot configurado y funcionando</div>
+      </div>
+      <div class="metric-card hi2">
+        <div class="metric-num g">>85%</div>
+        <div class="metric-label">Turnos por bot</div>
+        <div class="metric-sub">Reservas completadas sin intervención del dueño</div>
+      </div>
+      <div class="metric-card hi">
+        <div class="metric-num">50+</div>
+        <div class="metric-label">NPS de dueños</div>
+        <div class="metric-sub">Net Promoter Score de negocios activos</div>
+      </div>
+      <div class="metric-card hi2">
+        <div class="metric-num g">&lt;$30</div>
+        <div class="metric-label">CAC por negocio</div>
+        <div class="metric-sub">Costo de adquisición en USD por cliente</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     13 DECISIONES ABIERTAS
+═══════════════════════════════════════════════════════════ -->
+<section id="abiertas">
+  <div class="wrap reveal">
+    <div class="eyebrow">13 — Decisiones abiertas</div>
+    <h2 class="sec-title">Lo que todavía no está resuelto</h2>
+    <p class="sec-desc">Un registro honesto de las incógnitas que el equipo necesita cerrar antes o durante la Fase 1.</p>
+
+    <div class="oq-list">
+      <div class="oq-item">
+        <div class="oq-num">01</div>
+        <div class="oq-text"><strong>Nombre definitivo</strong> — Serú es provisional. Verificar disponibilidad de dominio y registro de marca en Argentina y México antes de lanzar la landing.</div>
+      </div>
+      <div class="oq-item">
+        <div class="oq-num">02</div>
+        <div class="oq-text"><strong>Elección del LLM</strong> — Claude vs. GPT-4o vs. open source. La decisión impacta en calidad de respuesta, latencia, costo por token y vendor lock-in. Requiere benchmark con casos reales del vertical.</div>
+      </div>
+      <div class="oq-item">
+        <div class="oq-num">03</div>
+        <div class="oq-text"><strong>Número de WhatsApp</strong> — ¿1 número por negocio o número compartido con subidentidades? Impacto en costo, identidad de marca y experiencia del cliente final.</div>
+      </div>
+      <div class="oq-item">
+        <div class="oq-num">04</div>
+        <div class="oq-text"><strong>Precio final de los planes</strong> — La hipótesis es USD 19 / 39 / 69. Validar con los primeros 10 clientes de la beta antes de hacer pública la landing y el pricing.</div>
+      </div>
+      <div class="oq-item">
+        <div class="oq-num">05</div>
+        <div class="oq-text"><strong>Segunda vertical post-peluquerías</strong> — Nail studios, centros médicos, kinesiología, tatuadores. Decidir antes de Fase 3 para preparar el schema de datos y el flujo del bot.</div>
+      </div>
+      <div class="oq-item">
+        <div class="oq-num">06</div>
+        <div class="oq-text"><strong>Facturación en Argentina</strong> — ¿USD cobrado al tipo de cambio oficial, MEP o blue? ¿Plataforma de cobro: Mercado Pago, Stripe, otro? Impacto fiscal y de conversión.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CIERRE
+═══════════════════════════════════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="verdict">
+      <div class="verdict-ey">Product Brief · Síntesis final</div>
+      <h2 class="verdict-title">Un negocio que empieza<br>donde ya <em>ocurre la conversación</em></h2>
+      <div class="verdict-items">
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>El problema es real y urgente.</strong> 4 millones de PYMEs de servicios en LatAm operando sin sistema. WhatsApp ya ganó — solo falta la inteligencia detrás.</div></div>
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>El MVP es deliberadamente simple.</strong> 1 profesional, 1 servicio, flujo completo. La simplicidad es una decisión estratégica, no una limitación.</div></div>
+        <div class="vi"><div class="vi-dot g"></div><div class="vi-txt"><strong>El activo real son los datos.</strong> El bot es la puerta. La base de datos de comportamiento de PYMEs es el foso que nadie más va a tener.</div></div>
+        <div class="vi"><div class="vi-dot g"></div><div class="vi-txt"><strong>El modelo de pricing tiene lógica.</strong> 3 planes en USD, 14 días de prueba, validación antes de publicar. Accesible para maximizar base instalada en Fase 1.</div></div>
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>La siguiente acción crítica.</strong> Completar el MVP funcional de punta a punta y lanzar la beta privada con 5–10 barberías en Rosario.</div></div>
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>El equipo está completo.</strong> Producto, tech, diseño, operaciones, go-to-market e infraestructura. Falta ejecutar.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    <p class="footer-text"><span>Serú</span> · Product Brief v1.0 · G17 Bootcamp · Rosario, Argentina · Abril 2026 · Fede (Product & Brand)</p>
+  </div>
+</div>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const pct = (window.scrollY / (d.scrollHeight - d.clientHeight)) * 100;
+  document.getElementById('prog').style.width = Math.min(pct, 100) + '%';
+});
+
+// Reveal on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

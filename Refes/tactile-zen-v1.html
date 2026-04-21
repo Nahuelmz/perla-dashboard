@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyecto X — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────────
+       RESET & BASE
+    ───────────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* Paleta: verde salvia + arena + crepúsculo */
+      --sage-deep:    #3d5a4e;
+      --sage-mid:     #6b8f7e;
+      --sage-light:   #a8c4b4;
+      --sage-pale:    #d4e6dc;
+      --sand-warm:    #e8ddd0;
+      --sand-light:   #f4ede4;
+      --dusk-blue:    #8ba3b8;
+      --dusk-deep:    #4a6580;
+      --cream:        #faf8f4;
+      --text-primary: #2a3d35;
+      --text-secondary: #6b7d74;
+      --text-ghost:   #9aada5;
+      --glass-surface: rgba(250, 248, 244, 0.55);
+      --glass-surface-deep: rgba(250, 248, 244, 0.35);
+      --glass-border-light: rgba(255, 255, 255, 0.55);
+      --glass-border-dark:  rgba(42, 61, 53, 0.08);
+      --shadow-ambient: rgba(61, 90, 78, 0.12);
+      --shadow-close:   rgba(61, 90, 78, 0.18);
+      --blur-heavy: 80px;
+      --blur-medium: 24px;
+      --blur-light: 12px;
+      --radius-card: 24px;
+      --radius-pill: 100px;
+      --ease-glass: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-weight: 300;
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────────────────────────
+       FILM GRAIN — SVG FILTER
+    ───────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
+    /* ─────────────────────────────────────────────
+       MESH GRADIENT BACKGROUND
+    ───────────────────────────────────────────── */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-color: #e8ede9;
+
+      /* Capas de radial gradients para crear el mesh */
+      background-image:
+        radial-gradient(ellipse 80% 60% at 15% 10%,  rgba(168, 196, 180, 0.70) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 70% at 85% 5%,   rgba(212, 230, 220, 0.50) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 75% 80%,  rgba(139, 163, 184, 0.45) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 65% at 10% 85%,  rgba(232, 221, 208, 0.60) 0%, transparent 60%),
+        radial-gradient(ellipse 90% 40% at 50% 50%,  rgba(212, 230, 220, 0.30) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 55% at 95% 45%,  rgba(107, 143, 126, 0.25) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 30% 60%,  rgba(232, 221, 208, 0.40) 0%, transparent 55%);
+
+      animation: meshShift 28s ease-in-out infinite alternate;
+    }
+
+    @keyframes meshShift {
+      0%   { filter: hue-rotate(0deg) brightness(1); }
+      33%  { filter: hue-rotate(4deg) brightness(1.01); }
+      66%  { filter: hue-rotate(-3deg) brightness(0.99); }
+      100% { filter: hue-rotate(2deg) brightness(1.02); }
+    }
+
+    /* ─────────────────────────────────────────────
+       LAYOUT
+    ───────────────────────────────────────────── */
+    .shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 48px 64px 80px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 0;
+    }
+
+    /* ─────────────────────────────────────────────
+       SIDEBAR NAV
+    ───────────────────────────────────────────── */
+    .layout-main {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 0;
+    }
+
+    .nav-item {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.35s var(--ease-glass);
+      color: var(--text-secondary);
+      position: relative;
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 1.5;
+    }
+
+    .nav-item:hover {
+      background: var(--glass-surface);
+      backdrop-filter: blur(var(--blur-light));
+      -webkit-backdrop-filter: blur(var(--blur-light));
+      color: var(--text-primary);
+      transform: scale(1.05);
+    }
+
+    .nav-item.active {
+      background: var(--glass-surface);
+      backdrop-filter: blur(var(--blur-light));
+      -webkit-backdrop-filter: blur(var(--blur-light));
+      box-shadow:
+        0 0 0 1px var(--glass-border-light) inset,
+        0 0 0 1px var(--glass-border-dark),
+        0 4px 20px var(--shadow-ambient);
+      color: var(--sage-deep);
+    }
+
+    .nav-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--sage-mid);
+      margin: 6px 0;
+    }
+
+    .nav-spacer {
+      flex: 1;
+      min-height: 20px;
+    }
+
+    /* ─────────────────────────────────────────────
+       HEADER
+    ───────────────────────────────────────────── */
+    .header {
+      margin-bottom: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .greeting-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .greeting-eyebrow {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-ghost);
+    }
+
+    .greeting-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: 42px;
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .greeting-name em {
+      font-style: italic;
+      color: var(--sage-mid);
+    }
+
+    .mindful-phrase {
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text-ghost);
+      font-style: italic;
+      max-width: 340px;
+      line-height: 1.6;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 8px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage-light), var(--dusk-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      box-shadow:
+        0 0 0 2px var(--glass-border-light) inset,
+        0 4px 20px var(--shadow-ambient);
+    }
+
+    .notif-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--glass-surface);
+      backdrop-filter: blur(var(--blur-light));
+      -webkit-backdrop-filter: blur(var(--blur-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-glass);
+      box-shadow:
+        0 0 0 1px var(--glass-border-light) inset,
+        0 0 0 1px var(--glass-border-dark),
+        0 2px 12px var(--shadow-ambient);
+    }
+
+    .notif-badge:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px var(--glass-border-light) inset,
+        0 0 0 1px var(--glass-border-dark),
+        0 6px 20px var(--shadow-close);
+    }
+
+    .notif-badge svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #e07070;
+      border: 1.5px solid var(--cream);
+    }
+
+    /* ─────────────────────────────────────────────
+       MAIN CONTENT GRID
+    ───────────────────────────────────────────── */
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .grid-primary {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .grid-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    /* ─────────────────────────────────────────────
+       GLASS CARD — BASE
+    ───────────────────────────────────────────── */
+    .glass-card {
+      background: var(--glass-surface);
+      backdrop-filter: blur(var(--blur-medium));
+      -webkit-backdrop-filter: blur(var(--blur-medium));
+      border-radius: var(--radius-card);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+
+      /* Bisel: borde superior claro, inferior sutil oscuro */
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.55) inset,       /* borde superior/luz */
+        0 -1px 0 0 rgba(42,61,53,0.06) inset,          /* borde inferior */
+        0 1px 0 0 rgba(255,255,255,0.30) inset,         /* borde izquierdo */
+        0 8px 40px rgba(61, 90, 78, 0.10),              /* sombra ambiente */
+        0 2px 8px rgba(61, 90, 78, 0.06);               /* sombra close */
+
+      transition: transform 0.4s var(--ease-glass), box-shadow 0.4s var(--ease-glass);
+      animation: floatIn 0.8s var(--ease-glass) both;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.60) inset,
+        0 -1px 0 0 rgba(42,61,53,0.06) inset,
+        0 1px 0 0 rgba(255,255,255,0.35) inset,
+        0 16px 60px rgba(61, 90, 78, 0.14),
+        0 4px 16px rgba(61, 90, 78, 0.09);
+    }
+
+    /* Tarjetas de menor jerarquía — más translúcidas, se hunden */
+    .glass-card.depth-2 {
+      background: var(--glass-surface-deep);
+      backdrop-filter: blur(var(--blur-light));
+      -webkit-backdrop-filter: blur(var(--blur-light));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.40) inset,
+        0 -1px 0 0 rgba(42,61,53,0.04) inset,
+        0 4px 20px rgba(61, 90, 78, 0.07),
+        0 1px 4px rgba(61, 90, 78, 0.04);
+    }
+
+    /* ─────────────────────────────────────────────
+       FLOAT IN ANIMATION — staggered
+    ───────────────────────────────────────────── */
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+        filter: blur(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    .glass-card:nth-child(1) { animation-delay: 0.05s; }
+    .glass-card:nth-child(2) { animation-delay: 0.12s; }
+    .glass-card:nth-child(3) { animation-delay: 0.19s; }
+    .glass-card:nth-child(4) { animation-delay: 0.26s; }
+    .glass-card:nth-child(5) { animation-delay: 0.33s; }
+    .glass-card:nth-child(6) { animation-delay: 0.40s; }
+
+    /* ─────────────────────────────────────────────
+       CITAS CARD (principal)
+    ───────────────────────────────────────────── */
+    .citas-card {
+      padding: 36px 40px;
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-ghost);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, rgba(42,61,53,0.10), transparent);
+    }
+
+    .cita-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(42,61,53,0.06);
+      transition: all 0.3s var(--ease-glass);
+      cursor: default;
+      position: relative;
+    }
+
+    .cita-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .cita-row:first-of-type {
+      padding-top: 0;
+    }
+
+    .cita-row:hover {
+      padding-left: 8px;
+    }
+
+    .cita-row:hover .cita-hora {
+      color: var(--sage-deep);
+    }
+
+    /* Indicador próxima cita */
+    .cita-row.next::before {
+      content: '';
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 40px;
+      border-radius: 2px;
+      background: linear-gradient(to bottom, var(--sage-mid), transparent);
+    }
+
+    .cita-hora {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      min-width: 80px;
+      line-height: 1;
+      transition: color 0.3s var(--ease-glass);
+    }
+
+    .cita-hora span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-ghost);
+      display: block;
+      margin-top: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    .cita-divider {
+      width: 1px;
+      height: 36px;
+      background: linear-gradient(to bottom, transparent, rgba(42,61,53,0.12), transparent);
+      flex-shrink: 0;
+    }
+
+    .cita-info {
+      flex: 1;
+    }
+
+    .cita-nombre {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .cita-servicio {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text-ghost);
+      letter-spacing: 0.02em;
+    }
+
+    .cita-estado {
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+
+    .cita-estado.confirmada {
+      background: rgba(107, 143, 126, 0.15);
+      color: var(--sage-deep);
+      border: 1px solid rgba(107, 143, 126, 0.25);
+    }
+
+    .cita-estado.pendiente {
+      background: rgba(232, 221, 208, 0.60);
+      color: #8a7060;
+      border: 1px solid rgba(180, 160, 140, 0.30);
+    }
+
+    .cita-estado.ahora {
+      background: rgba(61, 90, 78, 0.12);
+      color: var(--sage-deep);
+      border: 1px solid rgba(61, 90, 78, 0.20);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cita-estado.ahora::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--sage-deep);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .cita-estado.ahora {
+      padding-left: 20px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+      50%       { opacity: 0.4; transform: translateY(-50%) scale(0.7); }
+    }
+
+    /* ─────────────────────────────────────────────
+       MÉTRICA PRINCIPAL
+    ───────────────────────────────────────────── */
+    .metric-main-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 200px;
+    }
+
+    .metric-number {
+      font-family: 'Instrument Serif', serif;
+      font-size: 72px;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin: 16px 0 8px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .metric-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--sage-mid);
+      background: rgba(107, 143, 126, 0.12);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(107, 143, 126, 0.20);
+      margin-top: 16px;
+      align-self: flex-start;
+    }
+
+    .metric-delta::before {
+      content: '↑';
+      font-size: 10px;
+    }
+
+    /* Micro ring chart */
+    .ring-container {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+    }
+
+    .ring-track {
+      fill: none;
+      stroke: rgba(107, 143, 126, 0.15);
+      stroke-width: 3.5;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke: var(--sage-mid);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-dasharray: 126;
+      stroke-dashoffset: 32;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset 1.2s var(--ease-glass);
+    }
+
+    .ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--sage-deep);
+    }
+
+    .metric-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    /* ─────────────────────────────────────────────
+       ESTADO / MENSAJES CARD
+    ───────────────────────────────────────────── */
+    .messages-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .msg-number {
+      font-family: 'Instrument Serif', serif;
+      font-size: 48px;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin: 10px 0 6px;
+    }
+
+    .msg-preview {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(42,61,53,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .msg-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: white;
+    }
+
+    .msg-avatar.a { background: linear-gradient(135deg, var(--sage-light), var(--sage-mid)); }
+    .msg-avatar.b { background: linear-gradient(135deg, var(--dusk-blue), var(--dusk-deep)); }
+    .msg-avatar.c { background: linear-gradient(135deg, #c4a882, #a8856a); }
+
+    .msg-text {
+      flex: 1;
+    }
+
+    .msg-name {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .msg-body {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--text-ghost);
+      line-height: 1.5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--text-ghost);
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    /* ─────────────────────────────────────────────
+       FRASE MINDFUL (tarjeta secundaria grande)
+    ───────────────────────────────────────────── */
+    .mindful-card {
+      grid-column: span 2;
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .mindful-quote {
+      flex: 1;
+    }
+
+    .mindful-quote blockquote {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+    }
+
+    .mindful-quote cite {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      font-style: normal;
+      color: var(--text-ghost);
+      margin-top: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .mindful-ornament {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      opacity: 0.18;
+    }
+
+    /* ─────────────────────────────────────────────
+       AGENDA SEMANA (sparkline visual)
+    ───────────────────────────────────────────── */
+    .week-card {
+      padding: 28px 32px;
+    }
+
+    .week-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 60px;
+      margin-top: 20px;
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bar-fill {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: rgba(107, 143, 126, 0.25);
+      transition: all 0.6s var(--ease-glass);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.20), transparent);
+      border-radius: 4px 4px 0 0;
+    }
+
+    .bar-fill:hover {
+      background: rgba(107, 143, 126, 0.45);
+    }
+
+    .bar-fill.today {
+      background: linear-gradient(to top, var(--sage-mid), var(--sage-light));
+    }
+
+    .bar-fill.today::after {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.30), transparent);
+    }
+
+    .bar-day {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-ghost);
+      letter-spacing: 0.05em;
+    }
+
+    .bar-day.today {
+      color: var(--sage-deep);
+      font-weight: 500;
+    }
+
+    /* ─────────────────────────────────────────────
+       PRÓXIMO PACIENTE (highlight card)
+    ───────────────────────────────────────────── */
+    .next-card {
+      background: linear-gradient(
+        135deg,
+        rgba(107, 143, 126, 0.22) 0%,
+        rgba(168, 196, 180, 0.18) 50%,
+        rgba(212, 230, 220, 0.15) 100%
+      );
+      border-radius: var(--radius-card);
+      padding: 28px 32px;
+      backdrop-filter: blur(var(--blur-medium));
+      -webkit-backdrop-filter: blur(var(--blur-medium));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.50) inset,
+        0 8px 40px rgba(61, 90, 78, 0.12),
+        0 2px 8px rgba(61, 90, 78, 0.06);
+      transition: transform 0.4s var(--ease-glass), box-shadow 0.4s var(--ease-glass);
+      animation: floatIn 0.8s var(--ease-glass) 0.15s both;
+    }
+
+    .next-card:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.55) inset,
+        0 16px 60px rgba(61, 90, 78, 0.16),
+        0 4px 16px rgba(61, 90, 78, 0.09);
+    }
+
+    .next-tag {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--sage-deep);
+      font-weight: 400;
+      opacity: 0.7;
+      margin-bottom: 14px;
+    }
+
+    .next-time-big {
+      font-family: 'Instrument Serif', serif;
+      font-size: 52px;
+      font-weight: 400;
+      color: var(--sage-deep);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .next-paciente {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-top: 12px;
+    }
+
+    .next-servicio {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--sage-mid);
+      margin-top: 4px;
+    }
+
+    .next-countdown {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .countdown-bar-track {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(61, 90, 78, 0.12);
+      overflow: hidden;
+    }
+
+    .countdown-bar-fill {
+      height: 100%;
+      width: 68%;
+      background: linear-gradient(to right, var(--sage-mid), var(--sage-light));
+      border-radius: 2px;
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.7; }
+      50%       { opacity: 1; }
+    }
+
+    .countdown-text {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sage-mid);
+      white-space: nowrap;
+    }
+
+    /* ─────────────────────────────────────────────
+       TIME INDICATOR (top right)
+    ───────────────────────────────────────────── */
+    .time-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass-surface-deep);
+      backdrop-filter: blur(var(--blur-light));
+      -webkit-backdrop-filter: blur(var(--blur-light));
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 2px 10px var(--shadow-ambient);
+    }
+
+    .time-pill strong {
+      font-weight: 500;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─────────────────────────────────────────────
+       SUBTLE TEXTURE OVERLAY on cards
+    ───────────────────────────────────────────── */
+    .glass-card::before,
+    .next-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      opacity: 0.018;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glass-card > *,
+    .next-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─────────────────────────────────────────────
+       CALENDAR STRIP (mini)
+    ───────────────────────────────────────────── */
+    .calendar-strip {
+      display: flex;
+      gap: 6px;
+      margin-top: 16px;
+    }
+
+    .cal-day {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s var(--ease-glass);
+    }
+
+    .cal-day:hover {
+      background: rgba(107, 143, 126, 0.10);
+    }
+
+    .cal-day.active {
+      background: rgba(107, 143, 126, 0.18);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.40) inset,
+        0 2px 8px rgba(61, 90, 78, 0.10);
+    }
+
+    .cal-weekday {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--text-ghost);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .cal-date {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .cal-day.active .cal-weekday,
+    .cal-day.active .cal-date {
+      color: var(--sage-deep);
+    }
+
+    .cal-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--sage-light);
+      margin-top: 4px;
+    }
+
+    .cal-day.active .cal-dot {
+      background: var(--sage-mid);
+    }
+
+    /* ─────────────────────────────────────────────
+       QUICK ACTION BUTTONS
+    ───────────────────────────────────────────── */
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn-ghost {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.50);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(61, 90, 78, 0.06);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.55);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(61, 90, 78, 0.10);
+      color: var(--text-primary);
+    }
+
+    .btn-ghost svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.5;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      flex: 1.5;
+      padding: 11px 20px;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: white;
+      background: linear-gradient(135deg, var(--sage-deep), var(--sage-mid));
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.10) inset,
+        0 4px 16px rgba(61, 90, 78, 0.30);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.15) inset,
+        0 8px 24px rgba(61, 90, 78, 0.40);
+    }
+
+    .btn-primary svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    /* ─────────────────────────────────────────────
+       SCROLL SUBTLE
+    ───────────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(107, 143, 126, 0.25);
+      border-radius: 2px;
+    }
+
+    /* ─────────────────────────────────────────────
+       RESPONSIVE (768px)
+    ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .shell {
+        padding: 32px 24px 60px;
+      }
+      .layout-main {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .sidebar {
+        flex-direction: row;
+        position: static;
+        padding: 0;
+        gap: 4px;
+      }
+      .nav-spacer { display: none; }
+      .grid-primary {
+        grid-template-columns: 1fr;
+      }
+      .grid-secondary {
+        grid-template-columns: 1fr;
+      }
+      .mindful-card {
+        grid-column: span 1;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- FONDO MESH -->
+  <div class="bg-mesh" aria-hidden="true"></div>
+
+  <div class="shell">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="greeting-block">
+        <p class="greeting-eyebrow">Lunes, 30 de marzo</p>
+        <h1 class="greeting-name">Buenas tardes, <em>Mariana</em></h1>
+        <p class="mindful-phrase">Tres consultas más. Después, el silencio también es parte del trabajo.</p>
+      </div>
+
+      <div class="header-actions">
+        <div class="time-pill">
+          <strong>15:42</strong>
+          <span>hs</span>
+        </div>
+
+        <button class="notif-badge" title="Mensajes sin responder" aria-label="Mensajes sin responder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="notif-dot" aria-hidden="true"></span>
+        </button>
+
+        <div class="avatar" title="Mariana López" aria-label="Perfil de Mariana López">ML</div>
+      </div>
+    </header>
+
+    <!-- LAYOUT MAIN -->
+    <div class="layout-main">
+
+      <!-- SIDEBAR NAV -->
+      <nav class="sidebar" aria-label="Navegación principal">
+        <div class="nav-item active" title="Hoy" aria-label="Vista de hoy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+
+        <div class="nav-item" title="Pacientes" aria-label="Pacientes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+
+        <div class="nav-dot" aria-hidden="true"></div>
+
+        <div class="nav-item" title="Mensajes" aria-label="Mensajes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+
+        <div class="nav-item" title="Estadísticas" aria-label="Estadísticas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="14"/>
+          </svg>
+        </div>
+
+        <div class="nav-spacer"></div>
+
+        <div class="nav-item" title="Configuración" aria-label="Configuración">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </div>
+      </nav>
+
+      <!-- CONTENT -->
+      <div class="content">
+
+        <!-- FILA PRIMARIA: Citas + Panel derecho -->
+        <div class="grid-primary">
+
+          <!-- CITAS DEL DÍA -->
+          <div class="glass-card citas-card">
+            <div class="card-label">Agenda de hoy</div>
+
+            <!-- Strip de días -->
+            <div class="calendar-strip" role="list" aria-label="Semana actual">
+              <div class="cal-day" role="listitem">
+                <span class="cal-weekday">Lun</span>
+                <span class="cal-date">24</span>
+                <div class="cal-dot" aria-hidden="true"></div>
+              </div>
+              <div class="cal-day" role="listitem">
+                <span class="cal-weekday">Mar</span>
+                <span class="cal-date">25</span>
+                <div class="cal-dot" aria-hidden="true"></div>
+              </div>
+              <div class="cal-day" role="listitem">
+                <span class="cal-weekday">Mié</span>
+                <span class="cal-date">26</span>
+                <div class="cal-dot" aria-hidden="true"></div>
+              </div>
+              <div class="cal-day" role="listitem">
+                <span class="cal-weekday">Jue</span>
+                <span class="cal-date">27</span>
+                <div class="cal-dot" aria-hidden="true"></div>
+              </div>
+              <div class="cal-day active" role="listitem" aria-current="date">
+                <span class="cal-weekday">Vie</span>
+                <span class="cal-date">28</span>
+                <div class="cal-dot" aria-hidden="true"></div>
+              </div>
+              <div class="cal-day" role="listitem">
+                <span class="cal-weekday">Sáb</span>
+                <span class="cal-date">29</span>
+                <div class="cal-dot" aria-hidden="true"></div>
+              </div>
+              <div class="cal-day" role="listitem">
+                <span class="cal-weekday">Dom</span>
+                <span class="cal-date">30</span>
+              </div>
+            </div>
+
+            <!-- Lista de citas -->
+            <div style="margin-top: 28px;" role="list" aria-label="Citas del día">
+
+              <div class="cita-row next" role="listitem">
+                <div class="cita-hora" aria-label="Cita a las 16:00">
+                  16:00
+                  <span>en 18 min</span>
+                </div>
+                <div class="cita-divider" aria-hidden="true"></div>
+                <div class="cita-info">
+                  <div class="cita-nombre">Santiago Gómez</div>
+                  <div class="cita-servicio">Sesión individual · 50 min</div>
+                </div>
+                <span class="cita-estado confirmada">Confirmada</span>
+              </div>
+
+              <div class="cita-row" role="listitem">
+                <div class="cita-hora" aria-label="Cita a las 17:15">
+                  17:15
+                  <span>después</span>
+                </div>
+                <div class="cita-divider" aria-hidden="true"></div>
+                <div class="cita-info">
+                  <div class="cita-nombre">Valentina Ruiz</div>
+                  <div class="cita-servicio">Primera consulta · 60 min</div>
+                </div>
+                <span class="cita-estado pendiente">Por confirmar</span>
+              </div>
+
+              <div class="cita-row" role="listitem">
+                <div class="cita-hora" aria-label="Cita a las 18:30">
+                  18:30
+                  <span>tarde</span>
+                </div>
+                <div class="cita-divider" aria-hidden="true"></div>
+                <div class="cita-info">
+                  <div class="cita-nombre">Lucas Mendoza</div>
+                  <div class="cita-servicio">Seguimiento · 50 min</div>
+                </div>
+                <span class="cita-estado confirmada">Confirmada</span>
+              </div>
+
+            </div>
+
+            <!-- Quick actions -->
+            <div class="quick-actions">
+              <button class="btn-ghost" aria-label="Ver toda la agenda">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                </svg>
+                Ver agenda
+              </button>
+              <button class="btn-primary" aria-label="Nueva cita">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="16"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+                Nueva cita
+              </button>
+            </div>
+          </div>
+
+          <!-- COLUMNA DERECHA -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+
+            <!-- PRÓXIMA CITA HIGHLIGHT -->
+            <div class="next-card" role="region" aria-label="Próxima cita">
+              <div class="next-tag">Próxima</div>
+              <div class="next-time-big" aria-label="A las 16:00">16:00</div>
+              <div class="next-paciente">Santiago Gómez</div>
+              <div class="next-servicio">Sesión individual</div>
+              <div class="next-countdown">
+                <div class="countdown-bar-track" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="68% del tiempo transcurrido">
+                  <div class="countdown-bar-fill"></div>
+                </div>
+                <span class="countdown-text">18 min</span>
+              </div>
+            </div>
+
+            <!-- MÉTRICA PRINCIPAL -->
+            <div class="glass-card metric-main-card" role="region" aria-label="Métricas de la semana">
+              <div class="card-label">Esta semana</div>
+              <div class="metric-row">
+                <div>
+                  <div class="metric-number" aria-label="12 citas">12</div>
+                  <div class="metric-label">citas completadas</div>
+                </div>
+                <div class="ring-container" aria-hidden="true">
+                  <svg viewBox="0 0 44 44" width="52" height="52">
+                    <circle class="ring-track" cx="22" cy="22" r="20"/>
+                    <circle class="ring-fill"  cx="22" cy="22" r="20"/>
+                  </svg>
+                  <div class="ring-label">75%</div>
+                </div>
+              </div>
+              <div class="metric-delta" aria-label="3 más que la semana pasada">3 más que la semana pasada</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- FILA SECUNDARIA -->
+        <div class="grid-secondary">
+
+          <!-- MENSAJES -->
+          <div class="glass-card depth-2 messages-card" role="region" aria-label="Mensajes sin responder">
+            <div class="card-label">Mensajes</div>
+            <div class="msg-number" aria-label="4 mensajes">4</div>
+            <div class="metric-label" style="margin-top: 2px;">sin responder</div>
+
+            <div class="msg-preview" role="list">
+              <div class="msg-item" role="listitem">
+                <div class="msg-avatar a" aria-hidden="true">SG</div>
+                <div class="msg-text">
+                  <div class="msg-name">Santiago G.</div>
+                  <div class="msg-body">Consulta sobre el próximo...</div>
+                </div>
+                <div class="msg-time">15:30</div>
+              </div>
+              <div class="msg-item" role="listitem">
+                <div class="msg-avatar b" aria-hidden="true">VR</div>
+                <div class="msg-text">
+                  <div class="msg-name">Valentina R.</div>
+                  <div class="msg-body">Hola! ¿Podría cambiar la...</div>
+                </div>
+                <div class="msg-time">14:52</div>
+              </div>
+              <div class="msg-item" role="listitem">
+                <div class="msg-avatar c" aria-hidden="true">LM</div>
+                <div class="msg-text">
+                  <div class="msg-name">Lucas M.</div>
+                  <div class="msg-body">Confirmado para las 18:30</div>
+                </div>
+                <div class="msg-time">14:10</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FRASE MINDFUL + SEMANA -->
+          <div class="glass-card depth-2 mindful-card" role="region" aria-label="Reflexión del día">
+            <svg class="mindful-ornament" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="30" cy="30" r="28" stroke="#3d5a4e" stroke-width="1.5"/>
+              <circle cx="30" cy="30" r="18" stroke="#3d5a4e" stroke-width="1"/>
+              <line x1="30" y1="2" x2="30" y2="58" stroke="#3d5a4e" stroke-width="0.75"/>
+              <line x1="2" y1="30" x2="58" y2="30" stroke="#3d5a4e" stroke-width="0.75"/>
+              <circle cx="30" cy="30" r="4" fill="#3d5a4e" opacity="0.4"/>
+            </svg>
+            <div class="mindful-quote">
+              <blockquote>
+                "La escucha no es esperar que el otro termine de hablar."
+              </blockquote>
+              <cite>Reflexión del día</cite>
+            </div>
+          </div>
+
+          <!-- SEMANA (sparkline) -->
+          <div class="glass-card depth-2 week-card" role="region" aria-label="Actividad semanal">
+            <div class="card-label">Actividad</div>
+            <div class="week-bars" role="img" aria-label="Gráfico de citas por día de la semana">
+              <div class="bar-col">
+                <div class="bar-fill" style="height: 32px;" title="Lunes: 4 citas"></div>
+                <div class="bar-day">L</div>
+              </div>
+              <div class="bar-col">
+                <div class="bar-fill" style="height: 48px;" title="Martes: 6 citas"></div>
+                <div class="bar-day">M</div>
+              </div>
+              <div class="bar-col">
+                <div class="bar-fill" style="height: 24px;" title="Miércoles: 3 citas"></div>
+                <div class="bar-day">X</div>
+              </div>
+              <div class="bar-col">
+                <div class="bar-fill" style="height: 40px;" title="Jueves: 5 citas"></div>
+                <div class="bar-day">J</div>
+              </div>
+              <div class="bar-col">
+                <div class="bar-fill today" style="height: 24px;" title="Viernes: 3 citas (hoy)"></div>
+                <div class="bar-day today">V</div>
+              </div>
+              <div class="bar-col">
+                <div class="bar-fill" style="height: 8px; opacity: 0.35;" title="Sábado: sin citas"></div>
+                <div class="bar-day">S</div>
+              </div>
+              <div class="bar-col">
+                <div class="bar-fill" style="height: 0;" title="Domingo: sin citas"></div>
+                <div class="bar-day">D</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

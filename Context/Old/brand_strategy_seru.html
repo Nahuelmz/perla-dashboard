@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Strategy — Serú</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #FAF6F0;
+  --sf:       #FFFFFF;
+  --sf2:      #FFF9F4;
+  --ac:       #D97B4F;
+  --ac-l:     rgba(217,123,79,.10);
+  --ac-m:     rgba(217,123,79,.22);
+  --ac2:      #7A9E8A;
+  --ac2-l:    rgba(122,158,138,.10);
+  --ac2-m:    rgba(122,158,138,.22);
+  --tx:       #1C1712;
+  --tx2:      #5A4A3E;
+  --mu:       #8C7B6E;
+  --bd:       #E8DDD4;
+  --bd2:      #D4C8BC;
+  --shadow:   0 1px 3px rgba(28,23,18,.06), 0 4px 16px rgba(28,23,18,.05);
+  --shadow-h: 0 4px 24px rgba(217,123,79,.14), 0 1px 4px rgba(28,23,18,.06);
+  --r:        20px;
+  --r-sm:     12px;
+  --display:  'Bricolage Grotesque', sans-serif;
+  --body:     'Plus Jakarta Sans', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--body);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.022;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px;}
+
+/* PROGRESS */
+#prog{position:fixed;top:0;left:0;height:2.5px;width:0%;background:linear-gradient(90deg,var(--ac),#EBA87C,var(--ac2));z-index:1001;transition:width .08s linear;}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:54px;background:rgba(250,246,240,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 40px;}
+.nav-brand{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.02em;color:var(--tx);}
+.nav-brand span{color:var(--ac);}
+.nav-links{display:flex;gap:6px;list-style:none;}
+.nav-links a{font-size:11px;font-weight:600;color:var(--mu);text-decoration:none;padding:5px 11px;border-radius:100px;transition:all .18s;letter-spacing:.02em;}
+.nav-links a:hover{color:var(--tx);background:var(--ac-l);}
+.nav-pill{background:var(--ac);color:#fff!important;border-radius:100px;padding:5px 14px!important;}
+.nav-pill:hover{background:var(--tx)!important;color:#fff!important;}
+
+/* CONTAINER */
+.wrap{max-width:1160px;margin:0 auto;padding:0 40px;position:relative;z-index:1;}
+section{padding:96px 0;position:relative;z-index:1;}
+section+section{border-top:1px solid var(--bd);}
+
+/* MESH BG utility */
+.mesh{position:absolute;inset:0;z-index:0;pointer-events:none;}
+
+/* COVER */
+.cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 40px 96px;position:relative;overflow:hidden;background:var(--bg);}
+.cover-mesh{position:absolute;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 15% 10%, rgba(217,123,79,.18) 0%, transparent 55%),
+  radial-gradient(ellipse 60% 70% at 85% 85%, rgba(122,158,138,.14) 0%, transparent 55%),
+  radial-gradient(ellipse 50% 50% at 50% 50%, rgba(235,168,124,.10) 0%, transparent 65%);
+pointer-events:none;}
+.cover-tag{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);background:var(--ac-l);border:1px solid var(--ac-m);padding:7px 18px;border-radius:100px;margin-bottom:32px;animation:fadeUp .8s both;}
+.cover h1{font-family:var(--display);font-size:clamp(52px,7vw,96px);font-weight:800;letter-spacing:-.04em;line-height:.92;color:var(--tx);margin-bottom:24px;animation:fadeUp .8s .1s both;}
+.cover h1 em{font-style:normal;background:linear-gradient(135deg,var(--ac),#EBA87C,var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cover-sub{font-size:18px;color:var(--mu);max-width:520px;margin:0 auto 52px;line-height:1.65;animation:fadeUp .8s .2s both;}
+.cover-meta{display:inline-flex;background:var(--sf);border:1px solid var(--bd);border-radius:100px;overflow:hidden;font-size:11.5px;animation:fadeUp .8s .3s both;}
+.cover-meta-item{padding:9px 20px;color:var(--mu);border-right:1px solid var(--bd);font-weight:500;}
+.cover-meta-item:last-child{border-right:none;}
+.cover-meta-item.hi{color:var(--ac);font-weight:700;}
+.cover-meta-item.hi2{color:var(--ac2);font-weight:700;}
+.cover-scroll{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;animation:fadeUp .8s .5s both;opacity:.5;}
+.cover-scroll span{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);}
+.cover-scroll-line{width:1px;height:32px;background:linear-gradient(to bottom,var(--ac),transparent);}
+
+/* SECTION HEADERS */
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);margin-bottom:10px;}
+.sec-title{font-family:var(--display);font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-.03em;color:var(--tx);margin-bottom:14px;line-height:1.05;}
+.sec-desc{font-size:16px;color:var(--tx2);max-width:580px;margin-bottom:56px;line-height:1.68;}
+
+/* CARDS */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:28px 32px;box-shadow:var(--shadow);transition:box-shadow .22s,border-color .22s,transform .22s;}
+.card:hover{box-shadow:var(--shadow-h);border-color:var(--bd2);transform:translateY(-2px);}
+.card.ac{border-color:var(--ac-m);background:linear-gradient(160deg,#FFF9F4,#FFF4EE);}
+.card.ac2{border-color:var(--ac2-m);background:linear-gradient(160deg,#F7FDFA,#F0FAF5);}
+.card.mu{background:var(--sf2);}
+.card-num{font-family:var(--display);font-size:64px;font-weight:800;opacity:.06;line-height:1;color:var(--ac);margin-bottom:-20px;}
+.card-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;background:var(--ac-l);}
+.card-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.card-title{font-family:var(--display);font-size:19px;font-weight:700;color:var(--tx);margin-bottom:10px;letter-spacing:-.015em;}
+.card-text{font-size:14px;color:var(--tx2);line-height:1.68;}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.g-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+
+/* PILL BADGES */
+.pill{display:inline-block;padding:3px 12px;border-radius:100px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.p-ac{background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.p-ac2{background:var(--ac2-l);color:var(--ac2);border:1px solid var(--ac2-m);}
+.p-mu{background:rgba(140,123,110,.08);color:var(--mu);border:1px solid var(--bd);}
+.p-ok{background:rgba(122,158,138,.12);color:#4A8A70;border:1px solid rgba(122,158,138,.25);}
+.p-warn{background:rgba(192,138,53,.10);color:#8A6020;border:1px solid rgba(192,138,53,.22);}
+.p-open{background:rgba(140,123,110,.06);color:var(--mu);border:1px solid var(--bd);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s,transform .7s;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* MANIFESTO */
+.manifesto-wrap{background:var(--sf);border-radius:24px;padding:64px 72px;border:1px solid var(--bd);position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.manifesto-wrap::before{content:'"';position:absolute;top:-20px;left:48px;font-family:var(--display);font-size:240px;font-weight:800;color:var(--ac);opacity:.05;line-height:1;pointer-events:none;}
+.manifesto-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);margin-bottom:28px;}
+.manifesto-body{font-family:var(--display);font-size:clamp(18px,2.2vw,25px);font-weight:600;line-height:1.6;letter-spacing:-.02em;color:var(--tx);position:relative;margin-bottom:36px;}
+.manifesto-body span{background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.manifesto-footer{font-size:12.5px;color:var(--mu);font-style:italic;border-top:1px solid var(--bd);padding-top:20px;}
+
+/* MISSION VISION */
+.mv-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.mv-card{border-radius:20px;padding:40px 40px;position:relative;overflow:hidden;}
+.mv-card.mission{background:linear-gradient(145deg,#FFF5EE,#FFF0E6);border:1px solid var(--ac-m);}
+.mv-card.vision{background:linear-gradient(145deg,#F5FDFA,#EEF8F4);border:1px solid var(--ac2-m);}
+.mv-card-label{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px;}
+.mv-card.mission .mv-card-label{color:var(--ac);}
+.mv-card.vision .mv-card-label{color:var(--ac2);}
+.mv-card-text{font-family:var(--display);font-size:clamp(16px,1.8vw,21px);font-weight:700;letter-spacing:-.02em;line-height:1.45;color:var(--tx);margin-bottom:12px;}
+.mv-card-sub{font-size:13.5px;color:var(--tx2);line-height:1.65;}
+.mv-num{position:absolute;bottom:-10px;right:24px;font-family:var(--display);font-size:120px;font-weight:800;opacity:.05;line-height:1;color:var(--ac);}
+
+/* POSITIONING */
+.pos-wrap{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:24px;padding:56px 64px;position:relative;overflow:hidden;}
+.pos-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 90% 10%,rgba(217,123,79,.18) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 10% 90%,rgba(122,158,138,.14) 0%,transparent 55%);pointer-events:none;}
+.pos-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.9);margin-bottom:20px;}
+.pos-text{font-family:var(--display);font-size:clamp(17px,1.9vw,23px);font-weight:600;line-height:1.6;letter-spacing:-.02em;color:rgba(255,255,255,.92);position:relative;}
+.pos-text em{font-style:normal;color:var(--ac);}
+.pos-text strong{color:#EBA87C;font-weight:700;}
+
+/* PILARES */
+.pillar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.pillar{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:32px 28px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:all .22s;}
+.pillar:hover{transform:translateY(-3px);box-shadow:var(--shadow-h);}
+.pillar-num{position:absolute;top:16px;right:20px;font-family:var(--display);font-size:72px;font-weight:800;opacity:.055;line-height:1;}
+.pillar-emoji{font-size:34px;margin-bottom:16px;display:block;}
+.pillar-word{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px;}
+.pillar-sub{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:14px;}
+.pillar-desc{font-size:13.5px;color:var(--tx2);line-height:1.68;}
+.pillar-quote{margin-top:14px;font-size:12.5px;font-style:italic;color:var(--mu);border-top:1px solid var(--bd);padding-top:12px;}
+.p1{border-color:var(--ac-m);} .p1 .pillar-word{color:var(--ac);} .p1 .pillar-num{color:var(--ac);}
+.p2{border-color:rgba(180,140,80,.25);} .p2 .pillar-word{color:#B08C35;} .p2 .pillar-num{color:#B08C35;}
+.p3{border-color:var(--ac-m);background:#FFF7F3;} .p3 .pillar-word{color:#C46840;} .p3 .pillar-num{color:#C46840;}
+.p4{border-color:var(--ac2-m);} .p4 .pillar-word{color:var(--ac2);} .p4 .pillar-num{color:var(--ac2);}
+.p5{border-color:rgba(160,100,160,.22);} .p5 .pillar-word{color:#8A5A9A;} .p5 .pillar-num{color:#8A5A9A;}
+.p6{border-color:rgba(80,140,160,.22);} .p6 .pillar-word{color:#4A8A9A;} .p6 .pillar-num{color:#4A8A9A;}
+
+/* PERSONALITY */
+.pers-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+.pers-adjectives{display:flex;flex-wrap:wrap;gap:8px;}
+.adj-tag{padding:7px 16px;border-radius:100px;font-size:13px;font-weight:600;transition:all .18s;}
+.adj-yes{background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.adj-no{background:rgba(140,123,110,.07);color:var(--mu);border:1px solid var(--bd);text-decoration:line-through;opacity:.65;}
+.archetype-card{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:20px;padding:36px;position:relative;overflow:hidden;}
+.archetype-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 80% 20%,rgba(217,123,79,.2) 0%,transparent 60%);pointer-events:none;}
+.archetype-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:10px;}
+.archetype-name{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:-.025em;color:#fff;margin-bottom:14px;}
+.archetype-desc{font-size:14px;color:rgba(255,255,255,.65);line-height:1.65;}
+.brand-voice{background:var(--sf2);border:1px solid var(--bd);border-radius:16px;padding:24px 28px;margin-top:16px;}
+.bv-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.bv-text{font-size:14.5px;color:var(--tx2);line-height:1.68;}
+.bv-text em{font-style:italic;color:var(--tx);}
+
+/* TONE OF VOICE */
+.tone-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.tone-card{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:28px 30px;box-shadow:var(--shadow);}
+.tone-card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.tone-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.tone-title{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.01em;color:var(--tx);}
+.tone-sub{font-size:11.5px;color:var(--mu);}
+.tone-examples{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.tone-ex{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--tx2);font-style:italic;border-left:3px solid var(--ac);}
+.tone-ex.ac2{border-left-color:var(--ac2);}
+.tone-ex.mu{border-left-color:var(--bd2);}
+
+/* VISUAL SYSTEM */
+.vis-section{background:linear-gradient(160deg,#FBF7F2 0%,#F5EEE6 50%,#EEF5F0 100%);border-radius:24px;padding:48px 56px;margin-bottom:28px;border:1px solid var(--bd);}
+.color-grid{display:flex;gap:12px;flex-wrap:wrap;}
+.color-swatch{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
+.swatch-box{width:72px;height:72px;border-radius:16px;border:1px solid rgba(0,0,0,.07);position:relative;overflow:hidden;}
+.swatch-box.primary::after{content:'★';position:absolute;bottom:5px;right:7px;font-size:11px;color:rgba(255,255,255,.7);}
+.swatch-name{font-size:11px;font-weight:700;color:var(--tx);}
+.swatch-hex{font-size:10px;color:var(--mu);font-family:monospace;}
+.swatch-role{font-size:9.5px;color:var(--mu);max-width:72px;line-height:1.35;}
+.grad-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;}
+.grad-bar{height:64px;border-radius:14px;display:flex;align-items:flex-end;padding:9px 12px;}
+.grad-bar span{font-size:8.5px;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.07em;text-transform:uppercase;}
+.color-rules{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px;}
+.color-rule{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:16px 18px;}
+.rule-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:middle;}
+.rule-title{font-size:12.5px;font-weight:700;color:var(--tx);margin-bottom:6px;}
+.rule-text{font-size:12px;color:var(--tx2);line-height:1.6;}
+.typo-preview{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:40px 48px;margin-top:20px;}
+.typo-display{font-family:var(--display);font-size:clamp(32px,4vw,54px);font-weight:800;letter-spacing:-.04em;line-height:1.0;color:var(--tx);margin-bottom:12px;}
+.typo-body-demo{font-family:var(--body);font-size:16px;color:var(--tx2);line-height:1.7;max-width:560px;margin-bottom:20px;}
+.typo-ui-demo{display:flex;flex-direction:column;gap:6px;}
+.typo-ui-item{background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:9px 14px;font-family:var(--body);font-size:13px;color:var(--tx);}
+.vis-principles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+.vis-princ{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:20px 22px;}
+.vis-princ-icon{font-size:24px;margin-bottom:10px;}
+.vis-princ-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:6px;}
+.vis-princ-text{font-size:12.5px;color:var(--tx2);line-height:1.6;}
+
+/* BUYER PERSONAS */
+.persona-card{background:var(--sf);border:1px solid var(--bd);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);transition:all .22s;}
+.persona-card:hover{box-shadow:var(--shadow-h);transform:translateY(-2px);}
+.persona-header{padding:28px 28px 20px;border-bottom:1px solid var(--bd);}
+.persona-avatar{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px;}
+.persona-name{font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:-.025em;color:var(--tx);margin-bottom:3px;}
+.persona-role{font-size:12px;color:var(--mu);font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+.persona-body{padding:20px 28px;}
+.persona-section{margin-bottom:16px;}
+.persona-section:last-child{margin-bottom:0;}
+.persona-section-title{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin-bottom:7px;}
+.persona-section-text{font-size:13px;color:var(--tx2);line-height:1.65;}
+.persona-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.persona-tag{font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:100px;background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.persona-tag.g{background:var(--ac2-l);color:var(--ac2);border-color:var(--ac2-m);}
+
+/* CLAIMS */
+.claim-main{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:24px;padding:56px 64px;text-align:center;position:relative;overflow:hidden;margin-bottom:28px;}
+.claim-main::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(217,123,79,.2) 0%,transparent 60%);pointer-events:none;}
+.claim-main-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:16px;}
+.claim-main-text{font-family:var(--display);font-size:clamp(32px,4.5vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1.0;color:#fff;margin-bottom:12px;}
+.claim-main-text em{font-style:normal;background:linear-gradient(135deg,var(--ac),#EBA87C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.claim-main-sub{font-size:16px;color:rgba(255,255,255,.55);max-width:420px;margin:0 auto;}
+.claim-variants{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.claim-var{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow);}
+.claim-var-tag{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;}
+.claim-var-text{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.015em;color:var(--tx);margin-bottom:8px;line-height:1.3;}
+.claim-var-desc{font-size:12.5px;color:var(--tx2);line-height:1.6;}
+.claim-extras{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.claim-extra{background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:8px 16px;font-size:13px;font-style:italic;color:var(--tx2);}
+
+/* COMPETENCIA */
+.comp-table{width:100%;border-collapse:collapse;background:var(--sf);border-radius:18px;overflow:hidden;border:1px solid var(--bd);box-shadow:var(--shadow);}
+.comp-table th{background:var(--sf2);font-family:var(--body);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);padding:14px 20px;text-align:left;border-bottom:1px solid var(--bd);}
+.comp-table td{padding:16px 20px;font-size:13.5px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.58;color:var(--tx2);}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:#FFFCF9;}
+.comp-table td.strong{font-weight:700;color:var(--tx);white-space:nowrap;}
+.comp-diff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px;}
+.comp-diff{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:20px 22px;}
+.comp-diff-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:7px;}
+.comp-diff-text{font-size:13px;color:var(--tx2);line-height:1.6;}
+.diff-highlight{background:linear-gradient(145deg,#FFF5EE,#FFF0E8);border:1px solid var(--ac-m);border-radius:16px;padding:24px 28px;margin-top:20px;}
+.diff-highlight-text{font-family:var(--display);font-size:clamp(15px,1.8vw,20px);font-weight:700;letter-spacing:-.02em;color:var(--tx);line-height:1.45;}
+.diff-highlight-text em{font-style:normal;color:var(--ac);}
+
+/* ASSISTANT PROFILES */
+.asst-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.asst-btn{padding:8px 18px;border-radius:100px;font-size:12px;font-weight:600;border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);cursor:pointer;transition:all .18s;font-family:var(--body);}
+.asst-btn:hover{border-color:var(--ac);color:var(--ac);}
+.asst-profile{display:none;}
+.asst-profile.active{display:block;}
+.asst-profile-header{background:var(--sf);border:1px solid var(--bd);border-radius:20px 20px 0 0;padding:32px 36px 24px;border-bottom:none;}
+.asst-profile-body{background:var(--sf);border:1px solid var(--bd);border-radius:0 0 20px 20px;padding:28px 36px;border-top:1px solid var(--bd);}
+.asst-tag{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 13px;border-radius:100px;color:#fff;margin-bottom:12px;}
+.asst-name{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.025em;color:var(--tx);margin-bottom:10px;}
+.asst-desc{font-size:14px;color:var(--tx2);line-height:1.65;max-width:520px;}
+.asst-traits{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+.asst-trait{font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px;background:var(--ac2-l);color:var(--ac2);border:1px solid var(--ac2-m);}
+.asst-examples{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.asst-ex{display:flex;flex-direction:column;gap:7px;}
+.asst-ex-ctx{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);}
+.asst-ex-bubble{background:var(--sf2);border:1px solid var(--bd);border-radius:3px 14px 14px 14px;padding:13px 17px;font-size:13.5px;color:var(--tx);line-height:1.58;position:relative;border-left:3px solid var(--ac);}
+
+/* NAMING */
+.naming-wrap{background:linear-gradient(145deg,#FAF6F0,#F5EEE6);border-radius:24px;padding:48px 56px;border:1px solid var(--bd);}
+.naming-main{font-family:var(--display);font-size:clamp(52px,7vw,88px);font-weight:800;letter-spacing:-.05em;line-height:1;background:linear-gradient(135deg,var(--ac),#EBA87C,var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;}
+.naming-pron{font-size:13.5px;color:var(--mu);margin-bottom:28px;font-style:italic;}
+.naming-insight{font-family:var(--display);font-size:clamp(16px,2vw,22px);font-weight:700;letter-spacing:-.02em;color:var(--tx);line-height:1.5;max-width:560px;margin-bottom:32px;}
+.naming-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.naming-item{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;}
+.naming-item-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:7px;}
+.naming-item-text{font-size:13.5px;color:var(--tx2);line-height:1.6;}
+.naming-assistant{background:linear-gradient(145deg,#1C1712,#2E2018);border-radius:18px;padding:28px 32px;margin-top:20px;position:relative;overflow:hidden;}
+.naming-assistant::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 90% 10%,rgba(217,123,79,.18) 0%,transparent 60%);pointer-events:none;}
+.naming-asst-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:8px;}
+.naming-asst-text{font-size:14.5px;color:rgba(255,255,255,.75);line-height:1.65;max-width:600px;}
+.naming-asst-text strong{color:rgba(255,255,255,.95);}
+
+/* PRÓXIMOS PASOS */
+.steps-wrap{display:flex;flex-direction:column;gap:0;}
+.step-row{display:flex;align-items:flex-start;gap:24px;padding:24px 0;border-bottom:1px solid var(--bd);}
+.step-row:last-child{border-bottom:none;}
+.step-marker{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:800;flex-shrink:0;}
+.step-marker.done{background:var(--ac2-l);color:var(--ac2);border:1px solid var(--ac2-m);}
+.step-marker.active{background:var(--ac-l);color:var(--ac);border:1px solid var(--ac-m);}
+.step-marker.todo{background:var(--sf2);color:var(--mu);border:1px solid var(--bd);}
+.step-content{flex:1;}
+.step-title{font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.015em;color:var(--tx);margin-bottom:5px;}
+.step-desc{font-size:13.5px;color:var(--tx2);line-height:1.65;}
+
+/* VERDICT */
+.verdict{background:linear-gradient(145deg,#1C1712,#2A1E14);border-radius:24px;padding:64px 72px;text-align:center;position:relative;overflow:hidden;}
+.verdict::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(217,123,79,.22) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 90% 90%,rgba(122,158,138,.16) 0%,transparent 55%);pointer-events:none;}
+.verdict-ey{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:18px;}
+.verdict-title{font-family:var(--display);font-size:clamp(28px,3.5vw,48px);font-weight:800;letter-spacing:-.04em;line-height:1.05;color:#fff;margin-bottom:20px;}
+.verdict-title em{font-style:normal;background:linear-gradient(135deg,var(--ac),#EBA87C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.verdict-items{display:flex;flex-direction:column;gap:16px;max-width:600px;margin:0 auto;text-align:left;}
+.vi{display:flex;gap:16px;align-items:flex-start;}
+.vi-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:7px;}
+.vi-dot.g{background:var(--ac2);}
+.vi-txt{font-size:14.5px;color:rgba(255,255,255,.65);line-height:1.65;}
+.vi-txt strong{color:rgba(255,255,255,.92);}
+
+/* FOOTER */
+.footer{padding:40px 0;border-top:1px solid var(--bd);text-align:center;}
+.footer-text{font-size:12px;color:var(--mu);}
+.footer-text span{color:var(--tx);font-weight:600;}
+
+/* INDEX BAR */
+.index-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:56px;}
+.idx{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--mu);text-decoration:none;transition:color .18s;}
+.idx:hover{color:var(--ac);}
+.idx-num{font-family:var(--display);font-size:10px;font-weight:700;color:var(--ac);}
+
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .g2,.g3,.mv-grid,.pillar-grid,.tone-grid,.comp-diff-grid,.asst-examples,.naming-grid,.claim-variants{grid-template-columns:1fr;}
+  .manifesto-wrap{padding:36px 28px;}
+  .pos-wrap{padding:36px 28px;}
+  .verdict{padding:40px 28px;}
+  .cover h1{font-size:clamp(40px,12vw,64px);}
+  .wrap{padding:0 20px;}
+  section{padding:64px 0;}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<nav class="nav">
+  <div class="nav-brand">Serú<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#esencia">Esencia</a></li>
+    <li><a href="#pilares">Pilares</a></li>
+    <li><a href="#visual">Visual</a></li>
+    <li><a href="#personas">Personas</a></li>
+    <li><a href="#competencia">Competencia</a></li>
+    <li><a href="#asistente">Asistente</a></li>
+    <li><a href="#naming" class="nav-pill">Naming</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COVER
+═══════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-mesh"></div>
+  <div class="cover-tag">Brand Strategy · Versión 1.0</div>
+  <h1>Brand<br>Strategy<br><em>Serú</em></h1>
+  <p class="cover-sub">La guía completa de marca para el asistente de negocios de la PYME latinoamericana.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">G17 Bootcamp</div>
+    <div class="cover-meta-item">Rosario, Argentina</div>
+    <div class="cover-meta-item">Marzo 2026</div>
+    <div class="cover-meta-item hi">6 pilares</div>
+    <div class="cover-meta-item hi2">5 voces</div>
+  </div>
+  <div class="cover-scroll">
+    <span>Scroll</span>
+    <div class="cover-scroll-line"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ÍNDICE
+═══════════════════════════════════════════════════════════ -->
+<section style="padding:72px 0;">
+  <div class="wrap">
+    <div class="eyebrow">Índice</div>
+    <h2 class="sec-title">Contenido del documento</h2>
+    <div class="index-bar">
+      <a href="#esencia" class="idx"><span class="idx-num">01</span> Esencia de marca</a>
+      <a href="#manifiesto" class="idx"><span class="idx-num">02</span> Manifiesto</a>
+      <a href="#mision" class="idx"><span class="idx-num">03</span> Misión & Visión</a>
+      <a href="#positioning" class="idx"><span class="idx-num">04</span> Positioning Statement</a>
+      <a href="#pilares" class="idx"><span class="idx-num">05</span> Pilares de marca</a>
+      <a href="#personalidad" class="idx"><span class="idx-num">06</span> Personalidad</a>
+      <a href="#tono" class="idx"><span class="idx-num">07</span> Tono de voz</a>
+      <a href="#visual" class="idx"><span class="idx-num">08</span> Sistema visual</a>
+      <a href="#personas" class="idx"><span class="idx-num">09</span> Buyer personas</a>
+      <a href="#claims" class="idx"><span class="idx-num">10</span> Claims & frases</a>
+      <a href="#competencia" class="idx"><span class="idx-num">11</span> Competencia</a>
+      <a href="#asistente" class="idx"><span class="idx-num">12</span> Voz del asistente</a>
+      <a href="#naming" class="idx"><span class="idx-num">13</span> Naming</a>
+      <a href="#pasos" class="idx"><span class="idx-num">14</span> Próximos pasos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     01 ESENCIA
+═══════════════════════════════════════════════════════════ -->
+<section id="esencia">
+  <div class="wrap reveal">
+    <div class="eyebrow">01 — Esencia de marca</div>
+    <h2 class="sec-title">Quiénes somos</h2>
+    <p class="sec-desc">El núcleo que no cambia. Todo lo demás deriva de acá.</p>
+
+    <div class="g2" style="margin-bottom:24px;">
+      <div class="card ac">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">Lo que somos</div>
+        <div class="card-text">Somos la herramienta que le devuelve tiempo y calma al dueño de PYME que lo hace todo solo. No somos tecnología. Somos un colaborador invisible que trabaja mientras él trabaja, y sigue trabajando cuando él descansa.</div>
+      </div>
+      <div class="card ac2">
+        <div class="card-icon">💡</div>
+        <div class="card-title">Lo que no somos</div>
+        <div class="card-text">No somos una agenda digital. No somos un chatbot. No somos un CRM. Somos la capa de comunicación inteligente que se pone delante de cualquier negocio de servicios. La agenda es una consecuencia, no el producto.</div>
+      </div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(160deg,#1C1712,#2E2018);border-color:transparent;">
+      <div style="position:relative;z-index:1;">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(217,123,79,.8);margin-bottom:14px;">El insight central que define todo</div>
+        <div style="font-family:var(--display);font-size:clamp(20px,2.5vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.3;color:#fff;margin-bottom:14px;">El dueño de negocio no eligió ser coordinador, secretario ni gestor de WhatsApps. Eligió su oficio. Nuestro trabajo es que pueda volver a él.</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.55);line-height:1.65;max-width:580px;">No construimos un chatbot. Construimos la base de datos de comportamiento de PYMEs que nadie más va a tener. El chatbot es la puerta.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     02 MANIFIESTO
+═══════════════════════════════════════════════════════════ -->
+<section id="manifiesto">
+  <div class="wrap reveal">
+    <div class="eyebrow">02 — Manifiesto</div>
+    <h2 class="sec-title">Lo que creemos</h2>
+    <p class="sec-desc">El texto fundacional de la marca. Puede aparecer en la web, en pitches, en el primer slide de una presentación.</p>
+
+    <div class="manifesto-wrap">
+      <div class="manifesto-eyebrow">Manifiesto de Marca · Serú</div>
+      <div class="manifesto-body">
+        El dueño de un negocio no eligió pasar el día respondiendo mensajes.<br>
+        Eligió su oficio. Lo que sabe hacer. Lo que lo hace único.<br><br>
+        Pero la realidad diaria es otra.<br>
+        Turnos que se cruzan. Mensajes sin leer. Clientes que reservan en otro lugar<br>
+        porque su mensaje quedó sin respuesta.<br><br>
+        <span>En Serú creemos que eso no debería ser así.</span><br><br>
+        Creemos que cada peluquero, cada kinesiólogo, cada tatuador,<br>
+        cada profesional que construyó algo propio desde cero<br>
+        merece tener al lado a alguien que se ocupe de la logística.<br>
+        Alguien que responda, que confirme, que recuerde, que organice.<br>
+        Alguien disponible siempre — que nunca se cansa y nunca falla.<br><br>
+        Ese alguien existe ahora. Y trabaja por WhatsApp.<br><br>
+        No pedimos que aprendas nueva tecnología.<br>
+        No pedimos que cambies nada de cómo trabajás.<br>
+        Solo que <span>te enfoques en lo que hacés.</span><br>
+        El resto, lo hacemos nosotros.
+      </div>
+      <div class="manifesto-footer">Serú · El asistente de negocios para la PYME latinoamericana · Rosario, Argentina · 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     03 MISIÓN Y VISIÓN
+═══════════════════════════════════════════════════════════ -->
+<section id="mision">
+  <div class="wrap reveal">
+    <div class="eyebrow">03 — Misión & Visión</div>
+    <h2 class="sec-title">Hoy y hacia dónde vamos</h2>
+    <p class="sec-desc">La misión define lo que hacemos ahora. La visión define en qué nos convertimos.</p>
+
+    <div class="mv-grid">
+      <div class="mv-card mission">
+        <div class="mv-card-label">Misión · Corto y mediano plazo</div>
+        <div class="mv-card-text">Automatizar la coordinación, comunicación y gestión de clientes de la PYME latinoamericana a través de WhatsApp, para que el dueño pueda enfocarse en lo que sabe hacer.</div>
+        <div class="mv-card-sub">El foco es operativo y concreto. Un turno gestionado, un cliente respondido, un mensaje enviado a tiempo. La misión se cumple cada vez que el dueño puede hacer su trabajo sin interrupciones.</div>
+        <div class="mv-num">M</div>
+      </div>
+      <div class="mv-card vision">
+        <div class="mv-card-label">Visión · Largo plazo</div>
+        <div class="mv-card-text">Ser el sistema operativo conversacional de la PYME latinoamericana — la capa de infraestructura que conecta cada negocio con sus clientes, su agenda, sus datos y su futuro.</div>
+        <div class="mv-card-sub">Argentina valida el modelo. México escala. LatAm es el destino. Con masa crítica de datos, Serú se convierte en la inteligencia del ecosistema PYME de la región.</div>
+        <div class="mv-num" style="color:var(--ac2);">V</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     04 POSITIONING
+═══════════════════════════════════════════════════════════ -->
+<section id="positioning">
+  <div class="wrap reveal">
+    <div class="eyebrow">04 — Positioning Statement</div>
+    <h2 class="sec-title">Dónde vivimos en la mente del cliente</h2>
+    <p class="sec-desc">La declaración que define todo lo que comunicamos. La piedra angular de cada decisión de marketing.</p>
+
+    <div class="pos-wrap">
+      <div class="pos-eyebrow">Positioning Statement</div>
+      <div class="pos-text">
+        Para el <em>dueño de una PYME de servicios en Latinoamérica</em> — peluquero, barbero, esteticista, tatuador, kinesiólogo, entrenador — que <strong>pierde clientes, tiempo y energía porque no puede atender todo al mismo tiempo</strong>, Serú es un <em>asistente de negocios conversacional</em> que gestiona turnos, responde consultas y mantiene el vínculo con los clientes por WhatsApp de forma autónoma, las 24 horas.<br><br>
+        A diferencia de las agendas digitales y los sistemas de gestión tradicionales, <em>no requiere que el cliente descargue una app ni cambie su comportamiento</em>: funciona donde la conversación ya ocurre.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     05 PILARES
+═══════════════════════════════════════════════════════════ -->
+<section id="pilares">
+  <div class="wrap reveal">
+    <div class="eyebrow">05 — Pilares de marca</div>
+    <h2 class="sec-title">Los seis valores que nos definen</h2>
+    <p class="sec-desc">Cada decisión de producto, diseño y comunicación debería reflejar al menos uno de estos pilares. Son el filtro de coherencia de la marca.</p>
+
+    <div class="pillar-grid">
+
+      <div class="pillar p1 reveal">
+        <div class="pillar-num">01</div>
+        <div class="pillar-emoji">🕊️</div>
+        <div class="pillar-word">Libertad</div>
+        <div class="pillar-sub">Lo que el producto devuelve</div>
+        <div class="pillar-desc">El dueño deja de ser el coordinador, el secretario y el gestor de WhatsApps de su propio negocio. Recupera tiempo real — horas por semana que antes se iban respondiendo mensajes, controlando la agenda a mano, llamando para confirmar turnos.</div>
+        <div class="pillar-quote">"Terminar el día sin mensajes pendientes."</div>
+      </div>
+
+      <div class="pillar p2 reveal">
+        <div class="pillar-num">02</div>
+        <div class="pillar-emoji">🎯</div>
+        <div class="pillar-word">Foco</div>
+        <div class="pillar-sub">Lo que el producto hace posible</div>
+        <div class="pillar-desc">El kinesiólogo eligió atender. El peluquero eligió cortar. El tatuador eligió crear. Cuando el asistente toma a cargo todo lo que rodea al servicio, el dueño no solo gana tiempo: recupera la posibilidad de hacer bien lo que sabe hacer — su oficio, su talento, su trato.</div>
+        <div class="pillar-quote">"Vos encargate de lo tuyo. Nosotros nos encargamos del resto."</div>
+      </div>
+
+      <div class="pillar p3 reveal">
+        <div class="pillar-num">03</div>
+        <div class="pillar-emoji">☁️</div>
+        <div class="pillar-word">Calma</div>
+        <div class="pillar-sub">Lo que el producto genera emocionalmente</div>
+        <div class="pillar-desc">El antídoto al caos permanente de manejar todo solo. La marca, el producto y cada punto de contacto deben transmitir serenidad y control. Si el sistema funciona bien, el dueño no debería necesitar revisar el dashboard más de cinco minutos por día.</div>
+        <div class="pillar-quote">"Calma para tu negocio. Foco para vos."</div>
+      </div>
+
+      <div class="pillar p4 reveal">
+        <div class="pillar-num">04</div>
+        <div class="pillar-emoji">📋</div>
+        <div class="pillar-word">Orden</div>
+        <div class="pillar-sub">Lo que el producto construye</div>
+        <div class="pillar-desc">Antes, la agenda era papel, memoria o un chat de WhatsApp. Ahora el dueño sabe exactamente cuántos turnos tiene, dónde están los huecos, qué clientes no volvieron, qué día rinde más. El orden no es solo estético — es información que permite tomar mejores decisiones.</div>
+        <div class="pillar-quote">"Tu negocio, de un vistazo."</div>
+      </div>
+
+      <div class="pillar p5 reveal">
+        <div class="pillar-num">05</div>
+        <div class="pillar-emoji">🤝</div>
+        <div class="pillar-word">Conexión</div>
+        <div class="pillar-sub">Lo que el producto mantiene activo</div>
+        <div class="pillar-desc">Un cliente que no recibe respuesta a tiempo no desaparece enojado — simplemente reserva en otro lugar. El asistente cierra esa brecha: responde en segundos, recuerda a cada cliente, detecta quién no volvió y puede reactivarlo. La conexión nunca se interrumpe.</div>
+        <div class="pillar-quote">"Tu asistente está trabajando mientras vos cortás."</div>
+      </div>
+
+      <div class="pillar p6 reveal">
+        <div class="pillar-num">06</div>
+        <div class="pillar-emoji">🔒</div>
+        <div class="pillar-word">Confianza</div>
+        <div class="pillar-sub">Lo que el producto representa</div>
+        <div class="pillar-desc">El asistente habla en nombre del negocio. Cada mensaje que envía es un punto de contacto de la marca del dueño. Para que eso funcione, el sistema tiene que ser confiable sin excepciones: responder siempre, nunca dar información incorrecta, nunca fallar cuando hay un turno en juego.</div>
+        <div class="pillar-quote">"La confianza se gana mensaje a mensaje."</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     06 PERSONALIDAD
+═══════════════════════════════════════════════════════════ -->
+<section id="personalidad">
+  <div class="wrap reveal">
+    <div class="eyebrow">06 — Personalidad de marca</div>
+    <h2 class="sec-title">Cómo es Serú como entidad</h2>
+    <p class="sec-desc">Si Serú fuera una persona, ¿cómo sería? Esta sección define el carácter que debe percibirse en cada interacción.</p>
+
+    <div class="pers-grid">
+      <div>
+        <div class="archetype-card">
+          <div class="archetype-label">Arquetipo central</div>
+          <div class="archetype-name">El Ayudante de Confianza</div>
+          <div class="archetype-desc">Alguien que ya sabe lo que hay que hacer, actúa sin que le pidan, y nunca roba protagonismo. No habla de tecnología — habla del trabajo que ya hizo. No pide instrucciones — se adapta al negocio y lo aprende.</div>
+        </div>
+        <div class="brand-voice">
+          <div class="bv-label">La marca habla como</div>
+          <div class="bv-text"><em>Un socio que ya trabajó en un negocio como el tuyo y entiende exactamente lo que estás viviendo.</em> No te explica tecnología. Te dice lo que va a hacer y lo hace. No es un chatbot genérico — es alguien que conoce tu agenda, tus clientes y tu oficio.</div>
+        </div>
+      </div>
+
+      <div>
+        <div style="margin-bottom:20px;">
+          <div class="card-label" style="margin-bottom:12px;">Adjetivos que definen a Serú</div>
+          <div class="pers-adjectives">
+            <span class="adj-tag adj-yes">Cercana</span>
+            <span class="adj-tag adj-yes">Directa</span>
+            <span class="adj-tag adj-yes">Confiable</span>
+            <span class="adj-tag adj-yes">Clara</span>
+            <span class="adj-tag adj-yes">Tranquila</span>
+            <span class="adj-tag adj-yes">Eficiente</span>
+            <span class="adj-tag adj-yes">Empática</span>
+            <span class="adj-tag adj-yes">Cálida</span>
+          </div>
+        </div>
+        <div>
+          <div class="card-label" style="margin-bottom:12px;">Lo que Serú nunca es</div>
+          <div class="pers-adjectives">
+            <span class="adj-tag adj-no">Fría</span>
+            <span class="adj-tag adj-no">Técnica</span>
+            <span class="adj-tag adj-no">Condescendiente</span>
+            <span class="adj-tag adj-no">Ruidosa</span>
+            <span class="adj-tag adj-no">Compleja</span>
+            <span class="adj-tag adj-no">Corporativa</span>
+            <span class="adj-tag adj-no">Robótica</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     07 TONO DE VOZ
+═══════════════════════════════════════════════════════════ -->
+<section id="tono">
+  <div class="wrap reveal">
+    <div class="eyebrow">07 — Tono de voz por contexto</div>
+    <h2 class="sec-title">Cómo habla Serú en cada canal</h2>
+    <p class="sec-desc">El tono general es cercano, directo y empático. Pero cada contexto tiene su registro específico.</p>
+
+    <div class="tone-grid">
+
+      <div class="tone-card reveal">
+        <div class="tone-card-header">
+          <div class="tone-icon" style="background:var(--ac-l);">📣</div>
+          <div>
+            <div class="tone-title">Landing page · Primer contacto</div>
+            <div class="tone-sub">Directo al dolor. Una idea por frase. Sin tech.</div>
+          </div>
+        </div>
+        <div class="card-text">El primer mensaje siempre parte del dolor real. El dueño tiene que leer la primera frase y pensar "esto es exactamente lo que me pasa". Sin introducción, sin contexto.</div>
+        <div class="tone-examples">
+          <div class="tone-ex">"Dejá de responder WhatsApps entre turno y turno."</div>
+          <div class="tone-ex">"¿Cuántos clientes perdiste esta semana por no responder a tiempo?"</div>
+          <div class="tone-ex">"Cada mensaje sin leer es un turno que no vas a cobrar."</div>
+          <div class="tone-ex">"Mientras cortás, tu agenda debería llenarse sola."</div>
+          <div class="tone-ex">"Tu próximo cliente te escribió a las 11 de la noche. ¿Le respondiste?"</div>
+          <div class="tone-ex">"Anotás los turnos en papel, en el teléfono o de memoria. Hay otra forma."</div>
+        </div>
+      </div>
+
+      <div class="tone-card reveal">
+        <div class="tone-card-header">
+          <div class="tone-icon" style="background:var(--ac2-l);">📊</div>
+          <div>
+            <div class="tone-title">Dashboard · Interfaz del dueño</div>
+            <div class="tone-sub">Cálido, amigable. El dato con temperatura humana.</div>
+          </div>
+        </div>
+        <div class="card-text">El dashboard no informa — habla con el dueño. El microcopy tiene calidez. El dueño entra, recupera el control en 60 segundos, y sale tranquilo.</div>
+        <div class="tone-examples">
+          <div class="tone-ex ac2">"Buenos días, Rodrigo. Hoy tenés 8 turnos. Todo en orden."</div>
+          <div class="tone-ex ac2">"Todo tranquilo por ahora. Tu asistente está trabajando."</div>
+          <div class="tone-ex ac2">"Esta semana tuviste un 12% más de turnos que la anterior. Buen ritmo."</div>
+          <div class="tone-ex ac2">"Martín no reserva hace 3 semanas. ¿Querés que le mandemos un mensaje?"</div>
+        </div>
+      </div>
+
+      <div class="tone-card reveal">
+        <div class="tone-card-header">
+          <div class="tone-icon" style="background:rgba(140,123,110,.1);">🤝</div>
+          <div>
+            <div class="tone-title">Ventas y demos</div>
+            <div class="tone-sub">Arranca por el dolor. Cierra con el beneficio.</div>
+          </div>
+        </div>
+        <div class="card-text">Nunca presenta features primero. La demo muestra un turno completo de punta a punta en tiempo real — el candidato lo ve suceder frente a él.</div>
+        <div class="tone-examples">
+          <div class="tone-ex mu">"No cambiás nada. Tus clientes siguen usando WhatsApp — solo que ahora siempre reciben respuesta."</div>
+          <div class="tone-ex mu">"Lo configuramos juntos en 20 minutos. Mañana ya está trabajando para vos."</div>
+          <div class="tone-ex mu">"Tu competencia todavía anota en papel. Vos podés estar un paso adelante desde mañana."</div>
+          <div class="tone-ex mu">"Lo que más escuchamos: 'No puedo creer que antes lo hacía todo a mano.'"</div>
+        </div>
+      </div>
+
+      <div class="tone-card reveal">
+        <div class="tone-card-header">
+          <div class="tone-icon" style="background:rgba(181,38,110,.08);">📱</div>
+          <div>
+            <div class="tone-title">Redes sociales · Contenido orgánico</div>
+            <div class="tone-sub">Tres pilares: dolor, after, valor para PYME.</div>
+          </div>
+        </div>
+        <div class="card-text">Instagram y WhatsApp Status. Contenido en tres líneas: el caos sin el asistente, la calma con él, y tips de gestión para dueños que quieran crecer.</div>
+        <div class="tone-examples">
+          <div class="tone-ex mu">"El video del dolor" — caos vs calma. Sin narración técnica.</div>
+          <div class="tone-ex mu">Testimonios de negocios reales, en su lenguaje, sin edición corporativa.</div>
+          <div class="tone-ex mu">Tips de gestión PYME: datos de mercado, patrones de comportamiento de clientes.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     08 SISTEMA VISUAL
+═══════════════════════════════════════════════════════════ -->
+<section id="visual">
+  <div class="wrap reveal">
+    <div class="eyebrow">08 — Sistema visual</div>
+    <h2 class="sec-title">Paleta, tipografía y principios</h2>
+    <p class="sec-desc">La identidad visual de Serú comunica calma, calidez y confianza. Tierra cálida como base, sin frialdad corporativa.</p>
+
+    <!-- PALETA -->
+    <div class="vis-section">
+      <div class="eyebrow" style="margin-bottom:20px;">Paleta de color · Tierra Cálida</div>
+
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="swatch-box primary" style="background:#D97B4F;"></div>
+          <div class="swatch-name">Terracota</div>
+          <div class="swatch-hex">#D97B4F</div>
+          <div class="swatch-role">Acento principal · CTAs · Marca</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch-box" style="background:#7A9E8A;"></div>
+          <div class="swatch-name">Salvia</div>
+          <div class="swatch-hex">#7A9E8A</div>
+          <div class="swatch-role">Acento secundario · Confirmaciones · Progreso</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch-box" style="background:#FAF6F0;border:1px solid #E8DDD4;"></div>
+          <div class="swatch-name">Crema base</div>
+          <div class="swatch-hex">#FAF6F0</div>
+          <div class="swatch-role">Fondo principal · Espacio de calma</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch-box" style="background:#FFF9F4;border:1px solid #E8DDD4;"></div>
+          <div class="swatch-name">Blanco hueso</div>
+          <div class="swatch-hex">#FFF9F4</div>
+          <div class="swatch-role">Superficies · Cards · Modales</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch-box" style="background:#1C1712;"></div>
+          <div class="swatch-name">Oscuro cálido</div>
+          <div class="swatch-hex">#1C1712</div>
+          <div class="swatch-role">Texto principal · Titulares</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch-box" style="background:#8C7B6E;"></div>
+          <div class="swatch-name">Gris tostado</div>
+          <div class="swatch-hex">#8C7B6E</div>
+          <div class="swatch-role">Texto secundario · Labels · Muted</div>
+        </div>
+        <div class="color-swatch">
+          <div class="swatch-box" style="background:#E8DDD4;"></div>
+          <div class="swatch-name">Borde cálido</div>
+          <div class="swatch-hex">#E8DDD4</div>
+          <div class="swatch-role">Bordes · Divisores · Separadores</div>
+        </div>
+      </div>
+
+      <div class="grad-row" style="margin-top:20px;">
+        <div class="grad-bar" style="background:linear-gradient(135deg,#D97B4F,#EBA87C,#F5CBA8);">
+          <span>Terracota · Acento principal</span>
+        </div>
+        <div class="grad-bar" style="background:linear-gradient(135deg,#7A9E8A,#9BBFAD,#BDD5C8);">
+          <span>Salvia · Acento secundario</span>
+        </div>
+        <div class="grad-bar" style="background:linear-gradient(135deg,#D97B4F,#C09880,#7A9E8A);">
+          <span>Síntesis · Solo decorativo</span>
+        </div>
+      </div>
+
+      <!-- REGLAS DE COLOR -->
+      <div style="margin-top:28px;">
+        <div class="eyebrow" style="margin-bottom:16px;">Reglas de uso de color</div>
+        <div class="color-rules">
+          <div class="color-rule">
+            <div class="rule-title"><span class="rule-dot" style="background:#D97B4F;"></span>Terracota — cuándo usarlo</div>
+            <div class="rule-text">Todos los CTAs primarios. Links activos y navegación seleccionada. Métricas positivas y el turno en curso en el dashboard. El acento del logotipo. Títulos con gradiente. <strong>Nunca como fondo de áreas grandes</strong> — es acento, no superficie.</div>
+          </div>
+          <div class="color-rule">
+            <div class="rule-title"><span class="rule-dot" style="background:#7A9E8A;"></span>Salvia — cuándo usarlo</div>
+            <div class="rule-text">Estados de confirmación ("Confirmado"). Métricas de crecimiento y progreso. Acentos decorativos secundarios. Fondo suave al 10% en cards de estado positivo. <strong>No compite con terracota en el mismo elemento.</strong></div>
+          </div>
+          <div class="color-rule">
+            <div class="rule-title"><span class="rule-dot" style="background:#FAF6F0;border:1px solid #E8DDD4;"></span>Crema + Blanco hueso — cuándo usarlos</div>
+            <div class="rule-text">Crema para el fondo general. Blanco hueso para surfaces que flotan sobre el fondo (cards, modales, inputs). Ambos generan el "respiro" visual que comunica calma. <strong>Nunca para texto</strong> — contraste insuficiente.</div>
+          </div>
+          <div class="color-rule">
+            <div class="rule-title"><span class="rule-dot" style="background:#1C1712;"></span>Oscuro cálido + Gris tostado</div>
+            <div class="rule-text">Oscuro cálido para todo texto de contenido y titulares principales. Gris tostado para labels, metadatos, timestamps y texto de apoyo. <strong>Nunca puro negro</strong> — el oscuro cálido es más coherente con la paleta.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIPOGRAFÍA -->
+    <div class="vis-section">
+      <div class="eyebrow" style="margin-bottom:20px;">Tipografía · Combinación A</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+        <div class="card">
+          <div class="card-label">Display · Titulares · Marca</div>
+          <div style="font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--tx);margin-bottom:6px;">Bricolage Grotesque</div>
+          <div style="font-family:var(--display);font-size:14px;font-weight:400;color:var(--mu);">400 · 500 · 600 · 700 · 800</div>
+          <div class="card-text" style="margin-top:10px;">Editorial con carácter fuerte. Geométrica con personalidad. Usada en todos los titulares, nombres de sección, el wordmark y cualquier elemento de marca que necesite impacto.</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Body · UI · Interfaz</div>
+          <div style="font-family:var(--body);font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin-bottom:6px;">Plus Jakarta Sans</div>
+          <div style="font-family:var(--body);font-size:14px;font-weight:400;color:var(--mu);">300 · 400 · 500 · 600 · 700</div>
+          <div class="card-text" style="margin-top:10px;">Cálida, legible, moderna. Usada en todo el cuerpo de texto, microcopy del dashboard, labels, botones y cualquier elemento de interfaz. Funciona perfectamente en tamaños pequeños.</div>
+        </div>
+      </div>
+
+      <div class="typo-preview">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ac);background:var(--ac-l);display:inline-block;padding:5px 14px;border-radius:100px;border:1px solid var(--ac-m);margin-bottom:20px;">Asistente de negocios · PYME LatAm</div>
+        <div class="typo-display">Enfocate en lo<br>que hacés.</div>
+        <div class="typo-body-demo">Automatizamos la coordinación de turnos, la comunicación con clientes y la gestión del día a día. Para que puedas volver a lo que te hace único: tu oficio, tu talento y tu trato con cada cliente.</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);margin-bottom:10px;">Microcopy · Dashboard</div>
+        <div class="typo-ui-demo">
+          <div class="typo-ui-item">Buenos días, Rodrigo. Hoy tenés 8 turnos confirmados.</div>
+          <div class="typo-ui-item">Todo tranquilo por ahora. Tu asistente está trabajando.</div>
+          <div class="typo-ui-item">Martín no reserva hace 3 semanas. ¿Querés que le mandemos un mensaje?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRINCIPIOS VISUALES -->
+    <div class="eyebrow" style="margin-bottom:16px;">Principios visuales</div>
+    <div class="vis-principles">
+      <div class="vis-princ">
+        <div class="vis-princ-icon">⬜</div>
+        <div class="vis-princ-title">Espacio generoso</div>
+        <div class="vis-princ-text">El espacio en blanco no es vacío — es calma. Un diseño apretado comunica exactamente lo contrario de lo que el producto promete.</div>
+      </div>
+      <div class="vis-princ">
+        <div class="vis-princ-icon">🌊</div>
+        <div class="vis-princ-title">Gradientes sutiles</div>
+        <div class="vis-princ-text">Del naranja cálido al crema, del teal al verde salvia. Nunca llamativos, siempre como fondo o textura suave. Liquid Glass aplicado con moderación en landing.</div>
+      </div>
+      <div class="vis-princ">
+        <div class="vis-princ-icon">⭕</div>
+        <div class="vis-princ-title">Sin esquinas filosas</div>
+        <div class="vis-princ-text">Bordes redondeados en todos los componentes. Transmite accesibilidad y calidez — lo opuesto al aspecto corporativo frío.</div>
+      </div>
+      <div class="vis-princ">
+        <div class="vis-princ-icon">🚫</div>
+        <div class="vis-princ-title">Sin iconografía de IA</div>
+        <div class="vis-princ-text">No robots, no engranajes, no cerebros digitales. Íconos simples y reconocibles: calendarios, conversaciones, personas, flechas.</div>
+      </div>
+      <div class="vis-princ">
+        <div class="vis-princ-icon">🪟</div>
+        <div class="vis-princ-title">Glass & profundidad</div>
+        <div class="vis-princ-text">Cards con backdrop-filter y blur suave. Efecto de capas y profundidad sin exagerar. La UI del dashboard respira y se siente como una ventana al negocio.</div>
+      </div>
+      <div class="vis-princ">
+        <div class="vis-princ-icon">📐</div>
+        <div class="vis-princ-title">Jerarquía clara</div>
+        <div class="vis-princ-text">Bricolage Grotesque en display, Jakarta Sans en cuerpo. Tamaños que crean jerarquía obvia. El dueño entiende qué es lo más importante de un vistazo.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     09 BUYER PERSONAS
+═══════════════════════════════════════════════════════════ -->
+<section id="personas">
+  <div class="wrap reveal">
+    <div class="eyebrow">09 — Buyer personas</div>
+    <h2 class="sec-title">A quién le hablamos</h2>
+    <p class="sec-desc">Tres perfiles primarios. El foco MVP es Rodrigo — los demás guían la hoja de ruta de crecimiento.</p>
+
+    <div class="g3">
+
+      <div class="persona-card reveal">
+        <div class="persona-header">
+          <div class="persona-avatar" style="background:var(--ac-l);">💈</div>
+          <div class="pill p-ac" style="margin-bottom:10px;">Buyer principal · MVP</div>
+          <div class="persona-name">Rodrigo</div>
+          <div class="persona-role">Barbero · Peluquero · 28–42 años</div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-section">
+            <div class="persona-section-title">Realidad diaria</div>
+            <div class="persona-section-text">Trabaja 8-10 horas parado. Entre corte y corte, suena el teléfono. Tiene 15 mensajes sin responder. Anota los turnos en papel, en el teléfono o de memoria. No sabe a qué hora tiene el martes.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Miedos</div>
+            <div class="persona-section-text">Perder clientes por no responder. Dos personas en el mismo horario. No llegar a fin de mes.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Qué lo convence</div>
+            <div class="persona-section-text">Una demo en vivo. Ver que el cliente solo manda un WhatsApp y listo. Saber que otros barberos ya lo usan.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Objeción principal</div>
+            <div class="persona-section-text">"¿Y si el bot dice algo mal a un cliente mío?"</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Canal</div>
+            <div class="persona-tags">
+              <span class="persona-tag">Instagram</span>
+              <span class="persona-tag">WhatsApp grupos</span>
+              <span class="persona-tag">Boca a boca</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="persona-card reveal">
+        <div class="persona-header">
+          <div class="persona-avatar" style="background:var(--ac2-l);">💆</div>
+          <div class="pill p-ac2" style="margin-bottom:10px;">Expansión · Bienestar</div>
+          <div class="persona-name">Valeria</div>
+          <div class="persona-role">Esteticista · Kinesióloga · 30–48 años</div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-section">
+            <div class="persona-section-title">Realidad diaria</div>
+            <div class="persona-section-text">Está en consulta. El teléfono vibra. No puede atender. Cuando termina, tiene 8 mensajes — 3 son turnos, 2 son reprogramaciones. Lleva 45 minutos respondiendo antes de comer.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Diferencia clave</div>
+            <div class="persona-section-text">Es más exigente con la imagen del negocio. La experiencia del cliente es parte de su oferta. No quiere que su negocio se sienta "automatizado".</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Qué la convence</div>
+            <div class="persona-section-text">Ver que el asistente puede hablar con el tono que ella definiría. Saber que el cliente tiene una buena experiencia. Testimonios de colegas.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Canal</div>
+            <div class="persona-tags">
+              <span class="persona-tag g">Instagram</span>
+              <span class="persona-tag g">Grupos de profesionales</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="persona-card reveal">
+        <div class="persona-header">
+          <div class="persona-avatar" style="background:rgba(140,123,110,.1);">🎨</div>
+          <div class="pill p-mu" style="margin-bottom:10px;">Expansión · Creativos</div>
+          <div class="persona-name">Lucas</div>
+          <div class="persona-role">Tatuador · Artista · 25–38 años</div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-section">
+            <div class="persona-section-title">Realidad diaria</div>
+            <div class="persona-section-text">50 DMs en Instagram y 20 en WhatsApp. Cada turno requiere consulta previa, cotización y referencia visual. El proceso lo agota. Quiere tatuar, no administrar.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Diferencia clave</div>
+            <div class="persona-section-text">Ya usa herramientas digitales, entiende el producto más rápido, pero es más crítico. Si la experiencia no es buena, lo abandona.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Qué lo convence</div>
+            <div class="persona-section-text">Que el flujo de consulta inicial esté automatizado y solo reciba los turnos con la información básica ya resuelta.</div>
+          </div>
+          <div class="persona-section">
+            <div class="persona-section-title">Canal</div>
+            <div class="persona-tags">
+              <span class="persona-tag">Instagram</span>
+              <span class="persona-tag">TikTok</span>
+              <span class="persona-tag">Comunidades online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:16px;padding:24px 28px;margin-top:20px;">
+      <div class="card-label" style="margin-bottom:8px;">Lo que todos tienen en común</div>
+      <div style="font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.02em;color:var(--tx);line-height:1.45;">Son profesionales que eligieron su oficio — no eligieron ser coordinadores, secretarios ni gestores. El asistente les devuelve la posibilidad de hacer lo que los hace únicos. <span style="color:var(--ac);">No vendemos tecnología. Vendemos la libertad de hacer lo que uno sabe hacer.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     10 CLAIMS
+═══════════════════════════════════════════════════════════ -->
+<section id="claims">
+  <div class="wrap reveal">
+    <div class="eyebrow">10 — Claims & frases de marca</div>
+    <h2 class="sec-title">Las palabras que nos identifican</h2>
+    <p class="sec-desc">El banco de frases aprobadas para usar en comunicación. Cada una tiene un propósito específico.</p>
+
+    <div class="claim-main">
+      <div class="claim-main-tag">Claim principal recomendado</div>
+      <div class="claim-main-text"><em>Enfocate en lo que hacés.</em></div>
+      <div class="claim-main-sub">Simple, empoderador, sin tech, escalable a cualquier vertical y cualquier mercado LatAm.</div>
+    </div>
+
+    <div class="claim-variants">
+      <div class="claim-var">
+        <div class="claim-var-tag">Cierre de valor · Síntesis</div>
+        <div class="claim-var-text">"Enfocate en lo que hacés. Nosotros nos ocupamos del resto."</div>
+        <div class="claim-var-desc">La versión completa del claim. Para landing page, pitch y primer mensaje de ventas.</div>
+      </div>
+      <div class="claim-var">
+        <div class="claim-var-tag">Variante funcional</div>
+        <div class="claim-var-text">"Tu negocio responde mientras vos trabajás."</div>
+        <div class="claim-var-desc">Concreta. Resuelve el pain point de no poder atender todo al mismo tiempo.</div>
+      </div>
+      <div class="claim-var">
+        <div class="claim-var-tag">Variante emocional</div>
+        <div class="claim-var-text">"Calma para tu negocio. Foco para vos."</div>
+        <div class="claim-var-desc">Une los dos beneficios emocionales centrales en una sola frase.</div>
+      </div>
+      <div class="claim-var">
+        <div class="claim-var-tag">Variante de dolor</div>
+        <div class="claim-var-text">"Dejá de responder WhatsApps entre turno y turno."</div>
+        <div class="claim-var-desc">Directa al pain point. Máximo impacto en primer contacto.</div>
+      </div>
+      <div class="claim-var">
+        <div class="claim-var-tag">Variante aspiracional</div>
+        <div class="claim-var-text">"El negocio que nunca duerme. Para que vos puedas."</div>
+        <div class="claim-var-desc">Juega con disponibilidad 24/7 como beneficio emocional.</div>
+      </div>
+      <div class="claim-var">
+        <div class="claim-var-tag">Variante de delegación</div>
+        <div class="claim-var-text">"Delegale la logística. Quedate con lo que importa."</div>
+        <div class="claim-var-desc">Habla de delegar sin miedo. Supera la resistencia a perder el control.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div class="card-label" style="margin-bottom:12px;">Más frases del banco</div>
+      <div class="claim-extras">
+        <div class="claim-extra">"A las 2am, tu asistente sigue contestando. Vos, dormís."</div>
+        <div class="claim-extra">"Menos caos, más oficio."</div>
+        <div class="claim-extra">"Tu negocio en piloto automático. Vos en lo tuyo."</div>
+        <div class="claim-extra">"Terminá el día sin mensajes pendientes."</div>
+        <div class="claim-extra">"No necesitás ser secretario de tu propio negocio."</div>
+        <div class="claim-extra">"Hacé lo que sabés. El resto, delegalo."</div>
+        <div class="claim-extra">"Un negocio tan organizado que se maneja solo."</div>
+        <div class="claim-extra">"¿Cuándo fue la última vez que terminaste el día sin mensajes sin leer?"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     11 COMPETENCIA
+═══════════════════════════════════════════════════════════ -->
+<section id="competencia">
+  <div class="wrap reveal">
+    <div class="eyebrow">11 — Competencia & diferenciación</div>
+    <h2 class="sec-title">Con quién nos comparan y por qué no es lo mismo</h2>
+    <p class="sec-desc">El mapa del mercado. Conocer a la competencia no es copiarse — es entender dónde vive nuestra ventaja.</p>
+
+    <table class="comp-table" style="margin-bottom:28px;">
+      <thead>
+        <tr>
+          <th>Competidor</th>
+          <th>Qué hace</th>
+          <th>Por qué no es lo mismo</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="strong">Reservo / TurnosYa</td>
+          <td>Agenda online con link de reserva para el cliente.</td>
+          <td>El cliente tiene que entrar a un link y aprender a usar una plataforma nueva. Alta fricción de adopción. No usa WhatsApp — el canal donde la conversación ya ocurre.</td>
+          <td><span class="pill p-warn">Competidor directo</span></td>
+        </tr>
+        <tr>
+          <td class="strong">Turnito</td>
+          <td>Gestión de turnos + recordatorios automáticos.</td>
+          <td>Más completo en funcionalidades pero requiere onboarding largo. No es conversacional ni automatiza la comunicación en tiempo real. No está diseñado para PYME pequeña.</td>
+          <td><span class="pill p-warn">Competidor directo</span></td>
+        </tr>
+        <tr>
+          <td class="strong">Calendly</td>
+          <td>Agendamiento por link compartible.</td>
+          <td>Diseñado para profesionales tech. Inglés primero. Sin WhatsApp nativo. No adaptado a la cultura ni al lenguaje de la PYME latinoamericana.</td>
+          <td><span class="pill p-mu">Competidor indirecto</span></td>
+        </tr>
+        <tr>
+          <td class="strong">Agenda Pro / SimplyBook</td>
+          <td>Plataformas completas de gestión de reservas.</td>
+          <td>Demasiado complejo para el dueño que trabaja solo. Curva de aprendizaje alta. Precio fuera del rango de la PYME pequeña. Sobre-funcionalidad que se convierte en fricción.</td>
+          <td><span class="pill p-mu">Competidor indirecto</span></td>
+        </tr>
+        <tr>
+          <td class="strong">WhatsApp manual</td>
+          <td>El status quo — el dueño responde a mano.</td>
+          <td>El competidor real más importante: no tiene costo aparente. Pero tiene un costo enorme en tiempo, atención y clientes perdidos. La inercia es el enemigo principal.</td>
+          <td><span class="pill p-open">Status quo · El más difícil</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="diff-highlight">
+      <div class="card-label" style="margin-bottom:10px;">Nuestra diferencia en una línea</div>
+      <div class="diff-highlight-text">Somos el único sistema que funciona <em>donde la conversación ya ocurre</em> — WhatsApp — sin pedirle nada al cliente ni al dueño que no estén haciendo ya.</div>
+    </div>
+
+    <div class="comp-diff-grid">
+      <div class="comp-diff">
+        <div class="comp-diff-title">✓ Cero fricción para el cliente final</div>
+        <div class="comp-diff-text">No descarga nada, no aprende nada. Manda un WhatsApp como siempre y obtiene respuesta inmediata.</div>
+      </div>
+      <div class="comp-diff">
+        <div class="comp-diff-title">✓ El sistema aprende el negocio</div>
+        <div class="comp-diff-text">Servicios, horarios, profesionales, tono de comunicación. Se adapta a cada negocio, no al revés.</div>
+      </div>
+      <div class="comp-diff">
+        <div class="comp-diff-title">✓ Datos como ventaja acumulada</div>
+        <div class="comp-diff-text">Cada conversación construye la base de datos de comportamiento del negocio. Con el tiempo, el sistema se vuelve más inteligente.</div>
+      </div>
+      <div class="comp-diff">
+        <div class="comp-diff-title">✓ Diseñado para LatAm desde el día uno</div>
+        <div class="comp-diff-text">Voseo, modismos regionales, precios en moneda local, cultura de negocio latinoamericana. No es una adaptación — es nativo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     12 VOZ DEL ASISTENTE
+═══════════════════════════════════════════════════════════ -->
+<section id="asistente">
+  <div class="wrap reveal">
+    <div class="eyebrow">12 — Voz del asistente</div>
+    <h2 class="sec-title">Cómo habla Serú en WhatsApp</h2>
+    <p class="sec-desc">Cada negocio puede elegir el perfil de voz que mejor representa su estilo. Cinco perfiles disponibles, cada uno con un tono y una personalidad propios.</p>
+
+    <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:14px;padding:18px 22px;margin-bottom:28px;">
+      <div class="card-label" style="margin-bottom:8px;">Nota técnica importante</div>
+      <div style="font-size:13.5px;color:var(--tx2);line-height:1.65;">El asistente aparece en WhatsApp bajo el nombre y foto de perfil de <strong style="color:var(--tx);">Serú</strong> — el número es único y compartido entre todos los negocios de la plataforma. En el <em>cuerpo del mensaje</em>, el asistente se presenta con el nombre del negocio ("Soy el asistente de Peluquería El Barrio"). La marca Serú tiene visibilidad directa ante el cliente final — esto es un activo de marca, no una limitación.</div>
+    </div>
+
+    <div class="asst-selector">
+      <button class="asst-btn" onclick="showProfile('fusion',this)" style="border-color:#D97B4F;color:#D97B4F;">El Colaborador de Confianza ★</button>
+      <button class="asst-btn" onclick="showProfile('barrio',this)">El Amigo del Barrio</button>
+      <button class="asst-btn" onclick="showProfile('prof',this)">El Asistente Profesional</button>
+      <button class="asst-btn" onclick="showProfile('asesor',this)">El Asesor Cálido</button>
+      <button class="asst-btn" onclick="showProfile('motiv',this)">El Motivador</button>
+    </div>
+
+    <div id="profile-fusion" class="asst-profile active">
+      <div class="asst-profile-header">
+        <div class="asst-tag" style="background:#D97B4F;">Fusión recomendada · Cercano + Enfocado</div>
+        <div class="asst-name">El Colaborador de Confianza</div>
+        <div class="asst-desc">La síntesis de los dos caminos. Cálido como alguien de confianza, eficiente como un profesional. Habla con el tono del negocio, resuelve sin drama. Nunca robótico, nunca impersonal. El equilibrio perfecto para la mayoría de los negocios.</div>
+        <div class="asst-traits">
+          <span class="asst-trait">Directo sin ser frío</span>
+          <span class="asst-trait">Empático sin ser lento</span>
+          <span class="asst-trait">Confiable sin ser rígido</span>
+          <span class="asst-trait">Cercano sin excederse</span>
+        </div>
+      </div>
+      <div class="asst-profile-body">
+        <div class="asst-examples">
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Primer contacto · cliente nuevo</div>
+            <div class="asst-ex-bubble">¡Hola! Soy el asistente de Rodrigo. ¿En qué te puedo ayudar? Podés consultarme horarios, servicios o reservar un turno directamente por acá.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Confirmación de turno</div>
+            <div class="asst-ex-bubble">Listo, Martín ✓ Quedaste agendado el jueves 10 a las 15:30. Te mando un recordatorio el día anterior. Cualquier cambio, avisame por acá.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Recordatorio pre-turno</div>
+            <div class="asst-ex-bubble">Hola Martín, mañana tenés turno a las 15:30. Si necesitás cambiar algo, decime y lo resolvemos.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Reprogramación</div>
+            <div class="asst-ex-bubble">No hay problema, buscamos otro horario. ¿Tenés preferencia de día o turno? Te muestro la disponibilidad.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile-barrio" class="asst-profile">
+      <div class="asst-profile-header">
+        <div class="asst-tag" style="background:#4A9485;">Perfil A · Máxima cercanía</div>
+        <div class="asst-name">El Amigo del Barrio</div>
+        <div class="asst-desc">Tono muy humano y cálido, casi como si escribiera el dueño mismo. Ideal para peluquerías de barrio y negocios donde la relación personal es parte central de la propuesta de valor.</div>
+        <div class="asst-traits">
+          <span class="asst-trait">Informal pero respetuoso</span>
+          <span class="asst-trait">Emojis con moderación</span>
+          <span class="asst-trait">Memoria activa del cliente</span>
+          <span class="asst-trait">Personaliza cada interacción</span>
+        </div>
+      </div>
+      <div class="asst-profile-body">
+        <div class="asst-examples">
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Primer contacto</div>
+            <div class="asst-ex-bubble" style="border-left-color:#4A9485;">¡Buenas! Acá el asistente de Rodri. ¿Qué necesitás? 😊</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Confirmación</div>
+            <div class="asst-ex-bubble" style="border-left-color:#4A9485;">¡Perfecto Martín! Anotado para el jueves a las 15:30. Te aviso mañana antes para que no se te pase 👌</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Cliente frecuente que vuelve</div>
+            <div class="asst-ex-bubble" style="border-left-color:#4A9485;">¡Martín! Hacía rato. ¿Querés el mismo horario de siempre, los jueves a la tarde?</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Reprogramación</div>
+            <div class="asst-ex-bubble" style="border-left-color:#4A9485;">Dale, sin drama. ¿Cuándo venís mejor?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile-prof" class="asst-profile">
+      <div class="asst-profile-header">
+        <div class="asst-tag" style="background:#6B5A50;">Perfil B · Máxima eficiencia</div>
+        <div class="asst-name">El Asistente Profesional</div>
+        <div class="asst-desc">Tono formal, preciso y sin rodeos. Ideal para consultorios, estudios y profesionales donde la imagen de rigor importa tanto como la calidez. Sin emojis, sin informalidades.</div>
+        <div class="asst-traits">
+          <span class="asst-trait">Claro y conciso</span>
+          <span class="asst-trait">Sin emojis</span>
+          <span class="asst-trait">Información exacta</span>
+          <span class="asst-trait">Mínimo número de mensajes</span>
+        </div>
+      </div>
+      <div class="asst-profile-body">
+        <div class="asst-examples">
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Primer contacto</div>
+            <div class="asst-ex-bubble" style="border-left-color:#6B5A50;">Hola, soy el asistente virtual. Puedo ayudarte a reservar un turno, consultar disponibilidad o informarte sobre los servicios. ¿Qué necesitás?</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Confirmación</div>
+            <div class="asst-ex-bubble" style="border-left-color:#6B5A50;">Turno confirmado: jueves 10, 15:30 hs. Recibirás un recordatorio 24 horas antes.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Recordatorio</div>
+            <div class="asst-ex-bubble" style="border-left-color:#6B5A50;">Recordatorio: mañana tenés turno a las 15:30. Si necesitás cancelar o reprogramar, respondé este mensaje.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Reprogramación</div>
+            <div class="asst-ex-bubble" style="border-left-color:#6B5A50;">Entendido. Indicame tu preferencia de día y horario y verifico la disponibilidad.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile-asesor" class="asst-profile">
+      <div class="asst-profile-header">
+        <div class="asst-tag" style="background:#7A6BAA;">Perfil C · Bienestar y salud</div>
+        <div class="asst-name">El Asesor Cálido</div>
+        <div class="asst-desc">Para kinesiólogos, psicólogos, nutricionistas, médicos. Cálido y personal, sin ser informal. Reconoce al paciente, cuida el vínculo y transmite contención sin perder el profesionalismo.</div>
+        <div class="asst-traits">
+          <span class="asst-trait">Usa el nombre siempre</span>
+          <span class="asst-trait">Lenguaje cuidado y cálido</span>
+          <span class="asst-trait">Sin emojis</span>
+          <span class="asst-trait">Reconoce el contexto del paciente</span>
+        </div>
+      </div>
+      <div class="asst-profile-body">
+        <div class="asst-examples">
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Primer contacto</div>
+            <div class="asst-ex-bubble" style="border-left-color:#7A6BAA;">Hola, bienvenida. Soy el asistente de la Lic. Valeria Torres. Puedo ayudarte a consultar disponibilidad o reservar tu próxima sesión. ¿Cómo te llamas?</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Confirmación</div>
+            <div class="asst-ex-bubble" style="border-left-color:#7A6BAA;">Perfecto, Lucía. Tu sesión quedó confirmada para el miércoles 12 a las 17:00. Te escribimos el día anterior para recordarte.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Recordatorio</div>
+            <div class="asst-ex-bubble" style="border-left-color:#7A6BAA;">Hola Lucía, mañana es tu sesión con la Lic. Torres a las 17:00. Esperamos verte. Si necesitás reprogramar, respondé este mensaje.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Seguimiento post-sesión</div>
+            <div class="asst-ex-bubble" style="border-left-color:#7A6BAA;">Hola Lucía, esperamos que la sesión de hoy haya sido útil. Cuando quieras agendar tu próxima, estamos disponibles.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile-motiv" class="asst-profile">
+      <div class="asst-profile-header">
+        <div class="asst-tag" style="background:#C46840;">Perfil D · Energía y deporte</div>
+        <div class="asst-name">El Motivador</div>
+        <div class="asst-desc">Para gimnasios, entrenadores personales, crossfit, boxing. Energético, corto, con un solo emoji estratégico por mensaje. Crea momentum, celebra victorias y genera sentido de comunidad.</div>
+        <div class="asst-traits">
+          <span class="asst-trait">Frases cortas y directas</span>
+          <span class="asst-trait">Un emoji por mensaje máximo</span>
+          <span class="asst-trait">Lenguaje activo y positivo</span>
+          <span class="asst-trait">Genera sentido de pertenencia</span>
+        </div>
+      </div>
+      <div class="asst-profile-body">
+        <div class="asst-examples">
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Primer contacto</div>
+            <div class="asst-ex-bubble" style="border-left-color:#C46840;">¡Buenas! Soy el asistente de FitZone. ¿Querés reservar tu próxima clase o consultar el calendario semanal? 💪</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Confirmación</div>
+            <div class="asst-ex-bubble" style="border-left-color:#C46840;">¡Reservado! Clase de Functional el martes 11 a las 7:00. Llegá 5 min antes. Te esperamos.</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Recordatorio</div>
+            <div class="asst-ex-bubble" style="border-left-color:#C46840;">Mañana es tu clase 🔥 7:00 am, Functional con Martina. ¿Confirmado?</div>
+          </div>
+          <div class="asst-ex">
+            <div class="asst-ex-ctx">Reactivación · cliente inactivo</div>
+            <div class="asst-ex-bubble" style="border-left-color:#C46840;">¡Hola Tomás! Hace 3 semanas que no te vemos. ¿Todo bien? Cuando quieras retomar, acá estamos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     13 NAMING
+═══════════════════════════════════════════════════════════ -->
+<section id="naming">
+  <div class="wrap reveal">
+    <div class="eyebrow">13 — Naming</div>
+    <h2 class="sec-title">El nombre de la marca</h2>
+    <p class="sec-desc">Provisional · sujeto a revisión y aprobación del equipo.</p>
+
+    <div class="naming-wrap">
+      <div class="pill p-warn" style="margin-bottom:20px;">Nombre provisional · En revisión</div>
+      <div class="naming-main">Serú</div>
+      <div class="naming-pron">Pronunciación: se-rú · acento en la última sílaba</div>
+      <div class="naming-insight">Un nombre que carga con el concepto "ser tú" de forma implícita. El producto existe para que el dueño pueda ser él mismo — el profesional que eligió ser — sin distraerse en tareas administrativas.</div>
+
+      <div class="naming-grid">
+        <div class="naming-item">
+          <div class="naming-item-title">¿Por qué funciona?</div>
+          <div class="naming-item-text">Corto. Memorable. Suena a nombre propio — humaniza la marca. Sin ambigüedad de pronunciación en Argentina y México. La u con acento lo diferencia visualmente.</div>
+        </div>
+        <div class="naming-item">
+          <div class="naming-item-title">Dominio & handles</div>
+          <div class="naming-item-text">seru.app · getseru.com · useseru.com. Funciona como @seru en redes. El naming tiene que verificarse en registros de marca antes de comprometerse.</div>
+        </div>
+        <div class="naming-item">
+          <div class="naming-item-title">Escalabilidad</div>
+          <div class="naming-item-text">No referencia al agendamiento ni a WhatsApp — escala a cualquier vertical y cualquier funcionalidad futura. "Serú" puede ser el OS de la PYME sin quedar atado a un solo uso.</div>
+        </div>
+      </div>
+
+      <div class="naming-assistant">
+        <div class="naming-asst-label">Nombre del asistente en WhatsApp</div>
+        <div class="naming-asst-text">
+          El asistente aparece como <strong>Serú</strong> en el nombre del contacto de WhatsApp — el número es único y pertenece a la plataforma. En el cuerpo del mensaje se presenta con el nombre del negocio: <em style="color:rgba(235,168,124,.9);">"Soy el asistente de Peluquería El Barrio."</em> La marca Serú gana visibilidad directa ante el cliente final — con el tiempo, si el cliente usa el asistente en múltiples negocios, reconoce la plataforma. Esto es un activo de marca, no una limitación técnica.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     14 PRÓXIMOS PASOS
+═══════════════════════════════════════════════════════════ -->
+<section id="pasos">
+  <div class="wrap reveal">
+    <div class="eyebrow">14 — Próximos pasos</div>
+    <h2 class="sec-title">Lo que viene en brand</h2>
+    <p class="sec-desc">Las acciones concretas que siguen a este documento para convertir la estrategia en identidad visual y comunicación real.</p>
+
+    <div class="steps-wrap">
+      <div class="step-row">
+        <div class="step-marker done">✓</div>
+        <div class="step-content">
+          <div class="step-title">Brand Strategy documentada</div>
+          <div class="step-desc">Pilares, positioning, personalidad, tono de voz, sistema visual, personas, claims, competencia y voz del asistente. Base completa para que todo el equipo tome decisiones consistentes.</div>
+        </div>
+        <span class="pill p-ok">Completado</span>
+      </div>
+
+      <div class="step-row">
+        <div class="step-marker active">→</div>
+        <div class="step-content">
+          <div class="step-title">Definición final del nombre</div>
+          <div class="step-desc">Revisión en equipo de "Serú" y alternativas. Verificación de disponibilidad de dominio y registro de marca en Argentina y México. Decisión antes de avanzar con el logotipo.</div>
+        </div>
+        <span class="pill p-warn">Urgente</span>
+      </div>
+
+      <div class="step-row">
+        <div class="step-marker active">→</div>
+        <div class="step-content">
+          <div class="step-title">Identidad visual con Nahue</div>
+          <div class="step-desc">Moodboard con paleta Tierra Cálida. Exploración de logotipo / wordmark. Primeras propuestas de ícono o símbolo de marca. Guía de estilo básica con las tipografías definidas.</div>
+        </div>
+        <span class="pill p-ac">En progreso</span>
+      </div>
+
+      <div class="step-row">
+        <div class="step-marker todo">3</div>
+        <div class="step-content">
+          <div class="step-title">Voz del asistente · Prompts para Tommy</div>
+          <div class="step-desc">Traducir los 5 perfiles de voz en system prompts concretos para el LLM. Definir el perfil default y el mecanismo para que el dueño lo configure desde el dashboard.</div>
+        </div>
+        <span class="pill p-open">Pendiente</span>
+      </div>
+
+      <div class="step-row">
+        <div class="step-marker todo">4</div>
+        <div class="step-content">
+          <div class="step-title">Landing page</div>
+          <div class="step-desc">Una sola propuesta de valor. Hero con el claim principal. Demo de chat real. Sin carrusel de features. Estructura: Dolor → Demo → Testimonios → Precio simple → CTA.</div>
+        </div>
+        <span class="pill p-open">Pendiente</span>
+      </div>
+
+      <div class="step-row">
+        <div class="step-marker todo">5</div>
+        <div class="step-content">
+          <div class="step-title">Primer contenido orgánico</div>
+          <div class="step-desc">"El video del dolor" — caos vs calma. Antes y después. Sin narración técnica. Para Instagram y WhatsApp Status. Primer contacto real de la marca con el mundo.</div>
+        </div>
+        <span class="pill p-open">Pendiente</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CIERRE
+═══════════════════════════════════════════════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="verdict">
+      <div class="verdict-ey">Brand Strategy · Síntesis final</div>
+      <h2 class="verdict-title">Una marca que se siente<br>como <em>alguien de confianza</em></h2>
+      <div class="verdict-items">
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>La esencia</strong> El dueño no eligió ser coordinador. Nosotros existimos para que pueda volver a su oficio.</div></div>
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>Los seis pilares</strong> Libertad · Foco · Calma · Orden · Conexión · Confianza. El filtro de coherencia de cada decisión.</div></div>
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>La personalidad</strong> El Ayudante de Confianza. Cercano, directo, cálido, nunca robótico. Habla como el dueño querría que hable su mejor colaborador.</div></div>
+        <div class="vi"><div class="vi-dot g"></div><div class="vi-txt"><strong>El sistema visual</strong> Tierra Cálida. Bricolage Grotesque + Plus Jakarta Sans. Espacio generoso, gradientes sutiles, sin frialdad corporativa.</div></div>
+        <div class="vi"><div class="vi-dot g"></div><div class="vi-txt"><strong>El claim</strong> "Enfocate en lo que hacés." Simple, empoderador, sin tech, escalable a cualquier vertical de LatAm.</div></div>
+        <div class="vi"><div class="vi-dot"></div><div class="vi-txt"><strong>El siguiente paso crítico</strong> Resolver el nombre, arrancar la identidad visual con Nahue, y traducir la voz del asistente en prompts reales para Tommy.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    <p class="footer-text"><span>Serú</span> · Brand Strategy v1.0 · G17 Bootcamp · Rosario, Argentina · Marzo 2026 · Fede (Product & Brand)</p>
+  </div>
+</div>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const pct = (window.scrollY / (d.scrollHeight - d.clientHeight)) * 100;
+  document.getElementById('prog').style.width = Math.min(pct, 100) + '%';
+});
+
+// Reveal on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Assistant profiles
+function showProfile(id, btn) {
+  document.querySelectorAll('.asst-profile').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.asst-btn').forEach(b => { b.style.borderColor = ''; b.style.color = ''; });
+  document.getElementById('profile-' + id).classList.add('active');
+  btn.style.borderColor = '#D97B4F';
+  btn.style.color = '#D97B4F';
+}
+</script>
+</body>
+</html>
