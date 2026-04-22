@@ -123,7 +123,8 @@ body {
   /* ── Shadcn tokens → palette ── */
   --background:           #f6f8fa;
   --foreground:           #243542;
-  --card:                 rgba(255,255,255,0.62);
+  --card:                 rgba(255,255,255,0.40);
+  --card-border:          rgba(91,143,166,0.22);
   --card-foreground:      #243542;
   --popover:              #ffffff;
   --popover-foreground:   #243542;

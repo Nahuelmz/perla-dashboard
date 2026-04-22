@@ -2,10 +2,10 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 const GLASS_STYLE: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.62)',
+  background: 'rgba(255,255,255,0.40)',
   backdropFilter: 'blur(24px)',
   WebkitBackdropFilter: 'blur(24px)',
-  border: '1px solid rgba(255,255,255,0.78)',
+  border: '1px solid rgba(91,143,166,0.22)',
   boxShadow:
     'rgba(27,45,59,0.06) 0px 1px 2px, ' +
     'rgba(27,45,59,0.03) 0px -1px 1px inset, ' +

@@ -46,19 +46,19 @@ const CONTAINER_STYLE: React.CSSProperties = {
 const SAGE = '#5B8FA6';
 const SAGE_GRAD = 'linear-gradient(135deg, #5B8FA6, #99C3D6)';
 const CONTENT_GLASS: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.60)',
+  background: 'rgba(255,255,255,0.40)',
   backdropFilter: 'blur(20px)',
   WebkitBackdropFilter: 'blur(20px)',
   borderRadius: '20px',
-  border: '1px solid rgba(255,255,255,0.80)',
+  border: '1px solid rgba(91,143,166,0.22)',
   boxShadow: '0 4px 24px rgba(27,45,59,0.07)',
 };
 const CARD_GLASS: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.74)',
+  background: 'rgba(255,255,255,0.40)',
   backdropFilter: 'blur(28px)',
   WebkitBackdropFilter: 'blur(28px)',
-  boxShadow: '0 2px 4px rgba(27,45,59,0.07), 0 8px 32px rgba(27,45,59,0.09), 0 24px 48px rgba(27,45,59,0.05), inset 0 1px 0 rgba(255,255,255,0.95)',
-  border: '1px solid rgba(255,255,255,0.88)'
+  boxShadow: '0 2px 4px rgba(27,45,59,0.07), 0 8px 32px rgba(27,45,59,0.09), 0 24px 48px rgba(27,45,59,0.05), inset 0 1px 0 rgba(255,255,255,0.90)',
+  border: '1px solid rgba(91,143,166,0.22)'
 };
 const toMins = (t: string) => {
   const [h, m] = t.split(':').map(Number);
@@ -1044,16 +1044,6 @@ const InicioScreen = ({
     return active.slice().sort((a, b) => toMins(b.startTime) - toMins(a.startTime))[0] ?? null;
   }, [todayApps, now]);
   const todaySorted = useMemo(() => todayApps.filter(a => a.status !== 'cancelled').slice().sort((a, b) => toMins(a.startTime) - toMins(b.startTime)), [todayApps]);
-  const proximoRef = useRef<HTMLDivElement>(null);
-  const [agendaHeight, setAgendaHeight] = useState<number | undefined>(undefined);
-  useEffect(() => {
-    const el = proximoRef.current;
-    if (!el) return;
-    const obs = new ResizeObserver(() => setAgendaHeight(el.offsetHeight));
-    obs.observe(el);
-    setAgendaHeight(el.offsetHeight);
-    return () => obs.disconnect();
-  }, []);
   const minsUntilNext = useMemo(() => {
     if (!nextApp) return null;
     const [h, m] = nextApp.startTime.split(':').map(Number);
@@ -1079,97 +1069,37 @@ const InicioScreen = ({
     }
     return blocks;
   }, [todayApps, services]);
-  const [hoveredChip, setHoveredChip] = useState<'turnos' | 'confirmados' | 'vacantes' | 'facturacion' | null>(null);
-  const chipTooltipData = useMemo(() => {
-    const byProv: Record<string, number> = {};
-    todayApps.filter(a => a.status !== 'cancelled').forEach(a => {
-      const prov = providerMap[a.providerId];
-      if (!prov) return;
-      const parts = prov.name.split(' ');
-      const short = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
-      byProv[short] = (byProv[short] ?? 0) + 1;
-    });
-    const pending = todaySorted.filter(a => a.status !== 'confirmed');
-    const bySvc: Record<string, number> = {};
-    todayConfirmed.forEach(a => {
-      const svc = services.find(s => s.id === a.serviceId);
-      if (!svc) return;
-      bySvc[svc.name] = (bySvc[svc.name] ?? 0) + svc.price;
-    });
-    return { byProv, pending, bySvc };
-  }, [todayApps, todaySorted, todayConfirmed, services, providerMap]);
   return <div className="overflow-auto h-full" style={{ background: 'transparent' }}>
     <div className="px-4 sm:px-8 py-6 sm:py-8 max-w-[1080px] mx-auto w-full box-border">
 
       {/* ── Greeting ── */}
-      <div style={{ marginBottom: '14px' }}>
-        <h2 className="leading-tight" style={{ color: T.text, fontFamily: OPENING_HOURS, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 400, letterSpacing: '0.005em' }}>
-          <span>{greeting}, </span>
-          <span style={{ fontFamily: INSTRUMENT_SERIF, fontStyle: 'italic', fontWeight: 400 }}>{profileName}</span>
-          <span>.</span>
-        </h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '15px', fontWeight: 400, color: T.text3 }}>{((s: string) => s.charAt(0).toUpperCase() + s.slice(1))(format(now, "EEEE d 'de' MMMM", { locale: es }))}</span>
-          <button onClick={() => setBotSettingsOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '99px', background: 'rgba(91,143,166,0.08)', border: '1px solid rgba(91,143,166,0.18)', cursor: 'pointer', transition: 'background 0.15s' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '99px', background: SAGE, display: 'inline-block', boxShadow: '0 0 0 3px rgba(91,143,166,0.18)', animation: 'sagePulse 2s infinite' }} />
-            <span style={{ fontSize: '12px', fontWeight: 400, color: T.text2, letterSpacing: '0.02em' }}>Asistente activo</span>
-          </button>
+      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+        <div>
+          <h2 className="leading-tight" style={{ color: T.text, fontFamily: OPENING_HOURS, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 400, letterSpacing: '0.005em' }}>
+            <span>{greeting}, </span>
+            <span style={{ fontFamily: INSTRUMENT_SERIF, fontStyle: 'italic', fontWeight: 400 }}>{profileName}</span>
+            <span>.</span>
+          </h2>
+          <span style={{ fontSize: '15px', fontWeight: 400, color: T.text3, display: 'block', marginTop: '4px' }}>{((s: string) => s.charAt(0).toUpperCase() + s.slice(1))(format(now, "EEEE d 'de' MMMM", { locale: es }))}</span>
         </div>
+        <button onClick={() => setBotSettingsOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '99px', background: 'rgba(91,143,166,0.08)', border: '1px solid rgba(91,143,166,0.18)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.15s' }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '99px', background: SAGE, display: 'inline-block', boxShadow: '0 0 0 3px rgba(91,143,166,0.18)', animation: 'sagePulse 2s infinite' }} />
+          <span style={{ fontSize: '12px', fontWeight: 400, color: T.text2, letterSpacing: '0.02em' }}>Asistente activo</span>
+        </button>
       </div>
       <BotSettingsModal open={botSettingsOpen} onClose={() => setBotSettingsOpen(false)} />
 
-      {/* ── Narrative KPIs ── */}
-      {(() => {
-        const TT_BASE: React.CSSProperties = { position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)', background: T.dark, color: '#fff', borderRadius: '9px', padding: '8px 12px', fontSize: '11px', fontWeight: 400, lineHeight: 1.7, whiteSpace: 'nowrap', zIndex: 100, pointerEvents: 'none', boxShadow: '0 4px 20px rgba(27,45,59,0.25)', fontFamily: OPENING_HOURS };
-        const Arrow = () => <span style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: `5px solid ${T.dark}` }} />;
-        const W = ({ id, children, tooltip }: { id: typeof hoveredChip; children: React.ReactNode; tooltip: React.ReactNode }) => (
-          <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'baseline' }} onMouseEnter={() => setHoveredChip(id)} onMouseLeave={() => setHoveredChip(null)}>
-            {children}
-            {hoveredChip === id && <span style={TT_BASE}>{tooltip}<Arrow /></span>}
-          </span>
-        );
-        const { byProv, pending, bySvc } = chipTooltipData;
-        const provLine = Object.entries(byProv).map(([n, c]) => `${n}: ${c}`).join('  ·  ') || '—';
-        const pendLine = pending.length === 0 ? 'Todos confirmados' : `Sin confirmar: ${pending.map(a => a.clientName.split(' ')[0]).join(', ')}`;
-        const slotLine = vacantBlocks.length === 0 ? 'Sin vacantes' : vacantBlocks.slice(0, 5).join(' · ') + (vacantBlocks.length > 5 ? ` +${vacantBlocks.length - 5} más` : '');
-        const svcLines = Object.entries(bySvc).map(([n, amt]) => `${n}: $${amt.toLocaleString()}`);
-        return (
-          <div style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid rgba(27,45,59,0.07)' }}>
-            <p style={{ fontSize: '16px', lineHeight: 2.2, color: T.text, fontWeight: 400 }}>
-              {'Hoy tenés '}
-              <W id="turnos" tooltip={<>{provLine}</>}>
-                <span style={CHIP_BLUE}><span style={CHIP_VAL}>{kpiValues.turnosHoy}</span>{' '}<span style={CHIP_UNIT}>turnos</span></span>
-              </W>
-              {', de los cuales '}
-              <W id="confirmados" tooltip={<>{pendLine}</>}>
-                <span style={CHIP_GREEN}><span style={CHIP_VAL}>{todayConfirmed.length}</span>{' '}<span style={CHIP_UNIT}>confirmados</span></span>
-              </W>
-              {' y quedan '}
-              <W id="vacantes" tooltip={<>{slotLine}</>}>
-                <span style={CHIP_TEAL}><span style={CHIP_VAL}>{kpiValues.vacantes}</span>{' '}<span style={CHIP_UNIT}>vacantes</span></span>
-              </W>
-              {'.'}<br />
-              {'Facturación estimada: '}
-              <W id="facturacion" tooltip={<>{svcLines.length > 0 ? svcLines.map((l, i) => <span key={i} style={{ display: 'block' }}>{l}</span>) : '—'}</>}>
-                <span style={CHIP_GREEN}><span style={CHIP_VAL}>${kpiValues.facturacion.toLocaleString()}</span></span>
-              </W>
-              {'.'}
-            </p>
-          </div>
-        );
-      })()}
+      {/* ── KPI Grid ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px', alignItems: 'start' }}>
 
-      {/* ── Two-column: próximo turno + agenda del día ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-
-        {/* Left: Próximo turno */}
-        <div ref={proximoRef}>
+        {/* Próximo turno — col 1, spans 2 rows */}
+        <div style={{ gridColumn: '1', gridRow: '1 / 3' }}>
           <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Próximo turno</p>
           {nextApp ? (() => {
             const svc = services.find(s => s.id === nextApp.serviceId);
             const prov = providerMap[nextApp.providerId];
             const clientNote = clients.find(c => c.id === nextApp.clientId)?.notes;
-            return <GlassCard as="button" onClick={() => onAppointmentClick(nextApp)} className="w-full text-left p-5 transition-all hover:shadow-lg" style={{ display: 'flex', flexDirection: 'column' }}>
+            return <GlassCard as="button" onClick={() => onAppointmentClick(nextApp)} className="w-full text-left p-5 transition-all hover:shadow-lg" style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
               {/* Time + countdown */}
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: 'clamp(44px, 8vw, 58px)', fontWeight: 300, letterSpacing: '-0.02em', color: T.dark, lineHeight: 1 }}>
@@ -1208,56 +1138,66 @@ const InicioScreen = ({
           </GlassCard>}
         </div>
 
-        {/* Right: Agenda del día — misma altura total que columna izquierda */}
-        <div style={agendaHeight ? { height: agendaHeight, display: 'flex', flexDirection: 'column' } : {}}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexShrink: 0 }}>
-            <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Agenda de hoy</p>
-            <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange }}>
-              <span>Ver completa</span><ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-          {/* Flex body: agenda GlassCard + slots libres */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <GlassCard className="overflow-hidden" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-              {todaySorted.length === 0
-                ? <div style={{ padding: '32px 20px', textAlign: 'center' }}>
-                    <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3 }}>Sin turnos para hoy</p>
-                  </div>
-                : <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: 'rgba(91,143,166,0.3) transparent' }}>
-                    {todaySorted.map((app, i) => {
-                      const svc = services.find(s => s.id === app.serviceId);
-                      const prov = providerMap[app.providerId];
-                      const isNext = nextApp?.id === app.id;
-                      return <button key={app.id} onClick={() => onAppointmentClick(app)} className="w-full text-left transition-colors hover:brightness-95" style={{
-                        display: 'flex', alignItems: 'center', gap: '12px',
-                        padding: '10px 16px',
-                        borderBottom: i < todaySorted.length - 1 ? `1px solid ${T.border}` : undefined,
-                        background: isNext ? 'rgba(107,143,126,0.06)' : 'transparent',
-                      }}>
-                        <span style={{ fontSize: '12px', fontWeight: 400, color: SAGE, width: '38px', flexShrink: 0, fontFamily: GEIST_MONO }}>{app.startTime}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: '13px', fontWeight: 400, color: T.text, lineHeight: 1.2 }} className="truncate">{app.clientName}</p>
-                          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2 }} className="truncate">{svc?.name ?? '—'}</p>
-                        </div>
-                        {prov && <ProviderAvatar provider={prov} size="sm" />}
-                        <StatusPill status={app.status} />
-                      </button>;
-                    })}
-                  </div>
-              }
-            </GlassCard>
-            {/* Vacant slots quick add */}
-            {vacantBlocks.length > 0 && <div style={{ marginTop: '12px', flexShrink: 0 }}>
-              <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Slots libres</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {vacantBlocks.slice(0, 6).map(block => (
-                  <button key={block} onClick={() => onAddAppointment(startOfToday(), block)} style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'rgba(255,255,255,0.72)', border: `1px solid ${T.borderO}` }}>{block}</button>
-                ))}
-                {vacantBlocks.length > 6 && <span style={{ fontSize: '12px', fontWeight: 400, color: T.text3, padding: '4px 6px' }}>+{vacantBlocks.length - 6} más</span>}
-              </div>
-            </div>}
-          </div>
+        {/* 4 Metric cards — auto-flow into cols 2–3, rows 1–2 */}
+        {([
+          { label: 'Turnos hoy',  value: String(kpiValues.turnosHoy),                    meta: `${todayConfirmed.length} confirmados` },
+          { label: 'Confirmados', value: String(todayConfirmed.length),                    meta: `de ${kpiValues.turnosHoy} turnos` },
+          { label: 'Vacantes',    value: String(kpiValues.vacantes),                       meta: `de ${TOTAL_SLOTS} slots` },
+          { label: 'Facturación', value: `$${kpiValues.facturacion.toLocaleString()}`,     meta: 'estimada hoy' },
+        ] as { label: string; value: string; meta: string }[]).map((metric) => (
+          <GlassCard key={metric.label} style={{ padding: '16px 18px 14px', display: 'flex', flexDirection: 'column', minHeight: '108px' }}>
+            <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{metric.label}</p>
+            <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: '40px', lineHeight: 1, color: T.dark, letterSpacing: '-0.02em', marginTop: '6px' }}>{metric.value}</p>
+            <p style={{ fontSize: '11px', color: T.text3, marginTop: 'auto', paddingTop: '8px' }}>{metric.meta}</p>
+          </GlassCard>
+        ))}
+      </div>
+
+      {/* ── Agenda del día ── */}
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Agenda de hoy</p>
+          <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange }}>
+            <span>Ver completa</span><ArrowRight className="w-3 h-3" />
+          </button>
         </div>
+        <GlassCard className="overflow-hidden">
+          {todaySorted.length === 0
+            ? <div style={{ padding: '32px 20px', textAlign: 'center' }}>
+                <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3 }}>Sin turnos para hoy</p>
+              </div>
+            : <div>
+                {todaySorted.map((app, i) => {
+                  const svc = services.find(s => s.id === app.serviceId);
+                  const prov = providerMap[app.providerId];
+                  const isNext = nextApp?.id === app.id;
+                  return <button key={app.id} onClick={() => onAppointmentClick(app)} className="w-full text-left transition-colors hover:brightness-95" style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 16px',
+                    borderBottom: i < todaySorted.length - 1 ? `1px solid ${T.border}` : undefined,
+                    background: isNext ? 'rgba(107,143,126,0.06)' : 'transparent',
+                  }}>
+                    <span style={{ fontSize: '12px', fontWeight: 400, color: SAGE, width: '38px', flexShrink: 0, fontFamily: GEIST_MONO }}>{app.startTime}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 400, color: T.text, lineHeight: 1.2 }} className="truncate">{app.clientName}</p>
+                      <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2 }} className="truncate">{svc?.name ?? '—'}</p>
+                    </div>
+                    {prov && <ProviderAvatar provider={prov} size="sm" />}
+                    <StatusPill status={app.status} />
+                  </button>;
+                })}
+              </div>
+          }
+        </GlassCard>
+        {vacantBlocks.length > 0 && <div style={{ marginTop: '12px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Slots libres</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {vacantBlocks.slice(0, 6).map(block => (
+              <button key={block} onClick={() => onAddAppointment(startOfToday(), block)} style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'rgba(255,255,255,0.72)', border: `1px solid ${T.borderO}` }}>{block}</button>
+            ))}
+            {vacantBlocks.length > 6 && <span style={{ fontSize: '12px', fontWeight: 400, color: T.text3, padding: '4px 6px' }}>+{vacantBlocks.length - 6} más</span>}
+          </div>
+        </div>}
       </div>
 
       {/* ── Messages preview ── */}
@@ -3420,7 +3360,7 @@ export const SalonAdminDashboard = () => {
       <main className="flex flex-col min-w-0 overflow-hidden" style={{
         position: 'absolute',
         top: '60px',
-        left: '68px',
+        left: 0,
         right: 0,
         bottom: 0,
         zIndex: 1
