@@ -5,7 +5,7 @@ import { format, startOfToday, isSameDay, startOfWeek, addWeeks, subWeeks, getHo
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Service, Appointment, Client, BlockedSlot, TimeRange, AppointmentStatus, Provider, NavTab, Message, UserProfile } from './types';
-import { INITIAL_SERVICES, INITIAL_APPOINTMENTS, INITIAL_CLIENTS, INITIAL_BLOCKED_SLOTS, DAYS_ORDER, DAY_NAMES, INITIAL_PROVIDERS, INITIAL_MESSAGES, T, agentStatus, agentDailyStats, agentActivity } from './mockData';
+import { INITIAL_SERVICES, INITIAL_APPOINTMENTS, INITIAL_CLIENTS, INITIAL_BLOCKED_SLOTS, DAYS_ORDER, DAY_NAMES, INITIAL_PROVIDERS, INITIAL_MESSAGES, T, agentStatus, agentDailyStats, agentActivity, getClientAttentionState, type ClientAttentionState } from './mockData';
 import { LoginScreen } from './LoginScreen';
 import { GlassCard, StatusPill, ProviderAvatar, Toggle, PerlaWordmark, IconButton, SectionHeader, PerlaStatusPanel } from '@/components/dashboard';
 const inp = 'w-full rounded-xl px-3 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-[#4472C4]/30 focus:border-[#4472C4]/40 transition-colors';
@@ -2003,6 +2003,20 @@ const STATUS_FILTER_OPTIONS: {
   value: 'con_ausencias',
   label: 'Con ausencias'
 }];
+type ClientTag = { label: string; tone: 'orange' | 'sage' | 'muted' };
+function getClientTag(input: {
+  attentionState: ClientAttentionState;
+  hasNoShow: boolean;
+  tags: string[];
+}): ClientTag | null {
+  // Priority: no-show > en_riesgo > vip > frecuente > inactivo
+  if (input.hasNoShow) return { label: 'no-show', tone: 'orange' };
+  if (input.attentionState === 'en_riesgo') return { label: 'en riesgo', tone: 'orange' };
+  if (input.tags.includes('vip')) return { label: 'vip', tone: 'sage' };
+  if (input.tags.includes('frecuente')) return { label: 'frecuente', tone: 'sage' };
+  if (input.attentionState === 'inactivo') return { label: 'inactivo', tone: 'muted' };
+  return null;
+}
 // ─── MESSAGES SCREEN ────────────────────────────────────────────────────────────
 type MessagesScreenProps = {
   messages: Message[];
@@ -2134,6 +2148,7 @@ const ClientsScreen = ({
   const [search, setSearch] = useState('');
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilterOption>('all');
+  const [attentionOnly, setAttentionOnly] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(initialClientId ?? null);
@@ -2173,6 +2188,10 @@ const ClientsScreen = ({
     const hasUpcoming = futureApps.length > 0;
     const hasNoShows = apps.some(a => a.status === 'no_show');
     const confirmedCount = apps.filter(a => a.status === 'confirmed').length;
+    const attentionState = getClientAttentionState(c.id, appointments, now);
+    const hasNoShow = apps.some(
+      (a) => a.status === 'no_show' && (now.getTime() - a.date.getTime()) / 86_400_000 <= 60
+    );
     return {
       client: c,
       totalApps: apps.length,
@@ -2181,23 +2200,30 @@ const ClientsScreen = ({
       hasNoShows,
       nextApp,
       lastApp,
+      attentionState,
+      hasNoShow,
     };
   }), [clients, appointments]);
+  const attentionCount = clientStats.filter(c => c.attentionState === 'en_riesgo').length;
   const filtered = clientStats.filter(({
     client,
     hasUpcoming,
     hasNoShows,
-    totalApps
+    totalApps,
+    attentionState
   }) => {
     const matchSearch = client.name.toLowerCase().includes(search.toLowerCase()) || client.phone.includes(search);
     let matchStatus = true;
     if (statusFilter === 'con_turno') matchStatus = hasUpcoming;else if (statusFilter === 'sin_turno') matchStatus = totalApps === 0 || !hasUpcoming;else if (statusFilter === 'con_ausencias') matchStatus = hasNoShows;
-    return matchSearch && matchStatus;
+    const matchAttention = !attentionOnly || attentionState === 'en_riesgo';
+    return matchSearch && matchStatus && matchAttention;
   }).sort((a, b) => {
-    // Orden por relevancia CRM:
-    // 1. Clientes con próximo turno (más cercano primero)
-    // 2. Clientes con último turno (más reciente primero)
-    // 3. Clientes sin actividad (alfabético)
+    // Priority: en_riesgo (0) > activo (1) > inactivo (2)
+    const attentionOrder = (s: ClientAttentionState) =>
+      s === 'en_riesgo' ? 0 : s === 'activo' ? 1 : 2;
+    const byAttention = attentionOrder(a.attentionState) - attentionOrder(b.attentionState);
+    if (byAttention !== 0) return byAttention;
+    // Existing sort fallbacks:
     if (a.nextApp && b.nextApp) return a.nextApp.date.getTime() - b.nextApp.date.getTime();
     if (a.nextApp && !b.nextApp) return -1;
     if (!a.nextApp && b.nextApp) return 1;
@@ -2252,7 +2278,22 @@ const ClientsScreen = ({
             }} /></button>}
         </div>
         <div className="flex items-center gap-2">
-          {/* Filtro 'No leídos' removido — no aplica en Clientes (es CRM, no inbox) */}
+          {/* Chip "Necesitan atención" — solo visible cuando hay clientes en_riesgo */}
+          {attentionCount > 0 && (
+            <button
+              onClick={() => setAttentionOnly(v => !v)}
+              className="shrink-0 flex items-center gap-1.5 text-[12px] font-normal px-3 py-1.5 rounded-xl transition-all"
+              style={{
+                background: attentionOnly ? 'rgba(255,148,77,0.12)' : 'transparent',
+                color: attentionOnly ? T.orange : T.text2,
+                border: `1px solid rgba(255,148,77,0.28)`,
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              <span>Necesitan atención</span>
+              <span style={{ color: T.orange, fontWeight: 500 }}>({attentionCount})</span>
+            </button>
+          )}
           <div ref={statusDropdownRef} className="relative flex-1">
             <button onClick={() => setStatusDropdownOpen(v => !v)} className="w-full flex items-center justify-between gap-1.5 text-[12px] font-normal px-3 py-1.5 rounded-xl transition-all" style={{
               background: statusFilter !== 'all' ? T.orangeLight : T.bg2,
@@ -2318,6 +2359,8 @@ const ClientsScreen = ({
           nextApp,
           lastApp,
           hasNoShows,
+          attentionState,
+          hasNoShow,
         }) => {
           const initials = client.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
           const isSelected = selectedClientId === client.id;
@@ -2364,21 +2407,39 @@ const ClientsScreen = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2" style={{ marginBottom: '3px' }}>
                   <p className="font-medium text-[14px] truncate" style={{ color: T.text }}>{client.name}</p>
-                  {/* Tags visibles en el list item */}
-                  {client.tags.slice(0, 2).map(tag => (
-                    <span key={tag} className="text-[10px] font-normal px-1.5 py-0.5 rounded-full shrink-0" style={{
-                      background: TAG_COLORS[tag]?.bg ?? T.bg2,
-                      color: TAG_COLORS[tag]?.text ?? T.text2,
-                    }}>{tag}</span>
-                  ))}
-                  {hasNoShows && (
-                    <span title="Tiene no-shows" className="shrink-0" style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '2px',
-                      fontSize: '10px', color: '#C62828',
-                    }}>
-                      <Warning size={10} weight="fill" />
-                    </span>
-                  )}
+                  {/* Attention-aware tag: no-show > en_riesgo > vip > frecuente > inactivo */}
+                  {(() => {
+                    const tag = getClientTag({
+                      attentionState,
+                      hasNoShow,
+                      tags: client.tags,
+                    });
+                    if (!tag) return null;
+                    const toneMap = {
+                      orange: { bg: 'rgba(255,148,77,0.10)', color: T.orange, border: 'rgba(255,148,77,0.28)' },
+                      sage:   { bg: 'rgba(68,114,196,0.08)', color: T.orange, border: 'rgba(68,114,196,0.22)' },
+                      muted:  { bg: 'transparent',            color: T.text3, border: 'rgba(27,45,59,0.10)' },
+                    }[tag.tone];
+                    return (
+                      <span
+                        className="shrink-0"
+                        style={{
+                          fontFamily: "'DM Sans', ui-sans-serif, system-ui, sans-serif",
+                          fontSize: 10,
+                          fontWeight: 500,
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          background: toneMap.bg,
+                          color: toneMap.color,
+                          border: `1px solid ${toneMap.border}`,
+                          letterSpacing: '0.02em',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {tag.label}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <p className="text-[12px] truncate" style={{ lineHeight: 1.4 }}>{subtitle}</p>
               </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from '@phosphor-icons/react';
 import type { AgentActivityItem, AgentState } from '@/components/generated/mockData';
 
@@ -235,7 +236,11 @@ export function PerlaStatusPanel({
   );
 
   if (isMobile) {
-    return (
+    // IMPORTANT: render the sheet via a portal to document.body.
+    // The topbar uses `backdrop-filter` for its glass effect, and that CSS
+    // property creates a new containing block for `position: fixed` descendants,
+    // which would otherwise anchor the sheet to the topbar instead of the viewport.
+    return createPortal(
       <>
         {/* Backdrop */}
         <div
@@ -295,7 +300,8 @@ export function PerlaStatusPanel({
           </button>
           {Content}
         </div>
-      </>
+      </>,
+      document.body
     );
   }
 

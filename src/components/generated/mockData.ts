@@ -458,3 +458,50 @@ export const agentActivity: AgentActivityItem[] = [
   { id: 'a3', type: 'reply',      label: 'Respondió a 4 consultas',    timeAgo: '7h' },
   { id: 'a4', type: 'reschedule', label: 'Reagendó turno de Lucía',    timeAgo: 'ayer' },
 ];
+
+// ──────────────────────────────────────────────────────────
+// Clientes — Attention State (P4)
+// ──────────────────────────────────────────────────────────
+
+export type ClientAttentionState = 'activo' | 'en_riesgo' | 'inactivo';
+
+/**
+ * Determines the attention state of a client based on their appointment history.
+ *
+ * Rules:
+ * - activo:    had a confirmed appointment in the last 30 days
+ * - en_riesgo: last confirmed appointment is 31–60 days ago, OR had ≥1 no-show in last 60 days
+ * - inactivo:  no appointments in the last 60 days, or never attended
+ */
+export function getClientAttentionState(
+  clientId: string,
+  appointments: Array<{ clientId: string; date: Date; status: string }>,
+  now: Date = new Date()
+): ClientAttentionState {
+  const DAY_MS = 86_400_000;
+  const daysSince = (d: Date) => Math.floor((now.getTime() - d.getTime()) / DAY_MS);
+
+  const clientApps = appointments.filter((a) => a.clientId === clientId);
+  if (clientApps.length === 0) return 'inactivo';
+
+  const confirmedPast = clientApps
+    .filter((a) => a.status === 'confirmed' && a.date <= now)
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  const noShowsRecent = clientApps.filter(
+    (a) => a.status === 'no_show' && daysSince(a.date) <= 60
+  );
+
+  const lastConfirmed = confirmedPast[0];
+
+  if (lastConfirmed) {
+    const days = daysSince(lastConfirmed.date);
+    if (days <= 30 && noShowsRecent.length === 0) return 'activo';
+    if (days <= 60 || noShowsRecent.length >= 1) return 'en_riesgo';
+    return 'inactivo';
+  }
+
+  // No confirmed history, but has appointments (e.g. only no-shows / cancellations)
+  if (noShowsRecent.length >= 1) return 'en_riesgo';
+  return 'inactivo';
+}
