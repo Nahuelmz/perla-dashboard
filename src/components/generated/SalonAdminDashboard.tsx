@@ -2163,13 +2163,24 @@ const ClientsScreen = ({
   }, [messages]);
   const clientStats = useMemo(() => clients.map(c => {
     const apps = appointments.filter(a => a.clientId === c.id);
-    const hasUpcoming = apps.some(a => isAfter(a.date, new Date()) && a.status !== 'cancelled' && a.status !== 'no_show');
+    const now = new Date();
+    const futureApps = apps.filter(a => isAfter(a.date, now) && a.status !== 'cancelled' && a.status !== 'no_show')
+      .sort((a, b) => a.date.getTime() - b.date.getTime() || toMins(a.startTime) - toMins(b.startTime));
+    const pastConfirmed = apps.filter(a => a.date < now && a.status === 'confirmed')
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+    const nextApp = futureApps[0] ?? null;
+    const lastApp = pastConfirmed[0] ?? null;
+    const hasUpcoming = futureApps.length > 0;
     const hasNoShows = apps.some(a => a.status === 'no_show');
+    const confirmedCount = apps.filter(a => a.status === 'confirmed').length;
     return {
       client: c,
       totalApps: apps.length,
+      confirmedCount,
       hasUpcoming,
-      hasNoShows
+      hasNoShows,
+      nextApp,
+      lastApp,
     };
   }), [clients, appointments]);
   const filtered = clientStats.filter(({
@@ -2179,11 +2190,21 @@ const ClientsScreen = ({
     totalApps
   }) => {
     const matchSearch = client.name.toLowerCase().includes(search.toLowerCase()) || client.phone.includes(search);
-    const msg = messageByClient[client.id];
-    const matchUnread = !unreadOnly || msg?.unread === true;
     let matchStatus = true;
     if (statusFilter === 'con_turno') matchStatus = hasUpcoming;else if (statusFilter === 'sin_turno') matchStatus = totalApps === 0 || !hasUpcoming;else if (statusFilter === 'con_ausencias') matchStatus = hasNoShows;
-    return matchSearch && matchUnread && matchStatus;
+    return matchSearch && matchStatus;
+  }).sort((a, b) => {
+    // Orden por relevancia CRM:
+    // 1. Clientes con próximo turno (más cercano primero)
+    // 2. Clientes con último turno (más reciente primero)
+    // 3. Clientes sin actividad (alfabético)
+    if (a.nextApp && b.nextApp) return a.nextApp.date.getTime() - b.nextApp.date.getTime();
+    if (a.nextApp && !b.nextApp) return -1;
+    if (!a.nextApp && b.nextApp) return 1;
+    if (a.lastApp && b.lastApp) return b.lastApp.date.getTime() - a.lastApp.date.getTime();
+    if (a.lastApp && !b.lastApp) return -1;
+    if (!a.lastApp && b.lastApp) return 1;
+    return a.client.name.localeCompare(b.client.name);
   });
   const handleSelectClient = (id: string) => {
     setSelectedClientId(id);
@@ -2231,17 +2252,7 @@ const ClientsScreen = ({
             }} /></button>}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setUnreadOnly(v => !v)} className="flex items-center gap-1.5 text-[12px] font-normal px-3 py-1.5 rounded-xl transition-all shrink-0" style={{
-            background: unreadOnly ? T.dark : T.bg2,
-            color: unreadOnly ? '#fff' : T.text2,
-            border: `1px solid ${unreadOnly ? T.dark : T.border}`
-          }}>
-            <ChatCircle className="w-3.5 h-3.5 shrink-0" /><span>No leídos</span>
-            {unreadCount > 0 && <span className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-normal" style={{
-              background: unreadOnly ? 'rgba(255,255,255,0.25)' : T.orange,
-              color: '#fff'
-            }}>{unreadCount}</span>}
-          </button>
+          {/* Filtro 'No leídos' removido — no aplica en Clientes (es CRM, no inbox) */}
           <div ref={statusDropdownRef} className="relative flex-1">
             <button onClick={() => setStatusDropdownOpen(v => !v)} className="w-full flex items-center justify-between gap-1.5 text-[12px] font-normal px-3 py-1.5 rounded-xl transition-all" style={{
               background: statusFilter !== 'all' ? T.orangeLight : T.bg2,
@@ -2302,41 +2313,77 @@ const ClientsScreen = ({
       <div className="flex-1 overflow-y-auto">
         {filtered.map(({
           client,
-          totalApps
+          totalApps,
+          confirmedCount,
+          nextApp,
+          lastApp,
+          hasNoShows,
         }) => {
           const initials = client.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
-          const msg = messageByClient[client.id];
           const isSelected = selectedClientId === client.id;
-          return <div key={client.id} onClick={() => handleSelectClient(client.id)} className="flex items-center gap-3 px-4 py-5 cursor-pointer transition-colors" style={{
-            background: isSelected ? T.orangePale : 'transparent',
-            borderBottom: `1px solid ${T.border}`,
-            borderLeft: isSelected ? `3px solid ${T.orange}` : '3px solid transparent'
-          }}>
-            <div className="relative shrink-0">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center font-normal text-white text-sm shrink-0" style={{
-                background: SAGE
-              }}>{initials}</div>
-              {msg?.unread && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{
-                background: T.orange
-              }} />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-1">
-                <p className="font-normal text-sm truncate" style={{
-                  color: T.text
-                }}>{client.name}</p>
-                {msg && <p className="text-xs shrink-0 font-normal" style={{
-                  color: T.text3
-                }}>{msg.time}</p>}
+
+          // Build contextual CRM subtitle (smart: próximo > último > sin actividad)
+          const formatRelative = (d: Date) => {
+            const todayStart = startOfToday();
+            const daysDiff = Math.round((d.getTime() - todayStart.getTime()) / 86400000);
+            if (daysDiff === 0) return 'hoy';
+            if (daysDiff === 1) return 'mañana';
+            if (daysDiff === -1) return 'ayer';
+            if (daysDiff > 1 && daysDiff <= 7) return format(d, 'EEEE', { locale: es });
+            if (daysDiff < -1 && daysDiff >= -7) return `hace ${Math.abs(daysDiff)} días`;
+            return format(d, "d 'de' MMM", { locale: es });
+          };
+          let subtitle: React.ReactNode;
+          if (nextApp) {
+            const svc = services.find(s => s.id === nextApp.serviceId);
+            subtitle = (
+              <span>
+                <span style={{ color: T.orange, fontWeight: 500 }}>Próximo</span>
+                <span style={{ color: T.text3 }}> · </span>
+                <span style={{ color: T.text2 }}>{formatRelative(nextApp.date)} {nextApp.startTime}</span>
+                {svc && <><span style={{ color: T.text3 }}> · </span><span style={{ color: T.text3 }}>{svc.name}</span></>}
+              </span>
+            );
+          } else if (lastApp) {
+            subtitle = (
+              <span style={{ color: T.text3 }}>
+                Último {formatRelative(lastApp.date)} · {confirmedCount} {confirmedCount === 1 ? 'visita' : 'visitas'}
+              </span>
+            );
+          } else {
+            subtitle = <span style={{ color: T.text3, fontStyle: 'italic' }}>Sin turnos aún</span>;
+          }
+
+          return (
+            <div key={client.id} onClick={() => handleSelectClient(client.id)} className="flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-colors hover:bg-black/[0.02]" style={{
+              background: isSelected ? T.orangePale : 'transparent',
+              borderBottom: `1px solid ${T.border}`,
+              borderLeft: isSelected ? `3px solid ${T.orange}` : '3px solid transparent'
+            }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-medium text-white text-sm shrink-0" style={{ background: SAGE }}>{initials}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2" style={{ marginBottom: '3px' }}>
+                  <p className="font-medium text-[14px] truncate" style={{ color: T.text }}>{client.name}</p>
+                  {/* Tags visibles en el list item */}
+                  {client.tags.slice(0, 2).map(tag => (
+                    <span key={tag} className="text-[10px] font-normal px-1.5 py-0.5 rounded-full shrink-0" style={{
+                      background: TAG_COLORS[tag]?.bg ?? T.bg2,
+                      color: TAG_COLORS[tag]?.text ?? T.text2,
+                    }}>{tag}</span>
+                  ))}
+                  {hasNoShows && (
+                    <span title="Tiene no-shows" className="shrink-0" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '2px',
+                      fontSize: '10px', color: '#C62828',
+                    }}>
+                      <Warning size={10} weight="fill" />
+                    </span>
+                  )}
+                </div>
+                <p className="text-[12px] truncate" style={{ lineHeight: 1.4 }}>{subtitle}</p>
               </div>
-              {msg ? <p className="text-xs truncate font-normal mt-0.5" style={{
-                color: msg.unread ? T.text : T.text3,
-                fontWeight: 400
-              }}>{msg.preview}</p> : <p className="text-xs font-normal mt-0.5" style={{
-                color: T.text3
-              }}>{totalApps} {totalApps === 1 ? 'turno' : 'turnos'}</p>}
             </div>
-          </div>;
+          );
         })}
         {filtered.length === 0 && <p className="text-sm text-center py-8 font-normal" style={{
           color: T.text3
