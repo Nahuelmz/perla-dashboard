@@ -47,7 +47,7 @@ export type BlockedSlot = {
   end: string;
   reason: string;
 };
-export type NavTab = 'home' | 'agenda' | 'clients' | 'config';
+export type NavTab = 'home' | 'agenda' | 'clients' | 'messages' | 'config';
 export type Message = {
   id: string;
   clientId: string;

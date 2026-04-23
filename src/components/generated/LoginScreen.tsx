@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { T } from './mockData';
+import { PerlaWordmark } from '@/components/dashboard';
 const DM_SANS = "'DM Sans', ui-sans-serif, system-ui, sans-serif";
 const CARD_SHADOW = '0 8px 40px rgba(27,45,59,0.12), 0 1px 2px rgba(0,0,0,0.06)';
 const GoogleIcon = () => <svg width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -34,21 +34,13 @@ export const LoginScreen = ({
     transition: 'border-color 0.15s, box-shadow 0.15s'
   };
   return <div className="w-full h-full flex items-center justify-center p-4" style={{
+    background: 'linear-gradient(135deg, #e8edf2 0%, #d4dce6 50%, #c8d4e0 100%)',
     backgroundImage: 'url(/serubg2.png)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     fontFamily: DM_SANS
   }}>
-      <motion.div initial={{
-      opacity: 0,
-      y: 14
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      duration: 0.35,
-      ease: [0.22, 1, 0.36, 1]
-    }} className="relative w-full rounded-3xl p-8" style={{
+      <div className="relative w-full rounded-3xl p-8" style={{
       maxWidth: '400px',
       background: 'rgba(255,255,255,0.72)',
       backdropFilter: 'blur(20px) saturate(180%)',
@@ -56,33 +48,16 @@ export const LoginScreen = ({
       boxShadow: CARD_SHADOW,
       border: '1px solid rgba(255,255,255,0.55)'
     }}>
-        {/* Logo badge + wordmark */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-11 h-11 flex items-center justify-center rounded-2xl shrink-0 text-white text-[15px] font-bold tracking-tight" style={{
-          background: 'linear-gradient(135deg, #6b8f7e, #a0bfb3)',
-          boxShadow: '0 4px 14px rgba(107,143,126,0.28)',
-          fontFamily: DM_SANS
-        }}>
-            TB
-          </div>
-          <div>
-            <p className="text-[18px] leading-tight" style={{
-            color: T.text,
-            fontFamily: DM_SANS,
-            fontWeight: 600
-          }}>
-              <span>Turno</span>
-              <span style={{
-              color: T.orange
-            }}>Bot</span>
-            </p>
-            <p className="text-[11px] leading-tight mt-0.5" style={{
+        {/* Brand wordmark */}
+        <div className="mb-8">
+          <PerlaWordmark size="lg" color={T.text} dotColor={T.orange} />
+          <p className="text-[11px] leading-tight mt-1.5" style={{
             color: T.text3,
-            fontWeight: 400
+            fontWeight: 400,
+            letterSpacing: '0.02em'
           }}>
-              Gestión de turnos
-            </p>
-          </div>
+            Gestión de turnos
+          </p>
         </div>
 
         <h1 className="text-[21px] leading-tight mb-1" style={{
@@ -180,7 +155,7 @@ export const LoginScreen = ({
             Registrate
           </button>
         </p>
-      </motion.div>
+      </div>
     </div>;
 };
 export default LoginScreen;

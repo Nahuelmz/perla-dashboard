@@ -114,9 +114,9 @@ body {
   --font-heading: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
 
   /* ── Palette ── */
-  --sage:            #5B8FA6;
-  --sage-light:      rgba(91,143,166,0.10);
-  --sage-mid:        rgba(91,143,166,0.18);
+  --sage:            #4472C4;
+  --sage-light:      rgba(68,114,196,0.10);
+  --sage-mid:        rgba(68,114,196,0.18);
   --forest:          #1B2D3B;
   --forest-light:    #12212E;
 
@@ -134,17 +134,17 @@ body {
   --secondary-foreground: #243542;
   --muted:                rgba(91,143,166,0.06);
   --muted-foreground:     #5E7A8A;
-  --accent:               rgba(91,143,166,0.10);
+  --accent:               rgba(68,114,196,0.10);
   --accent-foreground:    #243542;
   --destructive:          #c0392b;
   --destructive-foreground: #ffffff;
   --border:               rgba(27,45,59,0.08);
   --input:                rgba(27,45,59,0.10);
-  --ring:                 #5B8FA6;
+  --ring:                 #4472C4;
 
   /* ── Charts ── */
   --chart-1: #3B82F6;
-  --chart-2: #5B8FA6;
+  --chart-2: #4472C4;
   --chart-3: #10B981;
   --chart-4: #F57C00;
   --chart-5: #8B5CF6;
@@ -154,46 +154,16 @@ body {
   --sidebar-foreground:           #243542;
   --sidebar-primary:              #1B2D3B;
   --sidebar-primary-foreground:   #ffffff;
-  --sidebar-accent:               rgba(91,143,166,0.10);
+  --sidebar-accent:               rgba(68,114,196,0.10);
   --sidebar-accent-foreground:    #243542;
   --sidebar-border:               rgba(27,45,59,0.06);
-  --sidebar-ring:                 #5B8FA6;
+  --sidebar-ring:                 #4472C4;
 }
 
-.dark {
-  --card: #2A3341;
-  --ring: #0066FF;
-  --input: #647790;
-  --muted: #4C5B70;
-  --accent: #2341E0;
-  --border: #647790;
-  --chart-1: #0066FF;
-  --chart-2: #2341E0;
-  --chart-3: #22C55E;
-  --chart-4: #F97316;
-  --chart-5: #8B5CF6;
-  --popover: #2A3341;
-  --primary: #0066FF;
-  --sidebar: hsl(0 0% 13%);
-  --secondary: #4C5B70;
-  --background: #2A3341;
-  --foreground: #ffffff;
-  --destructive: #B91C1C;
-  --sidebar-ring: hsl(212.7 26.8% 83.9%);
-  --sidebar-accent: hsl(217.2 32.6% 17.5%);
-  --sidebar-border: hsl(217.2 32.6% 17.5%);
-  --card-foreground: #ffffff;
-  --sidebar-primary: hsl(265 85% 60%);
-  --muted-foreground: #CFD9E6;
-  --accent-foreground: #ffffff;
-  --popover-foreground: #ffffff;
-  --primary-foreground: #ffffff;
-  --sidebar-foreground: hsl(0 0% 98%);
-  --secondary-foreground: #ffffff;
-  --destructive-foreground: #ffffff;
-  --sidebar-accent-foreground: hsl(0 0% 98%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-}
+/* Dark mode tokens removed — Perla is light-only by design.
+   If dark mode is needed in the future, re-introduce a `.dark { ... }` block
+   with carefully designed tokens (the previous block was auto-generated and
+   used colors that didn't fit the brand palette). */
 
 @layer base {
   * {
@@ -202,6 +172,24 @@ body {
   }
   *::-webkit-scrollbar {
     display: none;
+  }
+  /* Universal focus ring for keyboard navigation. Uses :focus-visible so
+     mouse clicks don't trigger the ring — only Tab key navigation does. */
+  button:focus-visible,
+  [role='button']:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid rgba(68, 114, 196, 0.55);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+  /* Remove the default focus outline since :focus-visible handles it */
+  button:focus,
+  [role='button']:focus {
+    outline: none;
   }
   body {
     @apply bg-background text-foreground;
@@ -250,6 +238,15 @@ img.broken-image-fallback {
 }
 
 @keyframes sagePulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(107,143,126,0.20); }
-  50%       { box-shadow: 0 0 0 5px rgba(107,143,126,0.08); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(68,114,196,0.20); transform: scale(1); }
+  50%       { box-shadow: 0 0 0 5px rgba(68,114,196,0.08); transform: scale(0.92); }
+}
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-float-in {
+  animation: floatIn 0.55s cubic-bezier(0.23, 1, 0.32, 1) both;
 }

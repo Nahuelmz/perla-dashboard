@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { Home, Users, Settings, Bell, Plus, ChevronDown, ChevronLeft, ChevronRight, X, Scissors, Clock, Lock, Eye, CheckCircle2, XCircle, AlertCircle, CalendarClock, Phone, MessageCircle, Brush, Wind, Sparkles, Wand2, Smile, Droplets, Save, Trash2, LogOut, Share2, Copy, Check, Search, UserPlus, CreditCard, HelpCircle, Mail, MessageSquare, Filter, Calendar, ArrowRight } from 'lucide-react';
+import { House, Users, Gear, Bell, Plus, CaretDown, CaretLeft, CaretRight, X, Scissors, Clock, Lock, Eye, CheckCircle, XCircle, Warning, CalendarCheck, Phone, ChatCircle, PaintBrush, Wind, Sparkle, MagicWand, Smiley, Drop, FloppyDisk, Trash, SignOut, ShareNetwork, Copy, Check, MagnifyingGlass, UserPlus, CreditCard, Question, Envelope, ChatCircleDots, Funnel, CalendarBlank, ArrowRight, List, Buildings, User, SidebarSimple, TrendUp, TrendDown, Calendar, Heart, CurrencyDollar } from '@phosphor-icons/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfToday, isSameDay, startOfWeek, addWeeks, subWeeks, getHours, addDays, subDays, startOfMonth, endOfMonth, isToday, isAfter } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 import { Service, Appointment, Client, BlockedSlot, TimeRange, AppointmentStatus, Provider, NavTab, Message, UserProfile } from './types';
 import { INITIAL_SERVICES, INITIAL_APPOINTMENTS, INITIAL_CLIENTS, INITIAL_BLOCKED_SLOTS, DAYS_ORDER, DAY_NAMES, INITIAL_PROVIDERS, INITIAL_MESSAGES, T } from './mockData';
 import { LoginScreen } from './LoginScreen';
-import { GlassCard, StatusPill, ProviderAvatar, Toggle } from '@/components/dashboard';
-const inp = 'w-full rounded-xl px-3 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-[#5B8FA6]/30 focus:border-[#5B8FA6]/40 transition-colors';
+import { GlassCard, StatusPill, ProviderAvatar, Toggle, PerlaWordmark, IconButton, SectionHeader } from '@/components/dashboard';
+const inp = 'w-full rounded-xl px-3 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-[#4472C4]/30 focus:border-[#4472C4]/40 transition-colors';
 const inpStyle: React.CSSProperties = {
   background: 'rgba(0,0,0,0.04)',
   border: '1px solid rgba(61,90,78,0.08)',
@@ -16,14 +16,16 @@ const inpStyle: React.CSSProperties = {
 };
 const lbl = 'text-[12px] font-normal uppercase tracking-wider text-[#6b7d74] mb-1 block';
 const OPENING_HOURS = "'Opening Hours Sans', ui-sans-serif, system-ui, sans-serif";
-const DM_SANS = OPENING_HOURS;
+const DM_SANS = "'DM Sans', 'Opening Hours Sans', ui-sans-serif, system-ui, sans-serif";
 const BRICOLAGE = OPENING_HOURS;
 const GEIST_MONO = "'Geist', ui-monospace, monospace";
-const INSTRUMENT_SERIF = "'Fraunces', ui-serif, Georgia, serif";
+const INSTRUMENT_SERIF = "'DM Serif Display', 'Fraunces', ui-serif, Georgia, serif";
+const DM_SERIF = "'DM Serif Display', ui-serif, Georgia, serif";
+const JETBRAINS = "'JetBrains Mono', ui-monospace, monospace";
 const CHIP_BASE: React.CSSProperties = { display: 'inline-flex', alignItems: 'baseline', gap: '2px', padding: '1px 7px 2px', borderRadius: '5px', fontWeight: 700, lineHeight: 1, verticalAlign: 'middle', border: '1px solid transparent', whiteSpace: 'nowrap', fontFamily: GEIST_MONO };
 const CHIP_BLUE: React.CSSProperties = { ...CHIP_BASE, background: 'rgba(59,130,246,0.07)', borderColor: 'rgba(59,130,246,0.16)', color: '#2563EB' };
 const CHIP_GREEN: React.CSSProperties = { ...CHIP_BASE, background: 'rgba(16,185,129,0.07)', borderColor: 'rgba(16,185,129,0.18)', color: '#059669' };
-const CHIP_TEAL: React.CSSProperties = { ...CHIP_BASE, background: 'rgba(91,143,166,0.09)', borderColor: 'rgba(91,143,166,0.22)', color: '#4A7A94' };
+const CHIP_TEAL: React.CSSProperties = { ...CHIP_BASE, background: 'rgba(68,114,196,0.09)', borderColor: 'rgba(68,114,196,0.22)', color: '#4A7A94' };
 const CHIP_VAL: React.CSSProperties = { fontSize: '15px', letterSpacing: '-0.03em' };
 const CHIP_UNIT: React.CSSProperties = { fontSize: '12px', fontWeight: 400, opacity: 0.75 };
 const BG_MESH = '#f6f8fa';
@@ -37,28 +39,29 @@ const GlowBackground = () => (
   }} />
 );
 const CONTAINER_STYLE: React.CSSProperties = {
-  maxWidth: '1080px',
+  maxWidth: '960px',
   margin: '0 auto',
   width: '100%',
   padding: '0 32px',
   boxSizing: 'border-box'
 };
-const SAGE = '#5B8FA6';
-const SAGE_GRAD = 'linear-gradient(135deg, #5B8FA6, #99C3D6)';
+const SAGE = '#4472C4';
+const SAGE_GRAD = 'linear-gradient(135deg, #4472C4, #98BAE8)';
 const CONTENT_GLASS: React.CSSProperties = {
   background: 'rgba(255,255,255,0.40)',
   backdropFilter: 'blur(20px)',
   WebkitBackdropFilter: 'blur(20px)',
-  borderRadius: '20px',
-  border: '1px solid rgba(91,143,166,0.22)',
-  boxShadow: '0 4px 24px rgba(27,45,59,0.07)',
+  borderRadius: '18px',
+  border: '1px solid rgba(68,114,196,0.22)',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
 };
 const CARD_GLASS: React.CSSProperties = {
   background: 'rgba(255,255,255,0.40)',
-  backdropFilter: 'blur(28px)',
-  WebkitBackdropFilter: 'blur(28px)',
-  boxShadow: '0 2px 4px rgba(27,45,59,0.07), 0 8px 32px rgba(27,45,59,0.09), 0 24px 48px rgba(27,45,59,0.05), inset 0 1px 0 rgba(255,255,255,0.90)',
-  border: '1px solid rgba(91,143,166,0.22)'
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
+  border: '1px solid rgba(91,143,166,0.22)',
+  borderRadius: '18px'
 };
 const toMins = (t: string) => {
   const [h, m] = t.split(':').map(Number);
@@ -108,19 +111,23 @@ const NAV_ITEMS: {
   label: string;
 }[] = [{
   id: 'home',
-  icon: Home,
+  icon: House,
   label: 'Inicio'
 }, {
   id: 'agenda',
-  icon: Calendar,
+  icon: CalendarBlank,
   label: 'Agenda'
 }, {
   id: 'clients',
   icon: Users,
   label: 'Clientes'
 }, {
+  id: 'messages',
+  icon: ChatCircleDots,
+  label: 'Mensajes'
+}, {
   id: 'config',
-  icon: Settings,
+  icon: Gear,
   label: 'Config.'
 }];
 const SERVICE_ICONS: {
@@ -131,22 +138,22 @@ const SERVICE_ICONS: {
   icon: Scissors
 }, {
   keywords: ['color', 'tinte', 'mechas', 'balayage', 'decoloración'],
-  icon: Brush
+  icon: PaintBrush
 }, {
   keywords: ['keratina', 'alisado', 'lacio'],
   icon: Wind
 }, {
   keywords: ['maquillaje', 'makeup'],
-  icon: Sparkles
+  icon: Sparkle
 }, {
   keywords: ['uña', 'manicur', 'pedicur'],
-  icon: Wand2
+  icon: MagicWand
 }, {
   keywords: ['facial', 'limpieza', 'hidratación'],
-  icon: Droplets
+  icon: Drop
 }, {
   keywords: ['cejas', 'pestañas', 'depilación'],
-  icon: Smile
+  icon: Smiley
 }];
 const getServiceIcon = (name: string): React.ElementType => {
   const lower = name.toLowerCase();
@@ -465,11 +472,11 @@ const NotifItem = ({
       {n.priority === 'urgent' && <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
         {isConfirmType && <button onClick={() => showToast('✓ Turno confirmado')} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[12px] font-normal text-white" style={{
           background: '#43A047'
-        }}><CheckCircle2 className="w-3 h-3" /><span>Confirmar turno</span></button>}
+        }}><CheckCircle className="w-3 h-3" /><span>Confirmar turno</span></button>}
         {isNoShowType && <button onClick={() => showToast('Marcado como no-show')} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[12px] font-normal" style={{
           background: 'rgba(245,124,0,0.12)',
           color: '#E65100'
-        }}><AlertCircle className="w-3 h-3" /><span>Marcar no-show</span></button>}
+        }}><Warning className="w-3 h-3" /><span>Marcar no-show</span></button>}
       </div>}
       {expanded && n.priority !== 'urgent' && <p className="text-[12px] mt-1 font-normal" style={{
         color: T.orange
@@ -478,7 +485,7 @@ const NotifItem = ({
         color: T.text3
       }}>{n.time}</p>
     </div>
-    <ChevronDown className="w-3.5 h-3.5 shrink-0 mt-1" style={{
+    <CaretDown className="w-3.5 h-3.5 shrink-0 mt-1" style={{
       color: T.text3,
       transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
       transition: 'transform 0.15s'
@@ -701,7 +708,7 @@ const WeekView = ({
       borderBottom: `1px solid ${T.border}`,
       background: T.bg
     }}>
-      <button onClick={() => setWeekStart(subWeeks(weekStart, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><ChevronLeft className="w-3.5 h-3.5" style={{
+      <button onClick={() => setWeekStart(subWeeks(weekStart, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><CaretLeft className="w-3.5 h-3.5" style={{
           color: T.text2
         }} /></button>
       <span className="text-xs font-normal px-1 capitalize whitespace-nowrap" style={{
@@ -711,7 +718,7 @@ const WeekView = ({
         })} – {format(addDays(weekStart, 6), 'd MMM yyyy', {
           locale: es
         })}</span>
-      <button onClick={() => setWeekStart(addWeeks(weekStart, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><ChevronRight className="w-3.5 h-3.5" style={{
+      <button onClick={() => setWeekStart(addWeeks(weekStart, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><CaretRight className="w-3.5 h-3.5" style={{
           color: T.text2
         }} /></button>
     </div>
@@ -719,29 +726,48 @@ const WeekView = ({
       background: '#ffffff',
       borderBottom: `1px solid ${T.border}`
     }}>
-      <div className="shrink-0" style={{
-        width: '44px'
-      }} />
-      {weekDays.map(day => <div key={day.toISOString()} className="flex-1 py-2 text-center border-l" style={{
+      <div className="shrink-0 border-r" style={{
+        width: '44px',
         borderColor: T.border,
-        background: isToday(day) ? T.orangePale : 'transparent'
-      }} onClick={e => handleCellClick(e, day)}>
-        <p className="text-[12px] uppercase tracking-widest font-normal" style={{
-          color: T.text3
-        }}>{format(day, 'EEE', {
-            locale: es
-          })}</p>
-        <div className="text-sm font-normal mt-0.5 w-7 h-7 mx-auto flex items-center justify-center rounded-full" style={{
-          background: isToday(day) ? T.orange : 'transparent',
-          color: isToday(day) ? '#fff' : T.text
-        }}>
-          {format(day, 'd', {
-            locale: es
-          })}
-        </div>
-      </div>)}
+      }} />
+      {weekDays.map(day => {
+        const dayApps = getAppsForDay(day);
+        const pendingCount = dayApps.filter(a => a.status === 'pending').length;
+        return (
+          <div key={day.toISOString()} className="flex-1 py-2 px-1 text-center border-l relative" style={{
+            borderColor: T.border,
+            background: isToday(day) ? T.orangePale : 'transparent'
+          }} onClick={e => e.stopPropagation()}>
+            <p className="text-[12px] uppercase tracking-widest font-normal" style={{
+              color: T.text3
+            }}>{format(day, 'EEE', {
+                locale: es
+              })}</p>
+            <div className="text-sm font-normal mt-0.5 w-7 h-7 mx-auto flex items-center justify-center rounded-full" style={{
+              background: isToday(day) ? T.orange : 'transparent',
+              color: isToday(day) ? '#fff' : T.text
+            }}>
+              {format(day, 'd', {
+                locale: es
+              })}
+            </div>
+            {/* Pending pill — solo si hay items pendientes */}
+            {pendingCount > 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); /* TODO: filter pendings on click */ }}
+                title={`${pendingCount} sin confirmar`}
+                className="mt-1 mx-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium transition-colors hover:opacity-90"
+                style={{ background: 'rgba(217,119,6,0.10)', color: '#D97706', border: '1px solid rgba(217,119,6,0.25)', cursor: 'pointer' }}
+              >
+                <Warning size={9} weight="fill" />
+                <span>{pendingCount} pendiente{pendingCount > 1 ? 's' : ''}</span>
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
-    <div className="flex-1 overflow-y-auto" style={{ background: 'transparent', scrollbarWidth: 'thin', scrollbarColor: 'rgba(91,143,166,0.3) transparent' }}>
+    <div className="flex-1 overflow-y-auto" style={{ background: 'transparent', scrollbarWidth: 'thin', scrollbarColor: 'rgba(68,114,196,0.3) transparent' }}>
       <div className="flex" style={{
         height: `${(HOUR_END - HOUR_START) * HOUR_H}px`
       }}>
@@ -858,9 +884,9 @@ const MonthView = ({
     {/* Header */}
     <div className="shrink-0 flex items-center justify-between mb-2">
       <div className="flex items-center gap-1">
-        <button onClick={() => setSelectedDate(subDays(startOfMonth(selectedDate), 1))} className="p-1.5 rounded-lg hover:bg-black/5"><ChevronLeft className="w-4 h-4" style={{ color: T.text2 }} /></button>
+        <button onClick={() => setSelectedDate(subDays(startOfMonth(selectedDate), 1))} className="p-1.5 rounded-lg hover:bg-black/5"><CaretLeft className="w-4 h-4" style={{ color: T.text2 }} /></button>
         <span className="text-sm font-normal px-2 capitalize" style={{ color: T.text }}>{format(selectedDate, 'MMMM yyyy', { locale: es })}</span>
-        <button onClick={() => setSelectedDate(addDays(endOfMonth(selectedDate), 1))} className="p-1.5 rounded-lg hover:bg-black/5"><ChevronRight className="w-4 h-4" style={{ color: T.text2 }} /></button>
+        <button onClick={() => setSelectedDate(addDays(endOfMonth(selectedDate), 1))} className="p-1.5 rounded-lg hover:bg-black/5"><CaretRight className="w-4 h-4" style={{ color: T.text2 }} /></button>
       </div>
     </div>
     {/* Day labels */}
@@ -874,17 +900,24 @@ const MonthView = ({
       {monthDays.map((day, i) => {
         const dayApps = getAppsForDay(day);
         const inMonth = day.getMonth() === selectedDate.getMonth();
+        const pendingCount = dayApps.filter(a => a.status === 'pending').length;
         return <div key={i} onClick={() => onSwitchToDay(day)} className="overflow-hidden rounded-xl cursor-pointer transition-all hover:shadow-sm flex flex-col" style={{
           ...CARD_GLASS,
           background: isToday(day) ? T.orangePale : inMonth ? 'rgba(250,248,244,0.55)' : T.bg2,
-          border: `1px solid ${isToday(day) ? T.borderO : T.border}`,
+          border: `1px solid ${pendingCount > 0 ? 'rgba(217,119,6,0.45)' : isToday(day) ? T.borderO : T.border}`,
+          borderLeft: pendingCount > 0 ? '3px solid #D97706' : undefined,
           opacity: inMonth ? 1 : 0.45,
           padding: '6px 8px',
         }}>
-          <p className="text-xs font-normal mb-1 w-6 h-6 flex items-center justify-center rounded-full shrink-0" style={{
-            background: isToday(day) ? T.orange : 'transparent',
-            color: isToday(day) ? '#fff' : inMonth ? T.text : T.text3
-          }}>{format(day, 'd')}</p>
+          <div className="flex items-center justify-between mb-1 shrink-0">
+            <p className="text-xs font-normal w-6 h-6 flex items-center justify-center rounded-full" style={{
+              background: isToday(day) ? T.orange : 'transparent',
+              color: isToday(day) ? '#fff' : inMonth ? T.text : T.text3
+            }}>{format(day, 'd')}</p>
+            {pendingCount > 0 && inMonth && (
+              <span title={`${pendingCount} sin confirmar`} style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#D97706', flexShrink: 0 }} />
+            )}
+          </div>
           <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-0.5">
             {dayApps.slice(0, 3).map(app => {
               const svc = services.find(s => s.id === app.serviceId);
@@ -919,7 +952,7 @@ function BotSettingsModal({ open, onClose }: { open: boolean; onClose: () => voi
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} onClick={onClose}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(27,45,59,0.25)', backdropFilter: 'blur(4px)' }} />
-      <div onClick={e => e.stopPropagation()} style={{ position: 'relative', background: '#fff', borderRadius: '20px', boxShadow: '0 16px 60px rgba(27,45,59,0.18)', padding: '28px', maxWidth: '360px', width: '100%' }}>
+      <div onClick={e => e.stopPropagation()} style={{ position: 'relative', background: '#fff', borderRadius: '18px', boxShadow: '0 16px 60px rgba(27,45,59,0.18)', padding: '28px', maxWidth: '360px', width: '100%' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
           <div>
@@ -954,7 +987,7 @@ function BotSettingsModal({ open, onClose }: { open: boolean; onClose: () => voi
           <p style={{ fontSize: '11px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Modo de respuesta</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {BOT_MODES.map(m => (
-              <button key={m.id} onClick={() => setMode(m.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: '10px', border: `1px solid ${mode === m.id ? SAGE : T.border}`, background: mode === m.id ? 'rgba(91,143,166,0.06)' : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
+              <button key={m.id} onClick={() => setMode(m.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: '10px', border: `1px solid ${mode === m.id ? SAGE : T.border}`, background: mode === m.id ? 'rgba(68,114,196,0.06)' : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}>
                 <div>
                   <p style={{ fontSize: '13px', fontWeight: 400, color: mode === m.id ? T.dark : T.text }}>{m.label}</p>
                   <p style={{ fontSize: '11px', color: T.text3, marginTop: '1px' }}>{m.desc}</p>
@@ -975,12 +1008,14 @@ function BotSettingsModal({ open, onClose }: { open: boolean; onClose: () => voi
 
 type InicioScreenProps = {
   todayApps: Appointment[];
+  appointments: Appointment[];
   services: Service[];
   providerMap: Record<string, Provider>;
   clients: Client[];
   messages: Message[];
   onAppointmentClick: (a: Appointment) => void;
   onAddAppointment: (date?: Date, time?: string) => void;
+  onUpdateStatus: (id: string, status: AppointmentStatus) => void;
   greeting: string;
   profileName: string;
   onNavigateAgenda: () => void;
@@ -1008,19 +1043,20 @@ const KPI_DEFS_INICIO = [{
 const TOTAL_SLOTS = 20;
 const InicioScreen = ({
   todayApps,
+  appointments,
   services,
   providerMap,
   clients,
   messages,
   onAppointmentClick,
   onAddAppointment,
+  onUpdateStatus,
   greeting,
   profileName,
   onNavigateAgenda,
   onNavigateMessages,
 }: InicioScreenProps) => {
   const [expandedKpi, setExpandedKpi] = useState<string | null>(null);
-  const [botSettingsOpen, setBotSettingsOpen] = useState(false);
   const todayConfirmed = useMemo(() => todayApps.filter(a => a.status === 'confirmed'), [todayApps]);
   const facturacion = useMemo(() => todayConfirmed.reduce((s, a) => s + (services.find(x => x.id === a.serviceId)?.price ?? 0), 0), [todayConfirmed, services]);
   const occupied = useMemo(() => todayApps.filter(a => a.status !== 'cancelled').length, [todayApps]);
@@ -1031,7 +1067,7 @@ const InicioScreen = ({
     facturacion
   };
   const now = new Date();
-  const nextApp = useMemo(() => {
+  const upcomingTop3 = useMemo(() => {
     const active = todayApps.filter(a => a.status !== 'cancelled' && a.status !== 'no_show');
     const upcoming = active.filter(a => {
       const [h, m] = a.startTime.split(':').map(Number);
@@ -1039,10 +1075,12 @@ const InicioScreen = ({
       appTime.setHours(h, m, 0, 0);
       return isAfter(appTime, now);
     }).sort((a, b) => toMins(a.startTime) - toMins(b.startTime));
-    if (upcoming[0]) return upcoming[0];
+    if (upcoming.length > 0) return upcoming.slice(0, 3);
     // Fallback: show the last appointment of the day (for demo/end-of-day)
-    return active.slice().sort((a, b) => toMins(b.startTime) - toMins(a.startTime))[0] ?? null;
+    const last = active.slice().sort((a, b) => toMins(b.startTime) - toMins(a.startTime))[0];
+    return last ? [last] : [];
   }, [todayApps, now]);
+  const nextApp = upcomingTop3[0] ?? null;
   const todaySorted = useMemo(() => todayApps.filter(a => a.status !== 'cancelled').slice().sort((a, b) => toMins(a.startTime) - toMins(b.startTime)), [todayApps]);
   const minsUntilNext = useMemo(() => {
     if (!nextApp) return null;
@@ -1070,91 +1108,150 @@ const InicioScreen = ({
     return blocks;
   }, [todayApps, services]);
   return <div className="overflow-auto h-full" style={{ background: 'transparent' }}>
-    <div className="px-4 sm:px-8 py-6 sm:py-8 max-w-[1080px] mx-auto w-full box-border">
+    <div className="px-4 sm:px-8 py-4 max-w-[960px] mx-auto w-full box-border">
 
-      {/* ── Greeting ── */}
-      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-        <div>
-          <h2 className="leading-tight" style={{ color: T.text, fontFamily: OPENING_HOURS, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 400, letterSpacing: '0.005em' }}>
-            <span>{greeting}, </span>
-            <span style={{ fontFamily: INSTRUMENT_SERIF, fontStyle: 'italic', fontWeight: 400 }}>{profileName}</span>
-            <span>.</span>
-          </h2>
-          <span style={{ fontSize: '15px', fontWeight: 400, color: T.text3, display: 'block', marginTop: '4px' }}>{((s: string) => s.charAt(0).toUpperCase() + s.slice(1))(format(now, "EEEE d 'de' MMMM", { locale: es }))}</span>
-        </div>
-        <button onClick={() => setBotSettingsOpen(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '99px', background: 'rgba(91,143,166,0.08)', border: '1px solid rgba(91,143,166,0.18)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.15s' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '99px', background: SAGE, display: 'inline-block', boxShadow: '0 0 0 3px rgba(91,143,166,0.18)', animation: 'sagePulse 2s infinite' }} />
-          <span style={{ fontSize: '12px', fontWeight: 400, color: T.text2, letterSpacing: '0.02em' }}>Asistente activo</span>
-        </button>
+      {/* ── Section header (coherent with other sections) ── */}
+      <div className="anim-float-in" style={{ paddingBottom: '16px', borderBottom: `1px solid ${T.border}`, marginBottom: '16px', flexShrink: 0 }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 400, color: T.dark, fontFamily: DM_SERIF, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.15 }}>
+          <span>{greeting}, </span>
+          <span style={{ fontStyle: 'italic' }}>{profileName}</span>
+          <span>.</span>
+        </h2>
       </div>
-      <BotSettingsModal open={botSettingsOpen} onClose={() => setBotSettingsOpen(false)} />
 
-      {/* ── KPI Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px', alignItems: 'start' }}>
+      {/* ── Conversational stats line (replaces KPI cards) — alerts are actionable ── */}
+      {(() => {
+        const turnosHoy = todayApps.length;
+        const confirmados = todayConfirmed.length;
+        const pendientes = todayApps.filter(a => a.status === 'pending').length;
+        const charlasBot = messages.length;
+        type Part = { text: string; color: string; emphasis?: boolean; onClick?: () => void };
+        const parts: Part[] = [];
+        if (turnosHoy === 0) {
+          parts.push({ text: 'Hoy no tenés turnos agendados', color: T.text2 });
+        } else {
+          parts.push({ text: `Hoy tenés ${turnosHoy} ${turnosHoy === 1 ? 'turno' : 'turnos'}`, color: T.text2, emphasis: true });
+          parts.push({ text: `${confirmados} ${confirmados === 1 ? 'confirmado' : 'confirmados'}`, color: T.text2 });
+          if (pendientes > 0) parts.push({
+            text: `${pendientes} sin confirmar`,
+            color: T.orange,
+            emphasis: true,
+            onClick: () => {
+              // scroll to first pending in agenda list below
+              const el = document.querySelector('[data-pending-app="true"]');
+              if (el) (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            },
+          });
+          parts.push({ text: `${kpiValues.vacantes} vacantes`, color: T.text3 });
+        }
+        if (charlasBot > 0) parts.push({ text: `Tu agente respondió ${charlasBot} ${charlasBot === 1 ? 'charla' : 'charlas'}`, color: T.text3 });
+        return (
+          <p className="anim-float-in" style={{ fontSize: '14px', fontWeight: 400, marginBottom: '24px', lineHeight: 1.6, animationDelay: '50ms' }}>
+            {parts.map((part, i) => (
+              <span key={i}>
+                {i > 0 && <span style={{ color: T.text3, margin: '0 8px' }}>·</span>}
+                {part.onClick ? (
+                  <button
+                    onClick={part.onClick}
+                    className="hover:underline focus:outline-none focus-visible:underline"
+                    style={{ color: part.color, fontWeight: part.emphasis ? 500 : 400, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', textUnderlineOffset: '3px', textDecorationThickness: '1px' }}
+                  >
+                    {part.text}
+                  </button>
+                ) : (
+                  <span style={{ color: part.color, fontWeight: part.emphasis ? 500 : 400 }}>{part.text}</span>
+                )}
+              </span>
+            ))}
+          </p>
+        );
+      })()}
 
-        {/* Próximo turno — col 1, spans 2 rows */}
-        <div style={{ gridColumn: '1', gridRow: '1 / 3' }}>
-          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Próximo turno</p>
-          {nextApp ? (() => {
-            const svc = services.find(s => s.id === nextApp.serviceId);
-            const prov = providerMap[nextApp.providerId];
-            const clientNote = clients.find(c => c.id === nextApp.clientId)?.notes;
-            return <GlassCard as="button" onClick={() => onAppointmentClick(nextApp)} className="w-full text-left p-5 transition-all hover:shadow-lg" style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
-              {/* Time + countdown */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: 'clamp(44px, 8vw, 58px)', fontWeight: 300, letterSpacing: '-0.02em', color: T.dark, lineHeight: 1 }}>
-                  {nextApp.startTime.split(':')[0]}<span style={{ color: SAGE }}>:</span>{nextApp.startTime.split(':')[1]}
-                </p>
-                {minsUntilNext && <span style={{ fontSize: '12px', fontWeight: 400, color: T.text3, paddingBottom: '6px' }}>{minsUntilNext}</span>}
-              </div>
-              {/* Client name */}
-              <p style={{ fontSize: '15px', fontWeight: 400, color: T.text, marginBottom: clientNote ? '4px' : '8px' }}>{nextApp.clientName}</p>
-              {/* Client note */}
-              {clientNote && <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2, fontStyle: 'italic', marginBottom: '8px', lineHeight: 1.5 }}>{clientNote}</p>}
-              {/* Status + date */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
-                <StatusPill status={nextApp.status} />
-                <span style={{ fontSize: '12px', color: T.text3 }}>{format(nextApp.date, "EEEE d 'de' MMMM", { locale: es })}</span>
-              </div>
-              {/* Divider */}
-              <div style={{ height: '1px', background: 'rgba(27,45,59,0.07)', marginBottom: '14px' }} />
-              {/* Provider */}
-              {prov && <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <ProviderAvatar provider={prov} size="lg" />
-                <div>
-                  <p style={{ fontSize: '13px', fontWeight: 400, color: T.text }}>{prov.name}</p>
-                  <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2, marginTop: '2px' }}>{svc?.name ?? '—'} · {svc?.duration ?? 0} min</p>
-                </div>
-              </div>}
-            </GlassCard>;
-          })() : <GlassCard className="p-5">
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '16px 0', textAlign: 'center' }}>
-              <CalendarClock className="w-8 h-8" style={{ color: '#c5d1cc' }} />
-              <p style={{ fontSize: '14px', fontWeight: 400, color: T.text3 }}>Sin turnos próximos</p>
-              <button onClick={() => onAddAppointment(startOfToday(), '09:00')} style={{ fontSize: '12px', fontWeight: 400, color: SAGE, padding: '6px 16px', borderRadius: '99px', background: 'rgba(107,143,126,0.10)', border: '1px solid rgba(107,143,126,0.20)' }}>
-                + Agregar turno
-              </button>
-            </div>
-          </GlassCard>}
+      {/* ── Próximos turnos — list sin fondo (rule: bg = atención; esto es contenido) ── */}
+      <div className="anim-float-in" style={{ marginBottom: '24px', animationDelay: '100ms' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '14px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Próximos turnos</p>
+          {upcomingTop3.length > 0 && (
+            <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <span>Ver agenda</span><ArrowRight size={11} />
+            </button>
+          )}
         </div>
-
-        {/* 4 Metric cards — auto-flow into cols 2–3, rows 1–2 */}
-        {([
-          { label: 'Turnos hoy',  value: String(kpiValues.turnosHoy),                    meta: `${todayConfirmed.length} confirmados` },
-          { label: 'Confirmados', value: String(todayConfirmed.length),                    meta: `de ${kpiValues.turnosHoy} turnos` },
-          { label: 'Vacantes',    value: String(kpiValues.vacantes),                       meta: `de ${TOTAL_SLOTS} slots` },
-          { label: 'Facturación', value: `$${kpiValues.facturacion.toLocaleString()}`,     meta: 'estimada hoy' },
-        ] as { label: string; value: string; meta: string }[]).map((metric) => (
-          <GlassCard key={metric.label} style={{ padding: '16px 18px 14px', display: 'flex', flexDirection: 'column', minHeight: '108px' }}>
-            <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{metric.label}</p>
-            <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: '40px', lineHeight: 1, color: T.dark, letterSpacing: '-0.02em', marginTop: '6px' }}>{metric.value}</p>
-            <p style={{ fontSize: '11px', color: T.text3, marginTop: 'auto', paddingTop: '8px' }}>{metric.meta}</p>
-          </GlassCard>
-        ))}
+        {upcomingTop3.length === 0 ? (
+          <div style={{ padding: '24px 0', borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, textAlign: 'center' }}>
+            <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3, marginBottom: '12px' }}>No hay próximos turnos</p>
+            <button onClick={() => onAddAppointment(startOfToday(), '09:00')} style={{ fontSize: '12px', fontWeight: 500, color: '#fff', padding: '7px 16px', borderRadius: '10px', background: T.orange, border: 'none', cursor: 'pointer' }}>
+              + Agregar turno
+            </button>
+          </div>
+        ) : (
+          <div>
+            {upcomingTop3.map((app, idx) => {
+              const svc = services.find(s => s.id === app.serviceId);
+              const prov = providerMap[app.providerId];
+              const clientNote = clients.find(c => c.id === app.clientId)?.notes;
+              const [h, m] = app.startTime.split(':').map(Number);
+              const diff = (h * 60 + m) - (now.getHours() * 60 + now.getMinutes());
+              let countdown = '';
+              if (diff > 0) {
+                if (diff < 60) countdown = `en ${diff} min`;
+                else {
+                  const hrs = Math.floor(diff / 60);
+                  const mins = diff % 60;
+                  countdown = mins > 0 ? `en ${hrs}h ${mins}min` : `en ${hrs}h`;
+                }
+              }
+              return (
+                <button
+                  key={app.id}
+                  onClick={() => onAppointmentClick(app)}
+                  className="w-full text-left transition-colors group hover:bg-black/[0.02]"
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: '20px',
+                    padding: '14px 8px',
+                    borderTop: idx === 0 ? `1px solid ${T.border}` : undefined,
+                    borderBottom: `1px solid ${T.border}`,
+                    background: 'transparent',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {/* Time column */}
+                  <div style={{ minWidth: '76px', flexShrink: 0 }}>
+                    <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: idx === 0 ? '32px' : '24px', fontWeight: 400, letterSpacing: '-0.02em', color: T.dark, lineHeight: 1 }}>
+                      {app.startTime.split(':')[0]}<span style={{ color: SAGE }}>:</span>{app.startTime.split(':')[1]}
+                    </p>
+                    {countdown && idx === 0 && <p style={{ fontSize: '11px', color: T.text3, marginTop: '4px' }}>{countdown}</p>}
+                  </div>
+                  {/* Info column */}
+                  <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <p style={{ fontSize: idx === 0 ? '15px' : '14px', fontWeight: 500, color: T.dark, lineHeight: 1.2 }}>{app.clientName}</p>
+                      <StatusPill status={app.status} />
+                    </div>
+                    <p style={{ fontSize: '13px', color: T.text2, lineHeight: 1.45 }}>
+                      <span>{svc?.name ?? '—'}</span>
+                      <span style={{ color: T.text3 }}> · {svc?.duration ?? 0} min</span>
+                      {prov && <><span style={{ color: T.text3 }}> · con </span><span>{prov.name}</span></>}
+                    </p>
+                    {clientNote && idx === 0 && (
+                      <p style={{ fontSize: '12px', color: T.text3, fontStyle: 'italic', marginTop: '2px' }}>{clientNote}</p>
+                    )}
+                  </div>
+                  {/* Provider avatar (right) */}
+                  {prov && (
+                    <div style={{ flexShrink: 0, marginTop: '2px' }}>
+                      <ProviderAvatar provider={prov} size="sm" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── Agenda del día ── */}
-      <div style={{ marginBottom: '20px' }}>
+      <div className="anim-float-in" style={{ marginBottom: '20px', animationDelay: '130ms' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
           <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Agenda de hoy</p>
           <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange }}>
@@ -1171,24 +1268,83 @@ const InicioScreen = ({
                   const svc = services.find(s => s.id === app.serviceId);
                   const prov = providerMap[app.providerId];
                   const isNext = nextApp?.id === app.id;
-                  return <button key={app.id} onClick={() => onAppointmentClick(app)} className="w-full text-left transition-colors hover:brightness-95" style={{
-                    display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '10px 16px',
-                    borderBottom: i < todaySorted.length - 1 ? `1px solid ${T.border}` : undefined,
-                    background: isNext ? 'rgba(107,143,126,0.06)' : 'transparent',
-                  }}>
-                    <span style={{ fontSize: '12px', fontWeight: 400, color: SAGE, width: '38px', flexShrink: 0, fontFamily: GEIST_MONO }}>{app.startTime}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '13px', fontWeight: 400, color: T.text, lineHeight: 1.2 }} className="truncate">{app.clientName}</p>
-                      <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2 }} className="truncate">{svc?.name ?? '—'}</p>
+                  const isPending = app.status === 'pending';
+                  // Border-left color: orange for pending, red for cancelled (won't show today since filtered), transparent otherwise
+                  const accentBorder = isPending ? T.orange : 'transparent';
+                  return (
+                    <div key={app.id} data-pending-app={isPending ? 'true' : undefined} style={{
+                      borderBottom: i < todaySorted.length - 1 ? `1px solid ${T.border}` : undefined,
+                      borderLeft: `3px solid ${accentBorder}`,
+                      background: isPending ? 'rgba(255,148,77,0.04)' : isNext ? 'rgba(68,114,196,0.04)' : 'transparent',
+                      transition: 'background 0.15s',
+                    }}>
+                      <button onClick={() => onAppointmentClick(app)} className="w-full text-left transition-colors hover:bg-black/[0.02]" style={{
+                        display: 'flex', alignItems: 'center', gap: '12px',
+                        padding: '10px 16px',
+                        background: 'transparent',
+                      }}>
+                        <span style={{ fontSize: '12px', fontWeight: 400, color: SAGE, width: '38px', flexShrink: 0, fontFamily: GEIST_MONO }}>{app.startTime}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '13px', fontWeight: 400, color: T.text, lineHeight: 1.2 }} className="truncate">{app.clientName}</p>
+                          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2 }} className="truncate">{svc?.name ?? '—'}</p>
+                        </div>
+                        {prov && <ProviderAvatar provider={prov} size="sm" />}
+                        <StatusPill status={app.status} />
+                      </button>
+                      {/* Inline actions for pending items */}
+                      {isPending && (
+                        <div className="flex items-center gap-2" style={{ padding: '0 16px 12px 67px' }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onUpdateStatus(app.id, 'confirmed'); }}
+                            className="flex items-center gap-1 transition-colors hover:opacity-90"
+                            style={{ padding: '5px 12px', borderRadius: '8px', background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}
+                          >
+                            <Check size={12} weight="bold" />
+                            <span>Confirmar</span>
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onUpdateStatus(app.id, 'cancelled'); }}
+                            className="transition-colors hover:bg-black/[0.04]"
+                            style={{ padding: '5px 12px', borderRadius: '8px', background: 'transparent', color: T.text2, fontSize: '12px', fontWeight: 400, border: `1px solid ${T.border}`, cursor: 'pointer' }}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    {prov && <ProviderAvatar provider={prov} size="sm" />}
-                    <StatusPill status={app.status} />
-                  </button>;
+                  );
                 })}
               </div>
           }
         </GlassCard>
+        {/* Time-aware footer: future pending items */}
+        {(() => {
+          const today = startOfToday();
+          const tomorrowStart = new Date(today);
+          tomorrowStart.setDate(today.getDate() + 1);
+          const weekEnd = new Date(today);
+          weekEnd.setDate(today.getDate() + 7);
+          const tomorrowPending = appointments.filter(a => isSameDay(a.date, tomorrowStart) && a.status === 'pending').length;
+          const weekPending = appointments.filter(a => a.date > tomorrowStart && a.date <= weekEnd && a.status === 'pending').length;
+          if (tomorrowPending === 0 && weekPending === 0) return null;
+          return (
+            <button
+              onClick={onNavigateAgenda}
+              className="w-full flex items-center justify-between mt-2 px-3 py-2.5 rounded-xl transition-colors hover:bg-black/[0.03]"
+              style={{ background: 'transparent', border: `1px dashed ${T.border}`, fontSize: '12px', color: T.text2, cursor: 'pointer' }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CalendarBlank size={13} style={{ color: T.text3, flexShrink: 0 }} />
+                <span>
+                  {tomorrowPending > 0 && <><strong style={{ color: T.text, fontWeight: 500 }}>Mañana:</strong> {tomorrowPending} sin confirmar</>}
+                  {tomorrowPending > 0 && weekPending > 0 && <span style={{ color: T.text3, margin: '0 6px' }}>·</span>}
+                  {weekPending > 0 && <><strong style={{ color: T.text, fontWeight: 500 }}>Esta semana:</strong> {weekPending} más</>}
+                </span>
+              </span>
+              <ArrowRight size={12} style={{ color: T.text3 }} />
+            </button>
+          );
+        })()}
         {vacantBlocks.length > 0 && <div style={{ marginTop: '12px' }}>
           <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Slots libres</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -1312,12 +1468,53 @@ const AgendaScreen = ({
   };
   const filterCount = filterValues.size;
   return <div className="flex-1 flex flex-col overflow-hidden px-4 sm:px-8 py-4 gap-0" style={{ background: 'transparent' }}>
-    <div className="flex-1 flex flex-col overflow-hidden" style={{ ...CONTENT_GLASS, maxWidth: '1080px', margin: '0 auto', width: '100%' }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', paddingBottom: '16px', borderBottom: `1px solid ${T.border}`, marginBottom: '4px', flexShrink: 0 }}>
+      <h2 style={{ fontSize: '24px', fontWeight: 400, color: T.dark, fontFamily: DM_SERIF, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.1 }}>Agenda</h2>
+    </div>
+    {/* Pending alerts banner */}
+    {(() => {
+      const today = startOfToday();
+      const weekEnd = addDays(today, 7);
+      const pendingThisWeek = filteredApps.filter(a => a.date >= today && a.date <= weekEnd && a.status === 'pending');
+      if (pendingThisWeek.length === 0) return null;
+      const todayPending = pendingThisWeek.filter(a => isSameDay(a.date, today)).length;
+      const tomorrowPending = pendingThisWeek.filter(a => isSameDay(a.date, addDays(today, 1))).length;
+      const restPending = pendingThisWeek.length - todayPending - tomorrowPending;
+      return (
+        <div style={{ maxWidth: '960px', margin: '6px auto 8px', width: '100%', flexShrink: 0 }}>
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl" style={{
+            background: 'rgba(245,158,11,0.06)',
+            border: '1px solid rgba(245,158,11,0.20)',
+          }}>
+            <Warning size={16} weight="fill" style={{ color: '#D97706', flexShrink: 0 }} />
+            <div className="flex-1 min-w-0 text-[13px]" style={{ color: T.text }}>
+              <strong style={{ fontWeight: 500 }}>{pendingThisWeek.length} {pendingThisWeek.length === 1 ? 'turno sin confirmar' : 'turnos sin confirmar'}</strong>
+              <span style={{ color: T.text3, marginLeft: '8px' }}>
+                {todayPending > 0 && `Hoy: ${todayPending}`}
+                {todayPending > 0 && (tomorrowPending > 0 || restPending > 0) && ' · '}
+                {tomorrowPending > 0 && `Mañana: ${tomorrowPending}`}
+                {tomorrowPending > 0 && restPending > 0 && ' · '}
+                {restPending > 0 && `Próximos días: ${restPending}`}
+              </span>
+            </div>
+            <button
+              onClick={() => setCalView('week')}
+              className="flex items-center gap-1 text-[12px] font-medium px-2.5 py-1 rounded-lg transition-colors hover:opacity-90 shrink-0"
+              style={{ background: '#D97706', color: '#fff', border: 'none', cursor: 'pointer' }}
+            >
+              <span>Ver semana</span><ArrowRight size={11} />
+            </button>
+          </div>
+        </div>
+      );
+    })()}
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ ...CONTENT_GLASS, maxWidth: '960px', margin: '0 auto', width: '100%' }}>
     <div style={{ padding: '0 4px' }}>
       <div className="py-2.5 flex items-center gap-2 flex-wrap shrink-0 px-3" style={{
         borderBottom: `1px solid ${T.border}`,
         background: 'transparent'
       }}>
+        {/* Left side: view switcher + date nav */}
         <div className="flex items-center gap-0.5 p-1 rounded-xl shrink-0" style={{
           background: T.bg2
         }}>
@@ -1329,7 +1526,7 @@ const AgendaScreen = ({
           }}>{v === 'day' ? 'Día' : v === 'week' ? 'Sem' : 'Mes'}</button>)}
         </div>
         {calView === 'day' && <div className="flex items-center gap-0.5 shrink-0">
-          <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><ChevronLeft className="w-3.5 h-3.5" style={{
+          <button onClick={() => setSelectedDate(subDays(selectedDate, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><CaretLeft className="w-3.5 h-3.5" style={{
               color: T.text2
             }} /></button>
           <span className="text-xs font-normal px-1 capitalize whitespace-nowrap" style={{
@@ -1339,17 +1536,18 @@ const AgendaScreen = ({
             })} – {format(addDays(selectedDate, 6), 'd MMM yyyy', {
               locale: es
             })}</span>
-          <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><ChevronRight className="w-3.5 h-3.5" style={{
+          <button onClick={() => setSelectedDate(addDays(selectedDate, 1))} className="p-1.5 rounded-lg hover:bg-black/5"><CaretRight className="w-3.5 h-3.5" style={{
               color: T.text2
             }} /></button>
         </div>}
-        <div ref={filterDropdownRef} className="relative">
+        {/* Right side: actions (Filtrar + Bloquear) — anchored right via ml-auto so they don't shift between views */}
+        <div ref={filterDropdownRef} className="relative ml-auto">
           <button onClick={() => setFilterDropdownOpen(v => !v)} className="flex items-center gap-1.5 text-xs font-normal px-2.5 py-1.5 rounded-xl whitespace-nowrap transition-all" style={{
             background: filterCount > 0 ? T.dark : T.bg2,
             color: filterCount > 0 ? '#fff' : T.text2,
             border: `1px solid ${filterCount > 0 ? T.dark : T.border}`
           }}>
-            <Filter className="w-3 h-3 shrink-0" /><span>{filterCount > 0 ? `Filtrar (${filterCount})` : 'Filtrar'}</span>
+            <Funnel className="w-3 h-3 shrink-0" /><span>{filterCount > 0 ? `Filtrar (${filterCount})` : 'Filtrar'}</span>
           </button>
           <AnimatePresence>
             {filterDropdownOpen && <motion.div initial={{
@@ -1578,12 +1776,121 @@ const STATUS_FILTER_OPTIONS: {
   value: 'con_ausencias',
   label: 'Con ausencias'
 }];
+// ─── MESSAGES SCREEN ────────────────────────────────────────────────────────────
+type MessagesScreenProps = {
+  messages: Message[];
+  clients: Client[];
+};
+const MessagesScreen = ({ messages, clients }: MessagesScreenProps) => {
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const clientMap = useMemo(() => {
+    const m: Record<string, Client> = {};
+    clients.forEach(c => { m[c.id] = c; });
+    return m;
+  }, [clients]);
+  const selectedClient = selectedClientId ? clientMap[selectedClientId] : null;
+  const chatMessages = selectedClient ? MOCK_CHAT[selectedClient.id] ?? [] : [];
+  const [chatInput, setChatInput] = useState('');
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden px-4 sm:px-8 py-4" style={{ background: 'transparent' }}>
+      {/* ── Section header ── */}
+      <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', paddingBottom: '16px', borderBottom: `1px solid ${T.border}`, marginBottom: '8px', flexShrink: 0 }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 400, color: T.dark, fontFamily: DM_SERIF, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.1 }}>Mensajes</h2>
+      </div>
+      {/* ── Panels ── */}
+      <div className="flex-1 flex overflow-hidden gap-3" style={{ maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+      {/* Left: conversation list */}
+      <div className={cn('flex flex-col overflow-hidden shrink-0 md:w-[320px]', selectedClientId ? 'hidden md:flex' : 'flex w-full')} style={{ background: 'transparent' }}>
+        <div className="px-4 py-3 shrink-0" style={{ borderBottom: `1px solid ${T.border}` }}>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ border: `1px solid ${T.border}`, background: 'rgba(0,0,0,0.04)' }}>
+            <MagnifyingGlass className="w-4 h-4 shrink-0" style={{ color: T.text3 }} />
+            <input type="text" placeholder="Buscar conversación..." className="flex-1 text-sm bg-transparent focus:outline-none" style={{ color: T.text }} />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {messages.length === 0
+            ? <div className="flex flex-col items-center justify-center h-full py-12"><ChatCircle className="w-10 h-10 mb-2" style={{ color: T.text3 }} /><p className="text-sm font-normal" style={{ color: T.text3 }}>Sin mensajes</p></div>
+            : messages.map((msg) => {
+                const isSelected = selectedClientId === msg.clientId;
+                const initials = msg.clientName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                  <button key={msg.id} onClick={() => setSelectedClientId(msg.clientId)} className="w-full text-left transition-colors hover:bg-black/[0.02]" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: isSelected ? `rgba(68,114,196,0.06)` : 'transparent', borderBottom: `1px solid ${T.border}` }}>
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #4472C4, #98BAE8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 400, color: '#fff' }}>{initials}</div>
+                      {msg.unread && <span style={{ position: 'absolute', top: 0, right: 0, width: '8px', height: '8px', borderRadius: '50%', background: T.orange, border: '2px solid #fff' }} />}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                        <p style={{ fontSize: '13px', fontWeight: msg.unread ? 500 : 400, color: T.text }}>{msg.clientName}</p>
+                        <span style={{ fontSize: '11px', color: T.text3, flexShrink: 0, marginLeft: '8px' }}>{msg.time}</span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: msg.unread ? T.text2 : T.text3, fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{msg.preview}</p>
+                    </div>
+                  </button>
+                );
+              })
+          }
+        </div>
+      </div>
+
+      {/* Right: conversation */}
+      {selectedClient ? (
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ borderRadius: '18px', background: 'rgba(255,255,255,0.40)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(91,143,166,0.22)', boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)' }}>
+          {/* Chat header */}
+          <div className="flex items-center gap-3 px-5 py-4 shrink-0" style={{ borderBottom: `1px solid ${T.border}` }}>
+            <button onClick={() => setSelectedClientId(null)} className="md:hidden p-1.5 rounded-lg hover:bg-black/5"><CaretLeft className="w-4 h-4" style={{ color: T.text2 }} /></button>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #4472C4, #98BAE8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 400, color: '#fff' }}>
+              {selectedClient.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: 400, color: T.text }}>{selectedClient.name}</p>
+              <p style={{ fontSize: '12px', color: T.text3 }}>{selectedClient.phone}</p>
+            </div>
+          </div>
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
+            {chatMessages.length === 0
+              ? <div className="flex flex-col items-center justify-center h-full"><ChatCircle className="w-10 h-10 mb-2" style={{ color: T.text3 }} /><p className="text-sm font-normal" style={{ color: T.text3 }}>Sin mensajes aún</p></div>
+              : chatMessages.map((cm, i) => (
+                  <div key={i} className={cn('flex', cm.from === 'bot' ? 'justify-start' : 'justify-end')}>
+                    {cm.from === 'bot' && <div style={{ width: '24px', height: '24px', borderRadius: '8px', background: 'linear-gradient(135deg, #4472C4, #98BAE8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', marginRight: '8px', flexShrink: 0, alignSelf: 'flex-end', marginBottom: '4px' }}>P</div>}
+                    <div style={{ maxWidth: '72%', padding: '10px 14px', borderRadius: cm.from === 'bot' ? '8px 18px 18px 18px' : '18px 8px 18px 18px', background: cm.from === 'bot' ? 'rgba(255,255,255,0.60)' : `rgba(68,114,196,0.12)`, border: `1px solid ${cm.from === 'bot' ? T.border : 'rgba(68,114,196,0.22)'}`, boxShadow: '0 1px 4px rgba(27,45,59,0.06)' }}>
+                      <p style={{ fontSize: '13px', color: T.text, lineHeight: 1.5 }}>{cm.text}</p>
+                      <p style={{ fontSize: '10px', color: T.text3, marginTop: '4px', textAlign: cm.from === 'bot' ? 'left' : 'right' }}>{cm.time}</p>
+                    </div>
+                  </div>
+                ))
+            }
+          </div>
+          {/* Input */}
+          <div className="px-4 py-3 shrink-0" style={{ borderTop: `1px solid ${T.border}` }}>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.04)', border: `1px solid ${T.border}` }}>
+              <input type="text" placeholder="Escribí un mensaje..." value={chatInput} onChange={e => setChatInput(e.target.value)} className="flex-1 text-sm bg-transparent focus:outline-none" style={{ color: T.text }} />
+              <button style={{ padding: '4px 10px', borderRadius: '8px', background: chatInput ? 'linear-gradient(135deg, #4472C4, #98BAE8)' : T.bg2, color: chatInput ? '#fff' : T.text3, fontSize: '12px', transition: 'all 0.15s', border: 'none', cursor: 'pointer' }}>Enviar</button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 hidden md:flex items-center justify-center" style={{ borderRadius: '18px', background: 'rgba(255,255,255,0.40)', border: '1px solid rgba(68,114,196,0.22)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <ChatCircle className="w-12 h-12 mx-auto mb-3" style={{ color: T.text3 }} />
+            <p style={{ fontSize: '14px', color: T.text3 }}>Seleccioná una conversación</p>
+          </div>
+        </div>
+      )}
+      </div>
+    </div>
+  );
+};
+
 type ClientsScreenProps = {
   clients: Client[];
   appointments: Appointment[];
   services: Service[];
   messages: Message[];
   onNewClient: () => void;
+  onNavigateMessages?: () => void;
   initialClientId?: string | null;
   onClientOpened?: () => void;
 };
@@ -1593,6 +1900,7 @@ const ClientsScreen = ({
   services,
   messages,
   onNewClient,
+  onNavigateMessages,
   initialClientId,
   onClientOpened
 }: ClientsScreenProps) => {
@@ -1668,22 +1976,16 @@ const ClientsScreen = ({
     client
   }) => messageByClient[client.id]?.unread).length;
   const currentStatusLabel = STATUS_FILTER_OPTIONS.find(o => o.value === statusFilter)?.label ?? 'Todos';
-  return <div className="w-full h-full flex overflow-hidden gap-3 py-4" style={{
-    ...CONTAINER_STYLE,
-    paddingTop: '16px',
-    paddingBottom: '16px'
-  }}>
-    {/* Left panel — inbox */}
-    <div className={cn('flex flex-col overflow-hidden shrink-0', selectedClientId ? 'hidden md:flex' : 'flex w-full md:w-auto')} style={{
-      width: '320px',
-      borderRadius: '20px',
-      background: 'rgba(255,255,255,0.62)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255,255,255,0.80)',
-      boxShadow: '0 4px 24px rgba(61,90,78,0.07)',
-    }}>
-      <div className="px-4 py-4 shrink-0" style={{
+  return <div className="flex-1 flex flex-col overflow-hidden px-4 sm:px-8 py-4" style={{ background: 'transparent' }}>
+    {/* ── Section header ── */}
+    <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', paddingBottom: '16px', borderBottom: `1px solid ${T.border}`, marginBottom: '8px', flexShrink: 0 }}>
+      <h2 style={{ fontSize: '24px', fontWeight: 400, color: T.dark, fontFamily: DM_SERIF, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.1 }}>Clientes</h2>
+    </div>
+    {/* ── Panels ── */}
+    <div className="flex-1 flex overflow-hidden gap-3" style={{ maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+    {/* Left panel — inbox (sin fondo: regla "fondo = atención", el detail tiene el fondo) */}
+    <div className={cn('flex flex-col overflow-hidden shrink-0 md:w-[320px]', selectedClientId ? 'hidden md:flex' : 'flex w-full')} style={{ background: 'transparent' }}>
+      <div className="px-4 py-3 shrink-0" style={{
         borderBottom: `1px solid ${T.border}`,
         background: 'transparent'
       }}>
@@ -1691,7 +1993,7 @@ const ClientsScreen = ({
           border: `1px solid ${T.border}`,
           background: 'rgba(0,0,0,0.04)'
         }}>
-          <Search className="w-4 h-4 shrink-0" style={{
+          <MagnifyingGlass className="w-4 h-4 shrink-0" style={{
             color: T.text3
           }} />
           <input type="text" placeholder="Buscar por nombre o teléfono..." value={search} onChange={e => setSearch(e.target.value)} className="flex-1 text-sm bg-transparent focus:outline-none" style={{
@@ -1707,7 +2009,7 @@ const ClientsScreen = ({
             color: unreadOnly ? '#fff' : T.text2,
             border: `1px solid ${unreadOnly ? T.dark : T.border}`
           }}>
-            <MessageCircle className="w-3.5 h-3.5 shrink-0" /><span>No leídos</span>
+            <ChatCircle className="w-3.5 h-3.5 shrink-0" /><span>No leídos</span>
             {unreadCount > 0 && <span className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-normal" style={{
               background: unreadOnly ? 'rgba(255,255,255,0.25)' : T.orange,
               color: '#fff'
@@ -1720,7 +2022,7 @@ const ClientsScreen = ({
               border: `1px solid ${statusFilter !== 'all' ? T.borderO : T.border}`
             }}>
               <span className="truncate">{currentStatusLabel}</span>
-              <ChevronDown className="w-3 h-3 shrink-0" style={{
+              <CaretDown className="w-3 h-3 shrink-0" style={{
                 transform: statusDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.15s'
               }} />
@@ -1814,206 +2116,204 @@ const ClientsScreen = ({
         }}>Sin resultados</p>}
       </div>
     </div>
-    {/* Right panel — conversation or empty state */}
-    {selectedClient ? <div className="flex-1 flex flex-col overflow-hidden" style={{
-      borderRadius: '20px',
-      background: 'rgba(255,255,255,0.62)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255,255,255,0.80)',
-      boxShadow: '0 4px 24px rgba(61,90,78,0.07)',
-    }}>
-      <div className="px-5 py-4 shrink-0 flex items-center gap-3" style={{
-        borderBottom: `1px solid ${T.border}`,
-        background: `linear-gradient(135deg, ${T.orangePale} 0%, transparent 100%)`
-      }}>
-        <button onClick={() => setSelectedClientId(null)} className="md:hidden p-1.5 rounded-lg hover:bg-black/5 mr-1 shrink-0"><ChevronLeft className="w-4 h-4" style={{
-            color: T.text2
-          }} /></button>
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center font-normal text-white text-sm shrink-0" style={{
-          background: SAGE
-        }}>{selectedClient.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}</div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-normal text-base leading-tight truncate" style={{
-            color: T.text
-          }}>{selectedClient.name}</h4>
-          <div className="flex items-center gap-1.5 mt-0.5" style={{
-            color: T.text3
-          }}><Phone className="w-3 h-3" /><span className="text-xs">{selectedClient.phone}</span></div>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {selectedClient.tags.map(tag => <span key={tag} className="text-[11px] font-normal px-2 py-0.5 rounded-full" style={{
-            background: TAG_COLORS[tag]?.bg ?? T.bg2,
-            color: TAG_COLORS[tag]?.text ?? T.text2
-          }}>{tag}</span>)}
-          {noShows > 0 && <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-normal" style={{
-            background: 'rgba(229,57,53,0.1)',
-            color: '#C62828'
-          }}><AlertCircle className="w-3.5 h-3.5" /><span>{noShows}</span></div>}
-        </div>
-      </div>
-      <div className="px-4 py-3 shrink-0 flex gap-2" style={{
-        borderBottom: `1px solid ${T.border}`
-      }}>
-        {([{
-          id: 'chat',
-          label: 'Conversación'
-        }, {
-          id: 'history',
-          label: 'Historial'
-        }] as const).map(tab => <button key={tab.id} onClick={() => setClientPanelTab(tab.id)} className="px-4 py-2 text-xs font-normal rounded-t-lg transition-all" style={{
-          background: clientPanelTab === tab.id ? 'rgba(250,248,244,0.8)' : 'transparent',
-          color: clientPanelTab === tab.id ? T.orange : T.text2,
-          fontWeight: 400,
-          borderBottom: clientPanelTab === tab.id ? `2px solid ${T.orange}` : '2px solid transparent',
-          marginBottom: '-1px'
+    {/* Right panel — metrics-focused client card */}
+    {selectedClient ? (() => {
+      const upcomingApps = clientApps.filter(a => a.date >= new Date() && a.status !== 'cancelled' && a.status !== 'no_show');
+      const confirmedCount = clientApps.filter(a => a.status === 'confirmed').length;
+      const lastVisit = pastApps.filter(a => a.status === 'confirmed').sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+      // Service preferences
+      const serviceCounts: Record<string, number> = {};
+      clientApps.forEach(a => { if (a.status === 'confirmed') serviceCounts[a.serviceId] = (serviceCounts[a.serviceId] ?? 0) + 1; });
+      const favoriteServices = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      const initials = selectedClient.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+      return (
+        <div key={selectedClient.id} className="flex-1 flex flex-col overflow-hidden anim-float-in" style={{
+          borderRadius: '18px',
+          background: 'rgba(255,255,255,0.50)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(91,143,166,0.22)',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
         }}>
-          {tab.label}
-          {tab.id === 'chat' && clientMsg?.unread && <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[8px] font-normal" style={{
-            background: T.orange
-          }}>1</span>}
-        </button>)}
-      </div>
-      {clientPanelTab === 'chat' ? <div className="flex flex-col flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{
-          background: 'transparent'
-        }}>
-          {chatMessages.length === 0 && <div className="flex flex-col items-center justify-center h-full py-12"><MessageCircle className="w-10 h-10 mb-2" style={{
-              color: T.text3,
-              opacity: 0.3
-            }} /><p className="text-sm font-normal" style={{
-              color: T.text3
-            }}>Sin mensajes aún</p></div>}
-          {chatMessages.map((cm, i) => <div key={i} className={cn('flex', cm.from === 'bot' ? 'justify-start' : 'justify-end')}>
-            {cm.from === 'bot' && <div className="w-6 h-6 rounded-lg flex items-center justify-center font-normal text-white text-xs shrink-0 mr-2 mt-1 self-end" style={{
-              background: SAGE_GRAD
-            }}>TB</div>}
-            <div className="max-w-[72%]">
-              <div className="px-3.5 py-2.5 text-sm" style={{
-                background: cm.from === 'bot' ? 'rgba(250,248,244,0.9)' : SAGE,
-                color: cm.from === 'bot' ? T.text : '#fff',
-                borderRadius: cm.from === 'bot' ? '4px 18px 18px 18px' : '18px 4px 18px 18px',
-                boxShadow: T.shadow,
-                border: cm.from === 'bot' ? `1px solid ${T.borderO}` : 'none'
-              }}>{cm.text}</div>
-              <p className="text-[12px] mt-1 font-normal px-1" style={{
-                color: T.text3,
-                textAlign: cm.from === 'bot' ? 'left' : 'right'
-              }}>{cm.time}</p>
+          {/* Header */}
+          <div className="px-6 py-5 shrink-0 flex items-start gap-4" style={{ borderBottom: `1px solid ${T.border}` }}>
+            <button onClick={() => setSelectedClientId(null)} className="md:hidden p-1.5 rounded-lg hover:bg-black/5 mr-0 shrink-0">
+              <CaretLeft className="w-4 h-4" style={{ color: T.text2 }} />
+            </button>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-medium text-white text-base shrink-0" style={{ background: SAGE }}>
+              {initials}
             </div>
-          </div>)}
-        </div>
-        <div className="px-4 py-3 shrink-0 flex gap-2" style={{
-          borderTop: `1px solid ${T.border}`,
-          background: 'transparent'
-        }}>
-          <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl" style={{
-            background: 'rgba(0,0,0,0.04)',
-            border: `1px solid ${T.border}`
-          }}>
-            <MessageCircle className="w-3.5 h-3.5 shrink-0" style={{
-              color: T.text3
-            }} />
-            <input value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder="Solo lectura — conversación del bot" readOnly className="flex-1 text-xs bg-transparent focus:outline-none cursor-not-allowed" style={{
-              color: T.text3
-            }} />
+            <div className="flex-1 min-w-0">
+              <h3 style={{ fontFamily: DM_SERIF, fontSize: '22px', fontWeight: 400, color: T.dark, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.15 }}>{selectedClient.name}</h3>
+              <div className="flex items-center gap-3 mt-1.5" style={{ flexWrap: 'wrap' }}>
+                <span className="flex items-center gap-1.5 text-[13px]" style={{ color: T.text2 }}><Phone size={12} />{selectedClient.phone}</span>
+                {selectedClient.tags.map(tag => <span key={tag} className="text-[11px] font-normal px-2 py-0.5 rounded-full" style={{
+                  background: TAG_COLORS[tag]?.bg ?? T.bg2,
+                  color: TAG_COLORS[tag]?.text ?? T.text2
+                }}>{tag}</span>)}
+              </div>
+            </div>
+            <button onClick={() => onNavigateMessages?.()} className="shrink-0 hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium transition-colors hover:opacity-90" style={{ background: T.bg2, color: T.text, border: `1px solid ${T.border}`, cursor: 'pointer' }}>
+              <ChatCircle size={14} /><span>Ver conversación</span>
+            </button>
           </div>
-          <div className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-normal" style={{
-            background: 'rgba(0,0,0,0.04)',
-            color: T.text3,
-            border: `1px solid ${T.border}`
-          }}><Eye className="w-3.5 h-3.5" /><span className="hidden sm:inline">Solo lectura</span></div>
-        </div>
-      </div> : <div className="flex-1 overflow-y-auto" style={{
-        background: 'transparent'
-      }}>
-        <div className="grid grid-cols-3 bg-white" style={{
-          borderBottom: `1px solid ${T.border}`
-        }}>
-          {[{
-            label: 'Turnos',
-            value: String(clientApps.length),
-            red: false
-          }, {
-            label: 'Gastado',
-            value: totalSpend > 0 ? `$${totalSpend.toLocaleString()}` : '—',
-            red: false
-          }, {
-            label: 'No shows',
-            value: String(noShows),
-            red: noShows > 0
-          }].map((stat, i) => <div key={stat.label} className="p-4 text-center" style={{
-            borderLeft: i > 0 ? `1px solid ${T.border}` : 'none'
-          }}><p className="text-xl font-normal" style={{
-              color: stat.red ? '#C62828' : T.text
-            }}>{stat.value}</p><p className="text-[12px] font-normal uppercase tracking-wider mt-0.5" style={{
-              color: T.text3
-            }}>{stat.label}</p></div>)}
-        </div>
-        <div className="p-4">
-          <p className="text-[12px] font-normal uppercase tracking-wider mb-3" style={{
-            color: T.text3
-          }}>Notas internas</p>
-          {selectedClient.notes ? <p className="text-sm font-normal" style={{
-            color: T.text2
-          }}>{selectedClient.notes}</p> : <p className="text-xs font-normal italic" style={{
-            color: T.text3
-          }}>Sin notas</p>}
-        </div>
-        <div className="p-4">
-          <p className="text-[12px] font-normal uppercase tracking-wider mb-3" style={{
-            color: T.text3
-          }}>Historial de turnos</p>
-          <div className="space-y-2">
-            {pastApps.length === 0 && <p className="text-sm font-normal text-center py-4" style={{
-              color: T.text3
-            }}>Sin historial aún</p>}
-            {pastApps.map(app => {
-              const svc = services.find(s => s.id === app.serviceId);
-              const sc = STATUS_CONFIG[app.status];
-              return <div key={app.id} className="flex items-center gap-3 p-3 rounded-xl bg-white" style={{
-                border: `1px solid ${T.border}`
-              }}>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-xs font-normal" style={{
-                      color: T.text
-                    }}>{format(app.date, 'd MMM yyyy', {
-                        locale: es
-                      })}</p>
-                      <span className="text-[12px] font-normal px-2 py-0.5 rounded-full" style={{
-                      background: sc.bg,
-                      color: sc.text
-                    }}>{sc.label}</span>
+
+          {/* Body — metrics dashboard */}
+          <div className="flex-1 overflow-y-auto" style={{ background: 'transparent' }}>
+            {/* Stats grid */}
+            <div className="px-6 pt-5 pb-2">
+              <p className="text-[10px] font-medium uppercase tracking-[0.09em] mb-3" style={{ color: T.text3 }}>Métricas</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: 'Turnos', value: String(clientApps.length), icon: Calendar, accent: T.dark },
+                  { label: 'Confirmados', value: String(confirmedCount), icon: CheckCircle, accent: '#10B981' },
+                  { label: 'No-shows', value: String(noShows), icon: Warning, accent: noShows > 0 ? '#C62828' : T.text3 },
+                  { label: 'Lifetime', value: totalSpend > 0 ? `$${totalSpend.toLocaleString()}` : '—', icon: CurrencyDollar, accent: T.orange },
+                ].map((stat) => (
+                  <div key={stat.label} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.55)', border: `1px solid ${T.border}` }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] font-medium uppercase tracking-[0.08em]" style={{ color: T.text3 }}>{stat.label}</p>
+                      <stat.icon size={12} style={{ color: stat.accent, opacity: 0.7 }} />
                     </div>
-                    <p className="text-xs font-normal mt-0.5 flex items-center gap-1 truncate" style={{
-                    color: T.text2
-                  }}><Clock className="w-3 h-3 shrink-0" /><span>{app.startTime} — {svc?.name}</span></p>
+                    <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: '22px', lineHeight: 1, color: stat.accent, letterSpacing: '-0.01em' }}>{stat.value}</p>
                   </div>
-                  {svc && app.status === 'confirmed' && <p className="text-sm font-normal shrink-0" style={{
-                  color: T.text
-                }}>${svc.price.toLocaleString()}</p>}
-                </div>;
-            })}
+                ))}
+              </div>
+            </div>
+
+            {/* Last visit + Favorite services */}
+            <div className="px-6 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ borderTop: `1px solid ${T.border}`, marginTop: '12px' }}>
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.09em] mb-2" style={{ color: T.text3 }}>Último turno</p>
+                {lastVisit ? (
+                  <div className="flex items-center gap-2.5">
+                    <Calendar size={14} style={{ color: T.text2 }} />
+                    <div>
+                      <p className="text-[13px]" style={{ color: T.text }}>{format(lastVisit.date, "d 'de' MMMM, yyyy", { locale: es })}</p>
+                      <p className="text-[12px]" style={{ color: T.text3 }}>{services.find(s => s.id === lastVisit.serviceId)?.name ?? '—'}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[13px] italic" style={{ color: T.text3 }}>Sin visitas previas</p>
+                )}
+              </div>
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.09em] mb-2" style={{ color: T.text3 }}>Servicios favoritos</p>
+                {favoriteServices.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {favoriteServices.map(([sid, count]) => {
+                      const svc = services.find(s => s.id === sid);
+                      if (!svc) return null;
+                      return (
+                        <span key={sid} className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full" style={{ background: 'rgba(68,114,196,0.08)', color: T.text }}>
+                          <Heart size={10} weight="fill" style={{ color: T.orange }} />{svc.name} <span style={{ color: T.text3 }}>×{count}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-[13px] italic" style={{ color: T.text3 }}>Aún no hay datos</p>
+                )}
+              </div>
+            </div>
+
+            {/* Notas */}
+            <div className="px-6 py-4" style={{ borderTop: `1px solid ${T.border}` }}>
+              <p className="text-[10px] font-medium uppercase tracking-[0.09em] mb-2" style={{ color: T.text3 }}>Notas internas</p>
+              {selectedClient.notes ? (
+                <p className="text-[13px] leading-relaxed" style={{ color: T.text2 }}>{selectedClient.notes}</p>
+              ) : (
+                <p className="text-[13px] italic" style={{ color: T.text3 }}>Sin notas. Agregá detalles del cliente para que el agente los tenga en cuenta.</p>
+              )}
+            </div>
+
+            {/* Próximos turnos */}
+            {upcomingApps.length > 0 && (
+              <div className="px-6 py-4" style={{ borderTop: `1px solid ${T.border}` }}>
+                <p className="text-[10px] font-medium uppercase tracking-[0.09em] mb-3" style={{ color: T.text3 }}>Próximos turnos</p>
+                <div className="space-y-2">
+                  {upcomingApps.map(app => {
+                    const svc = services.find(s => s.id === app.serviceId);
+                    return (
+                      <div key={app.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.55)', border: `1px solid ${T.border}` }}>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px]" style={{ color: T.text }}>{format(app.date, "d MMM", { locale: es })} · {app.startTime}</p>
+                          <p className="text-[12px] mt-0.5" style={{ color: T.text2 }}>{svc?.name ?? '—'}</p>
+                        </div>
+                        <StatusPill status={app.status} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Historial */}
+            <div className="px-6 py-4" style={{ borderTop: `1px solid ${T.border}` }}>
+              <p className="text-[10px] font-medium uppercase tracking-[0.09em] mb-3" style={{ color: T.text3 }}>Historial</p>
+              <div className="space-y-2">
+                {pastApps.length === 0 && <p className="text-[13px] italic" style={{ color: T.text3 }}>Sin historial aún</p>}
+                {pastApps.slice(0, 8).map(app => {
+                  const svc = services.find(s => s.id === app.serviceId);
+                  const sc = STATUS_CONFIG[app.status];
+                  return (
+                    <div key={app.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.40)', border: `1px solid ${T.border}` }}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-[12px]" style={{ color: T.text }}>{format(app.date, "d MMM yyyy", { locale: es })}</p>
+                          <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                        </div>
+                        <p className="text-[11px] mt-0.5 flex items-center gap-1" style={{ color: T.text2 }}><Clock size={10} />{app.startTime} — {svc?.name}</p>
+                      </div>
+                      {svc && app.status === 'confirmed' && <p className="text-[13px] shrink-0" style={{ color: T.text }}>${svc.price.toLocaleString()}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
-      </div>}
-    </div> : <div className="hidden md:flex flex-1 items-center justify-center flex-col gap-3" style={{
-      borderRadius: '20px',
-      background: 'rgba(255,255,255,0.62)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1px solid rgba(255,255,255,0.80)',
-      boxShadow: '0 4px 24px rgba(61,90,78,0.07)',
+      );
+    })() : <div className="hidden md:flex flex-1 items-center justify-center flex-col" style={{
+      borderRadius: '18px',
+      background: 'rgba(255,255,255,0.40)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      border: '1px solid rgba(91,143,166,0.22)',
+      boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
+      padding: '40px 32px',
     }}>
-      <MessageCircle className="w-12 h-12" style={{
-        color: T.text3,
-        opacity: 0.25
-      }} />
-      <p className="text-sm font-normal" style={{
-        color: T.text3
-      }}>Seleccioná una conversación para ver los detalles</p>
+      {/* Editorial empty state for Clientes */}
+      <div style={{
+        width: '64px', height: '64px', borderRadius: '50%',
+        background: 'linear-gradient(135deg, rgba(68,114,196,0.10), rgba(91,143,166,0.06))',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: '20px',
+      }}>
+        <User size={28} style={{ color: T.orange }} weight="duotone" />
+      </div>
+      <h3 style={{
+        fontFamily: DM_SERIF, fontSize: '22px', fontWeight: 400,
+        color: T.dark, margin: 0, marginBottom: '6px',
+        letterSpacing: '-0.01em',
+      }}>
+        Ficha del cliente
+      </h3>
+      <p className="text-center" style={{
+        fontSize: '13px', fontWeight: 400, color: T.text3,
+        maxWidth: '280px', lineHeight: 1.5, marginBottom: '20px',
+      }}>
+        Seleccioná un cliente de la lista para ver sus métricas, historial y servicios favoritos.
+      </p>
+      <div className="flex items-center gap-2" style={{ fontSize: '12px', color: T.text3 }}>
+        <span>O</span>
+        <button onClick={onNewClient} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:opacity-90" style={{ background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>
+          <UserPlus size={14} />
+          <span>Crear cliente nuevo</span>
+        </button>
+      </div>
     </div>}
+    </div>
   </div>;
 };
 
@@ -2046,6 +2346,12 @@ const REMINDER_ITEMS = [{
   sub: 'Pedido de reseña luego del servicio',
   defaultOn: false
 }];
+const CONFIG_NAV = [
+  { sectionId: 'negocio',    sectionLabel: 'Negocio',    subsections: [{ id: 'general', label: 'General' }, { id: 'sedes', label: 'Sedes' }, { id: 'equipo', label: 'Equipo' }] },
+  { sectionId: 'operacion',  sectionLabel: 'Operación',  subsections: [{ id: 'servicios', label: 'Servicios' }, { id: 'disponibilidad', label: 'Disponibilidad' }, { id: 'recursos', label: 'Recursos' }] },
+  { sectionId: 'experiencia',sectionLabel: 'Experiencia',subsections: [{ id: 'asistente', label: 'Asistente IA' }, { id: 'notificaciones', label: 'Notificaciones' }, { id: 'politicas', label: 'Políticas' }] },
+  { sectionId: 'cuenta',     sectionLabel: 'Cuenta',     subsections: [{ id: 'facturacion', label: 'Facturación' }] },
+];
 const ConfigScreen = ({
   services,
   providers,
@@ -2063,208 +2369,332 @@ const ConfigScreen = ({
   const [botDnd, setBotDnd] = useState(true);
   const [botMode, setBotMode] = useState<BotMode>('auto');
   const maxProviders = 5;
-  return <div className="w-full space-y-5 overflow-auto h-full px-4 sm:px-8 py-6 max-w-[1080px] mx-auto box-border">
-    <div>
-      <p className="text-[12px] font-normal uppercase tracking-widest mb-3 px-1" style={{
-        color: T.text3
-      }}>Tu negocio</p>
-      <div className="space-y-6">
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4" style={{
-            borderBottom: `1px solid ${T.border}`
-          }}><h3 className="font-normal text-sm" style={{
-              color: T.text
-            }}>Datos del negocio</h3></div>
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><label className={lbl}>Nombre del negocio</label><input type="text" defaultValue="Peluquería El Barrio" placeholder="Ej: Peluquería El Barrio" className={inp} style={inpStyle} /></div>
-            <div><label className={lbl}>Dirección</label><input type="text" defaultValue="Av. Corrientes 1234, CABA" placeholder="Ej: Av. Corrientes 1234, CABA" className={inp} style={inpStyle} /></div>
-          </div>
-        </div>
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4 flex items-center gap-3 flex-wrap shrink-0" style={{
-            borderBottom: `1px solid ${T.border}`
-          }}>
-            <h3 className="font-normal text-sm" style={{
-              color: T.text
-            }}>Profesionales</h3>
-            <p className="text-xs font-normal mt-0.5" style={{
-              color: T.text3
-            }}>Máximo 5 · El/la dueño/a siempre es prestador</p>
-            <span className="text-sm font-normal" style={{
-              color: providers.length >= maxProviders ? T.text3 : T.orange
-            }}>{providers.length}/{maxProviders}</span>
-          </div>
-          <div className="divide-y" style={{
-            borderColor: T.border
-          }}>
-            {providers.map(p => <div key={p.id} className="flex items-center gap-4 px-5 py-3.5">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center font-normal text-white text-sm shrink-0" style={{
-                background: p.color ?? SAGE
-              }}>{p.initials}</div>
-              <div className="flex-1 min-w-0"><p className="font-normal text-sm" style={{
-                  color: T.text
-                }}>{p.name}</p><p className="text-xs font-normal" style={{
-                  color: T.text3
-                }}>{p.role === 'owner' ? 'Dueño/a' : 'Staff'}</p></div>
-              <Toggle checked={p.active} onChange={() => toggleProvider(p.id)} disabled={p.role === 'owner'} />
-            </div>)}
-            {providers.length < maxProviders && <div className="px-5 py-3"><button className="flex items-center gap-2 text-sm font-normal" style={{
-                color: T.orange
-              }}><Plus className="w-4 h-4" /><span>Agregar profesional</span></button></div>}
-          </div>
-        </div>
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4" style={{
-            borderBottom: `1px solid ${T.border}`
-          }}><h3 className="font-normal text-sm" style={{
-              color: T.text
-            }}>Servicios</h3></div>
-          <div className="divide-y" style={{
-            borderColor: T.border
-          }}>
-            {services.map(svc => {
-              const IconComp = getServiceIcon(svc.name);
-              const activeDays = Object.keys(svc.availability).map(Number).filter(d => (svc.availability[d]?.length ?? 0) > 0);
-              return <div key={svc.id} className="flex items-center gap-4 px-5 py-3.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0" style={{
-                  background: SAGE
-                }}><IconComp className="w-4 h-4" /></div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-normal text-sm" style={{
-                    color: T.text
-                  }}>{svc.name}</p>
-                  <p className="text-xs font-normal mt-0.5" style={{
-                    color: T.text3
-                  }}>{svc.duration} min · ${svc.price.toLocaleString()}</p>
-                  <div className="flex gap-1 mt-1.5 flex-wrap">{DAYS_ORDER.map(d => <span key={d} className="text-[11px] font-normal px-1.5 py-0.5 rounded-md" style={{
-                      background: activeDays.includes(d) ? `${svc.color}20` : T.bg2,
-                      color: activeDays.includes(d) ? svc.color : T.text3
-                    }}>{DAY_NAMES[d].slice(0, 3)}</span>)}</div>
-                </div>
-                <button onClick={() => onEditService(svc)} className="p-2 rounded-xl hover:bg-black/5 transition-colors shrink-0" style={{
-                  color: T.text2
-                }}><Settings className="w-4 h-4" /></button>
-              </div>;
-            })}
-          </div>
-        </div>
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4" style={{
-            borderBottom: `1px solid ${T.border}`
-          }}><h3 className="font-normal text-sm" style={{
-              color: T.text
-            }}>Horarios de atención</h3></div>
-          <div className="divide-y" style={{
-            borderColor: T.border
-          }}>
-            {DAYS_ORDER.map(dayIdx => <div key={dayIdx} className="flex items-center gap-4 px-5 py-3">
-              <p className="text-sm font-normal w-24 shrink-0" style={{
-                color: T.text
-              }}>{DAY_NAMES[dayIdx]}</p>
-              {dayIdx === 0 ? <span className="text-xs font-normal px-2 py-1 rounded-lg" style={{
-                background: T.bg2,
-                color: T.text3
-              }}>Cerrado</span> : <span className="text-xs font-normal" style={{
-                color: T.text3
-              }}>09:00 – 13:00 / 15:00 – 19:00</span>}
-            </div>)}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <p className="text-[12px] font-normal uppercase tracking-widest mb-3 px-1 pt-2" style={{
-        color: T.text3
-      }}>Tu bot</p>
-      <div className="space-y-6">
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4" style={{
-            borderBottom: `1px solid ${T.border}`
-          }}><h3 className="font-normal text-sm" style={{
-              color: T.text
-            }}>Configuración del bot</h3></div>
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><label className={lbl}>Nombre del bot</label><input type="text" defaultValue="BarrioBot" className={inp} style={inpStyle} /></div>
-            <div><label className={lbl}>Tono del bot</label><select className={inp} style={inpStyle} defaultValue="friendly"><option value="friendly">Amigable y cercano</option><option value="formal">Formal y profesional</option><option value="casual">Casual y divertido</option></select></div>
-            <div className="sm:col-span-2"><label className={lbl}>Mensaje de bienvenida</label><textarea defaultValue="¡Hola! Soy BarrioBot, el asistente de Peluquería El Barrio. ¿En qué puedo ayudarte?" rows={2} className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none resize-none focus:ring-2 focus:ring-[#5B8FA6]/30" style={inpStyle} /></div>
-            <div><label className={lbl}>Límite de cancelación (horas)</label><input type="number" defaultValue={12} className={inp} style={inpStyle} /></div>
-          </div>
-        </div>
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}>
-            <h3 className="font-normal text-sm" style={{ color: T.text }}>Asistente virtual</h3>
-          </div>
-          {/* Horario activo */}
-          <div className="flex items-center gap-4 px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-normal" style={{ color: T.text }}>Horario de actividad</p>
-              <p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>El bot responde mensajes en este rango</p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              <input type="time" value={botFromTime} onChange={e => setBotFromTime(e.target.value)} className={inp} style={{ ...inpStyle, width: '100px', padding: '6px 10px' }} />
-              <span className="text-xs" style={{ color: T.text3 }}>a</span>
-              <input type="time" value={botToTime} onChange={e => setBotToTime(e.target.value)} className={inp} style={{ ...inpStyle, width: '100px', padding: '6px 10px' }} />
-            </div>
-          </div>
-          {/* No molestar */}
-          <div className="flex items-center gap-4 px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-normal" style={{ color: T.text }}>No molestar</p>
-              <p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>Pausa notificaciones fuera del horario activo</p>
-            </div>
-            <Toggle checked={botDnd} onChange={setBotDnd} />
-          </div>
-          {/* Modo de respuesta */}
-          <div className="px-5 py-4">
-            <p className="text-sm font-normal mb-3" style={{ color: T.text }}>Modo de respuesta</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {BOT_MODES.map(m => (
-                <button key={m.id} onClick={() => setBotMode(m.id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: '10px', border: `1px solid ${botMode === m.id ? SAGE : T.border}`, background: botMode === m.id ? 'rgba(91,143,166,0.06)' : 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', width: '100%' }}>
-                  <div>
-                    <p className="text-sm font-normal" style={{ color: botMode === m.id ? T.dark : T.text }}>{m.label}</p>
-                    <p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>{m.desc}</p>
-                  </div>
-                  {botMode === m.id && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: SAGE, flexShrink: 0 }} />}
-                </button>
+  const [activeSub, setActiveSub] = useState<string>('general');
+  const [activeSection, setActiveSection] = useState<string>('negocio');
+  const configScrollRef = useRef<HTMLDivElement>(null);
+  const pendingScrollSubRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const container = configScrollRef.current;
+    if (!container) return;
+    // If we have a pending scroll after a section switch, execute it now
+    const pending = pendingScrollSubRef.current;
+    if (pending) {
+      pendingScrollSubRef.current = null;
+      const el = container.querySelector(`[data-sub="${pending}"]`);
+      if (el) (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length > 0) setActiveSub(visible[0].target.getAttribute('data-sub') ?? '');
+    }, { root: container, rootMargin: '0px 0px -55% 0px', threshold: 0 });
+    container.querySelectorAll('[data-sub]').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [activeSection]);
+
+  const navigateToSection = (sectionId: string) => {
+    const section = CONFIG_NAV.find(s => s.sectionId === sectionId);
+    if (!section) return;
+    setActiveSection(sectionId);
+    setActiveSub(section.subsections[0].id);
+    if (configScrollRef.current) configScrollRef.current.scrollTop = 0;
+  };
+
+  const scrollToSub = (subId: string, sectionId: string) => {
+    if (sectionId !== activeSection) {
+      pendingScrollSubRef.current = subId;
+      setActiveSection(sectionId);
+      setActiveSub(subId);
+    } else {
+      setActiveSub(subId);
+      const el = configScrollRef.current?.querySelector(`[data-sub="${subId}"]`);
+      if (el) (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden min-h-0 h-full px-4 sm:px-8 py-4" style={{ background: 'transparent' }}>
+      {/* ── Section header ── */}
+      <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', paddingBottom: '16px', borderBottom: `1px solid ${T.border}`, marginBottom: '8px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 400, color: T.dark, fontFamily: DM_SERIF, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.1 }}>Configuración</h2>
+        {/* Mobile-only subsection selector */}
+        <select
+          className="md:hidden text-[13px] rounded-lg border px-3 py-1.5 max-w-[180px]"
+          style={{ background: 'rgba(255,255,255,0.6)', borderColor: T.border, color: T.text, fontFamily: DM_SANS, outline: 'none' }}
+          value={activeSub}
+          onChange={e => {
+            const subId = e.target.value;
+            const section = CONFIG_NAV.find(s => s.subsections.some(sub => sub.id === subId));
+            if (section) scrollToSub(subId, section.sectionId);
+          }}
+        >
+          {CONFIG_NAV.map(section => (
+            <optgroup key={section.sectionId} label={section.sectionLabel}>
+              {section.subsections.map(sub => (
+                <option key={sub.id} value={sub.id}>{sub.label}</option>
               ))}
-            </div>
-          </div>
+            </optgroup>
+          ))}
+        </select>
+      </div>
+      {/* ── Panels ── */}
+      <div className="flex-1 flex overflow-hidden gap-3 min-h-0" style={{ maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+
+        {/* ── Left nav with scrollspy (sin fondo: regla "fondo = atención") ── */}
+        <div className="hidden md:flex flex-col shrink-0 overflow-y-auto min-h-0 h-full" style={{ width: '196px', background: 'transparent' }}>
+          <nav style={{ padding: '8px 8px 16px' }}>
+            {CONFIG_NAV.map((section, si) => {
+              const isSectionActive = activeSection === section.sectionId;
+              return (
+                <div key={section.sectionId} style={{ marginTop: si > 0 ? '8px' : 0 }}>
+                  {/* Section label — clickable, navigates to first subsection */}
+                  <button onClick={() => navigateToSection(section.sectionId)} style={{ display: 'block', width: '100%', textAlign: 'left' as const, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: isSectionActive ? T.orange : T.text3, padding: '8px 12px 5px', border: 'none', background: 'transparent', cursor: 'pointer', transition: 'color 0.15s', userSelect: 'none' as const }}>
+                    {section.sectionLabel}
+                  </button>
+                  {/* Subsection items */}
+                  {section.subsections.map(sub => {
+                    const isSubActive = isSectionActive && activeSub === sub.id;
+                    return (
+                      <button key={sub.id} onClick={() => scrollToSub(sub.id, section.sectionId)} style={{ display: 'flex', alignItems: 'center', padding: isSubActive ? '7px 12px 7px 9px' : '7px 12px', borderRadius: isSubActive ? '0 10px 10px 0' : '8px', width: '100%', background: isSubActive ? 'rgba(68,114,196,0.09)' : 'transparent', color: isSubActive ? T.dark : T.text2, fontSize: '13px', fontWeight: isSubActive ? 500 : 400, cursor: 'pointer', textAlign: 'left' as const, transition: 'all 0.15s', borderTop: 'none', borderRight: 'none', borderBottom: 'none', borderLeft: `3px solid ${isSubActive ? T.orange : 'transparent'}` }}>
+                        {sub.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </nav>
         </div>
-        <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
-          <div className="px-5 py-4" style={{
-            borderBottom: `1px solid ${T.border}`
-          }}><h3 className="font-normal text-sm" style={{
-              color: T.text
-            }}>Recordatorios automáticos</h3></div>
-          <div className="divide-y" style={{
-            borderColor: T.border
-          }}>
-            {REMINDER_ITEMS.map(r => <div key={r.id} className="flex items-center gap-4 px-5 py-3.5">
-              <div className="flex-1 min-w-0"><p className="text-sm font-normal" style={{
-                  color: T.text
-                }}>{r.title}</p><p className="text-xs font-normal" style={{
-                  color: T.text3
-                }}>{r.sub}</p></div>
-              <Toggle checked={!!reminders[r.id]} onChange={v => setReminders(prev => ({ ...prev, [r.id]: v }))} />
-            </div>)}
-            <div className="flex items-center gap-4 px-5 py-3.5" style={{
-              opacity: 0.5
-            }}>
-              <div className="flex-1 min-w-0"><div className="flex items-center gap-2 flex-wrap"><p className="text-sm font-normal" style={{
-                    color: T.text
-                  }}>Saludo de cumpleaños</p><span className="text-[11px] font-normal px-2 py-0.5 rounded-full" style={{
-                    background: T.orangeLight,
-                    color: T.orange
-                  }}>Próximamente</span></div><p className="text-xs font-normal" style={{
-                  color: T.text3
-                }}>El bot podría saludar a tus clientes en su cumpleaños</p></div>
-              <div style={{ pointerEvents: 'none' }}><Toggle checked={false} disabled /></div>
+
+        {/* ── Right content — con fondo (regla "fondo = atención") ── */}
+        <div ref={configScrollRef} className="flex-1 overflow-y-auto min-h-0 h-full" style={{
+          borderRadius: '18px',
+          background: 'rgba(255,255,255,0.40)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(91,143,166,0.22)',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
+        }}>
+
+          <div key={activeSection} className="space-y-10 p-1 pb-24 anim-float-in">
+
+            {/* ── NEGOCIO ── */}
+            {activeSection === 'negocio' && <>
+
+            {/* GENERAL */}
+            <div data-sub="general">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>General</p>
+              <div className="space-y-4">
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Datos del negocio</h3></div>
+                  <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label className={lbl}>Nombre</label><input type="text" defaultValue="Barbería Norte" className={inp} style={inpStyle} /></div>
+                    <div><label className={lbl}>Dirección</label><input type="text" defaultValue="Av. Corrientes 1234, CABA" className={inp} style={inpStyle} /></div>
+                    <div><label className={lbl}>Teléfono de contacto</label><input type="text" defaultValue="+54 11 4567-8901" className={inp} style={inpStyle} /></div>
+                    <div><label className={lbl}>Instagram</label><input type="text" defaultValue="@barberia.norte" className={inp} style={inpStyle} /></div>
+                  </div>
+                </div>
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Horarios de atención</h3></div>
+                  <div className="divide-y" style={{ borderColor: T.border }}>
+                    {DAYS_ORDER.map(dayIdx => (
+                      <div key={dayIdx} className="flex items-center gap-4 px-5 py-3">
+                        <p className="text-sm font-normal w-24 shrink-0" style={{ color: T.text }}>{DAY_NAMES[dayIdx]}</p>
+                        {dayIdx === 0 ? <span className="text-xs font-normal px-2 py-1 rounded-lg" style={{ background: T.bg2, color: T.text3 }}>Cerrado</span> : <span className="text-xs font-normal" style={{ color: T.text3 }}>09:00 – 13:00 / 15:00 – 19:00</span>}
+                        <Toggle checked={dayIdx !== 0} onChange={() => {}} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* SEDES */}
+            <div data-sub="sedes">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Sedes</p>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="px-5 py-4 flex items-center justify-between">
+                  <div><h3 className="font-normal text-sm" style={{ color: T.text }}>Sede principal</h3><p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>Av. Corrientes 1234, CABA</p></div>
+                  <span className="text-xs font-normal px-2.5 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.07)', color: '#059669', border: '1px solid rgba(16,185,129,0.18)' }}>Activa</span>
+                </div>
+              </div>
+            </div>
+
+            {/* EQUIPO */}
+            <div data-sub="equipo">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Equipo</p>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Profesionales</h3><p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>Máximo 5 · El/la dueño/a siempre es prestador</p></div>
+                <div className="divide-y" style={{ borderColor: T.border }}>
+                  {providers.map(p => (
+                    <div key={p.id} className="flex items-center gap-4 px-5 py-3.5">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center font-normal text-white text-sm shrink-0" style={{ background: p.color ?? SAGE }}>{p.initials}</div>
+                      <div className="flex-1 min-w-0"><p className="font-normal text-sm" style={{ color: T.text }}>{p.name}</p><p className="text-xs font-normal" style={{ color: T.text3 }}>{p.role === 'owner' ? 'Dueño/a' : 'Staff'}</p></div>
+                      <Toggle checked={p.active} onChange={() => toggleProvider(p.id)} disabled={p.role === 'owner'} />
+                    </div>
+                  ))}
+                  {providers.length < maxProviders && <div className="px-5 py-3"><button className="flex items-center gap-2 text-sm font-normal" style={{ color: T.orange }}><Plus className="w-4 h-4" /><span>Agregar profesional</span></button></div>}
+                </div>
+              </div>
+            </div>
+
+            </>}{/* end negocio */}
+
+            {/* ── OPERACION ── */}
+            {activeSection === 'operacion' && <>
+
+            {/* SERVICIOS */}
+            <div data-sub="servicios">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3 }}>Servicios</p>
+                <button onClick={onAddService} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '10px', background: T.dark, color: '#fff', fontSize: '12px', border: 'none', cursor: 'pointer' }}><Plus className="w-3 h-3" /><span>Nuevo</span></button>
+              </div>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="divide-y" style={{ borderColor: T.border }}>
+                  {services.map(svc => {
+                    const IconComp = getServiceIcon(svc.name);
+                    const activeDays = Object.keys(svc.availability).map(Number).filter(d => (svc.availability[d]?.length ?? 0) > 0);
+                    return (
+                      <div key={svc.id} className="flex items-center gap-4 px-5 py-3.5">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: SAGE }}><IconComp className="w-4 h-4" /></div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-normal text-sm" style={{ color: T.text }}>{svc.name}</p>
+                          <p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>{svc.duration} min · ${svc.price.toLocaleString()}</p>
+                          <div className="flex gap-1 mt-1.5 flex-wrap">{DAYS_ORDER.map(d => <span key={d} className="text-[11px] font-normal px-1.5 py-0.5 rounded-md" style={{ background: activeDays.includes(d) ? `${svc.color}20` : T.bg2, color: activeDays.includes(d) ? svc.color : T.text3 }}>{DAY_NAMES[d].slice(0, 3)}</span>)}</div>
+                        </div>
+                        <button onClick={() => onEditService(svc)} className="p-2 rounded-xl hover:bg-black/5 transition-colors shrink-0" style={{ color: T.text2 }}><Gear size={16} /></button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* DISPONIBILIDAD */}
+            <div data-sub="disponibilidad">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Disponibilidad</p>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Slots y disponibilidad</h3></div>
+                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label className={lbl}>Slots totales por día</label><input type="number" defaultValue={20} className={inp} style={inpStyle} /></div>
+                  <div><label className={lbl}>Duración mínima (min)</label><input type="number" defaultValue={30} className={inp} style={inpStyle} /></div>
+                  <div><label className={lbl}>Tiempo entre turnos (min)</label><input type="number" defaultValue={10} className={inp} style={inpStyle} /></div>
+                  <div><label className={lbl}>Máx. turnos por día</label><input type="number" defaultValue={16} className={inp} style={inpStyle} /></div>
+                </div>
+              </div>
+            </div>
+
+            {/* RECURSOS */}
+            <div data-sub="recursos">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Recursos</p>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="px-5 py-4"><h3 className="font-normal text-sm" style={{ color: T.text }}>Recursos del negocio</h3><p className="text-xs font-normal mt-1" style={{ color: T.text3 }}>Gestioná equipos, sillas y herramientas disponibles.</p></div>
+              </div>
+            </div>
+
+            </>}{/* end operacion */}
+
+            {/* ── EXPERIENCIA ── */}
+            {activeSection === 'experiencia' && <>
+
+            {/* ASISTENTE IA */}
+            <div data-sub="asistente">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Asistente IA</p>
+              <div className="space-y-4">
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Configuración del asistente</h3></div>
+                  <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label className={lbl}>Nombre del asistente</label><input type="text" defaultValue="Perla Bot" className={inp} style={inpStyle} /></div>
+                    <div><label className={lbl}>Tono</label><select className={inp} style={inpStyle} defaultValue="friendly"><option value="friendly">Amigable y cercano</option><option value="formal">Formal y profesional</option><option value="casual">Casual y divertido</option></select></div>
+                    <div className="sm:col-span-2"><label className={lbl}>Mensaje de bienvenida</label><textarea defaultValue="¡Hola! Soy el asistente de Barbería Norte. ¿En qué puedo ayudarte?" rows={2} className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none resize-none" style={inpStyle} /></div>
+                  </div>
+                </div>
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Horario del asistente</h3></div>
+                  <div className="flex items-center gap-4 px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}>
+                    <div className="flex-1 min-w-0"><p className="text-sm font-normal" style={{ color: T.text }}>Horario de actividad</p><p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>El asistente responde en este rango</p></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      <input type="time" value={botFromTime} onChange={e => setBotFromTime(e.target.value)} className={inp} style={{ ...inpStyle, width: '100px', padding: '6px 10px' }} />
+                      <span className="text-xs" style={{ color: T.text3 }}>a</span>
+                      <input type="time" value={botToTime} onChange={e => setBotToTime(e.target.value)} className={inp} style={{ ...inpStyle, width: '100px', padding: '6px 10px' }} />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 px-5 py-4">
+                    <div className="flex-1 min-w-0"><p className="text-sm font-normal" style={{ color: T.text }}>No molestar</p><p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>Pausa notificaciones fuera del horario activo</p></div>
+                    <Toggle checked={botDnd} onChange={setBotDnd} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* NOTIFICACIONES */}
+            <div data-sub="notificaciones">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Notificaciones</p>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Recordatorios automáticos</h3></div>
+                <div className="divide-y" style={{ borderColor: T.border }}>
+                  {REMINDER_ITEMS.map(r => (
+                    <div key={r.id} className="flex items-center gap-4 px-5 py-3.5">
+                      <div className="flex-1 min-w-0"><p className="text-sm font-normal" style={{ color: T.text }}>{r.title}</p><p className="text-xs font-normal" style={{ color: T.text3 }}>{r.sub}</p></div>
+                      <Toggle checked={!!reminders[r.id]} onChange={v => setReminders(prev => ({ ...prev, [r.id]: v }))} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* POLÍTICAS */}
+            <div data-sub="politicas">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Políticas</p>
+              <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Cancelaciones</h3></div>
+                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label className={lbl}>Límite de cancelación (horas)</label><input type="number" defaultValue={12} className={inp} style={inpStyle} /></div>
+                  <div><label className={lbl}>Política de no-show</label><select className={inp} style={inpStyle} defaultValue="warn"><option value="none">Sin acción</option><option value="warn">Avisar al cliente</option><option value="block">Bloquear al cliente</option></select></div>
+                </div>
+              </div>
+            </div>
+
+            </>}{/* end experiencia */}
+
+            {/* ── CUENTA ── */}
+            {activeSection === 'cuenta' && <>
+
+            {/* FACTURACIÓN */}
+            <div data-sub="facturacion">
+              <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3, marginBottom: '12px' }}>Facturación</p>
+              <div className="space-y-4">
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Perfil</h3></div>
+                  <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label className={lbl}>Nombre</label><input type="text" defaultValue="Camila Navarro" className={inp} style={inpStyle} /></div>
+                    <div><label className={lbl}>Email</label><input type="email" defaultValue="camila@barberia.com" className={inp} style={inpStyle} /></div>
+                    <div><label className={lbl}>Teléfono</label><input type="text" defaultValue="+54 11 9876-5432" className={inp} style={inpStyle} /></div>
+                  </div>
+                </div>
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Plan activo</h3></div>
+                  <div className="px-5 py-4 flex items-center justify-between">
+                    <div><p className="text-sm font-normal" style={{ color: T.text }}>Plan Básico</p><p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>Hasta 5 profesionales · 1 sede · Asistente WhatsApp</p></div>
+                    <button style={{ padding: '6px 14px', borderRadius: '10px', background: 'linear-gradient(135deg, #4472C4, #98BAE8)', color: '#fff', fontSize: '13px', border: 'none', cursor: 'pointer' }}>Mejorar</button>
+                  </div>
+                </div>
+                <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
+                  <div className="divide-y" style={{ borderColor: T.border }}>
+                    <button className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-black/[0.02] transition-colors text-left"><Lock size={16} style={{ color: T.text2, flexShrink: 0 }} /><span className="text-sm font-normal" style={{ color: T.text }}>Cambiar contraseña</span></button>
+                    <button className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-black/[0.02] transition-colors text-left"><SignOut size={16} style={{ color: T.text2, flexShrink: 0 }} /><span className="text-sm font-normal" style={{ color: T.text }}>Cerrar sesión</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            </>}{/* end cuenta */}
+
           </div>
         </div>
       </div>
     </div>
-  </div>;
+  );
 };
 
 // ─── APPOINTMENT DETAIL ────────────────────────────────────────────────────────
@@ -2316,7 +2746,7 @@ const AppointmentDetail = ({
     {/* Header */}
     <div className="shrink-0 px-5 py-4 flex items-center gap-3" style={{ borderBottom: `1px solid ${T.border}` }}>
       <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-black/5 shrink-0">
-        <ChevronLeft className="w-4 h-4" style={{ color: T.text2 }} />
+        <CaretLeft className="w-4 h-4" style={{ color: T.text2 }} />
       </button>
       <div className="flex-1 min-w-0">
         <h3 className="font-normal text-base truncate" style={{ color: T.text }}>{appointment.clientName}</h3>
@@ -2374,32 +2804,28 @@ const AppointmentDetail = ({
             <button onClick={() => { onUpdateStatus(appointment.id, 'confirmed'); showToast('Turno confirmado'); }}
               className="py-2.5 rounded-xl text-xs font-normal flex items-center justify-center gap-1.5"
               style={{ background: SAGE, color: '#fff' }}>
-              <CheckCircle2 className="w-3.5 h-3.5" /><span>Confirmar</span>
+              <CheckCircle className="w-3.5 h-3.5" /><span>Confirmar</span>
             </button>
           )}
           <button onClick={onReschedule}
             className="py-2.5 rounded-xl text-xs font-normal flex items-center justify-center gap-1.5"
             style={{ background: T.dark, color: '#fff' }}>
-            <CalendarClock className="w-3.5 h-3.5" /><span>Reagendar</span>
+            <CalendarCheck className="w-3.5 h-3.5" /><span>Reagendar</span>
           </button>
         </div>
         {/* Fila 2: acciones destructivas */}
-        {(appointment.status !== 'no_show' || appointment.status !== 'cancelled') && (
+        {(appointment.status !== 'no_show' && appointment.status !== 'cancelled') && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            {appointment.status !== 'no_show' && (
-              <button onClick={() => { onUpdateStatus(appointment.id, 'no_show'); showToast('Marcado como no-show'); }}
-                className="py-2.5 rounded-xl text-xs font-normal flex items-center justify-center gap-1.5"
-                style={{ background: 'rgba(91,143,166,0.08)', color: T.text2, border: `1px solid ${T.border}` }}>
-                <XCircle className="w-3.5 h-3.5" /><span>No show</span>
-              </button>
-            )}
-            {appointment.status !== 'cancelled' && (
-              <button onClick={() => { onUpdateStatus(appointment.id, 'cancelled'); showToast('Turno cancelado'); }}
-                className="py-2.5 rounded-xl text-xs font-normal flex items-center justify-center gap-1.5"
-                style={{ background: 'rgba(91,143,166,0.08)', color: T.text2, border: `1px solid ${T.border}` }}>
-                <X className="w-3.5 h-3.5" /><span>Cancelar</span>
-              </button>
-            )}
+            <button onClick={() => { onUpdateStatus(appointment.id, 'no_show'); showToast('Marcado como no-show'); }}
+              className="py-2.5 rounded-xl text-xs font-normal flex items-center justify-center gap-1.5"
+              style={{ background: 'rgba(68,114,196,0.08)', color: T.text2, border: `1px solid ${T.border}` }}>
+              <XCircle className="w-3.5 h-3.5" /><span>No show</span>
+            </button>
+            <button onClick={() => { onUpdateStatus(appointment.id, 'cancelled'); showToast('Turno cancelado'); }}
+              className="py-2.5 rounded-xl text-xs font-normal flex items-center justify-center gap-1.5"
+              style={{ background: 'rgba(68,114,196,0.08)', color: T.text2, border: `1px solid ${T.border}` }}>
+              <X className="w-3.5 h-3.5" /><span>Cancelar</span>
+            </button>
           </div>
         )}
       </div>
@@ -2461,7 +2887,7 @@ const NewAppointmentForm = ({
     <div className="relative">
       <label className={lbl}>Cliente</label>
       <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"><Search className="w-3.5 h-3.5" style={{
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"><MagnifyingGlass className="w-3.5 h-3.5" style={{
             color: T.text3
           }} /></div>
         <input type="text" placeholder="Buscar cliente por nombre o teléfono..." value={clientQuery} onChange={e => {
@@ -2471,7 +2897,7 @@ const NewAppointmentForm = ({
             clientName: e.target.value
           }));
           setClientSelected(false);
-        }} onFocus={() => setDropdownOpen(true)} onBlur={() => setTimeout(() => setDropdownOpen(false), 150)} className="w-full rounded-xl pl-9 pr-3 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-[#5B8FA6]/30 focus:border-[#6b8f7e]/40 transition-colors" style={inpStyle} />
+        }} onFocus={() => setDropdownOpen(true)} onBlur={() => setTimeout(() => setDropdownOpen(false), 150)} className="w-full rounded-xl pl-9 pr-3 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-[#4472C4]/30 focus:border-[#6b8f7e]/40 transition-colors" style={inpStyle} />
         {clientSelected && <div className="absolute right-3 top-1/2 -translate-y-1/2"><Check className="w-3.5 h-3.5" style={{
             color: '#43A047'
           }} /></div>}
@@ -2569,7 +2995,7 @@ const ServiceEdit = ({
     <div className="shrink-0 px-5 py-4 flex items-center gap-3" style={{
       borderBottom: `1px solid ${T.border}`
     }}>
-      <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-black/5 shrink-0"><ChevronLeft className="w-4 h-4" style={{
+      <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-black/5 shrink-0"><CaretLeft className="w-4 h-4" style={{
           color: T.text2
         }} /></button>
       <h3 className="font-normal text-base flex-1 truncate" style={{
@@ -2578,7 +3004,7 @@ const ServiceEdit = ({
       <button onClick={() => {
         onDelete(service.id);
         showToast('Servicio eliminado');
-      }} className="p-2 rounded-xl hover:bg-rose-50 transition-colors shrink-0"><Trash2 className="w-4 h-4" style={{
+      }} className="p-2 rounded-xl hover:bg-rose-50 transition-colors shrink-0"><Trash className="w-4 h-4" style={{
           color: '#C62828'
         }} /></button>
     </div>
@@ -2653,7 +3079,7 @@ const ServiceEdit = ({
         showToast('✓ Servicio guardado');
       }} className="w-full py-3 rounded-xl text-sm font-normal text-white flex items-center justify-center gap-2" style={{
         background: T.dark
-      }}><Save className="w-4 h-4" /><span>Guardar cambios</span></button>
+      }}><FloppyDisk className="w-4 h-4" /><span>Guardar cambios</span></button>
     </div>
   </div>;
 };
@@ -2670,7 +3096,7 @@ type UserMenuProps = {
 };
 const ITEMS_CONFIG = [{
   id: 'account',
-  icon: Settings,
+  icon: Gear,
   label: 'Mi cuenta',
   action: 'account' as const
 }, {
@@ -2680,12 +3106,12 @@ const ITEMS_CONFIG = [{
   action: 'subscription' as const
 }, {
   id: 'share',
-  icon: Share2,
+  icon: ShareNetwork,
   label: 'Compartir enlace',
   action: null as null
 }, {
   id: 'support',
-  icon: HelpCircle,
+  icon: Question,
   label: 'Soporte',
   action: 'support' as const
 }];
@@ -2761,7 +3187,7 @@ const UserMenu = ({
     }}>
       <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-black/5 text-left" style={{
         color: '#C62828'
-      }}><LogOut className="w-4 h-4 shrink-0" /><span>Cerrar sesión</span></button>
+      }}><SignOut className="w-4 h-4 shrink-0" /><span>Cerrar sesión</span></button>
     </div>
   </motion.div>;
 };
@@ -2842,7 +3268,7 @@ const AccountModal = ({
         onClose();
       }} className="flex-1 py-3 rounded-xl text-sm font-normal text-white flex items-center justify-center gap-2" style={{
         background: T.dark
-      }}><Save className="w-4 h-4" /><span>Guardar</span></button>
+      }}><FloppyDisk className="w-4 h-4" /><span>Guardar</span></button>
     </div>
   </ModalOverlay>;
 };
@@ -2867,7 +3293,7 @@ const SubscriptionModal = ({
   </div>
   <button onClick={onClose} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-normal text-white" style={{
     background: T.dark
-  }}><Settings className="w-4 h-4" /><span>Actualizar plan</span></button>
+  }}><Gear size={16} /><span>Actualizar plan</span></button>
 </ModalOverlay>;
 const SupportModal = ({
   onClose
@@ -2879,15 +3305,15 @@ const SupportModal = ({
     }}>Soporte</h3><button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5"><X className="w-4 h-4" /></button></div>
   <div className="space-y-3">
     {[{
-      icon: Mail,
+      icon: Envelope,
       label: 'Enviar email',
       sub: 'soporte@turnobot.app'
     }, {
-      icon: MessageSquare,
+      icon: ChatCircleDots,
       label: 'Chat en vivo',
       sub: 'Respuesta en minutos'
     }, {
-      icon: HelpCircle,
+      icon: Question,
       label: 'Centro de ayuda',
       sub: 'Guías y tutoriales'
     }].map(item => <div key={item.label} className="flex items-center gap-4 p-4 rounded-xl" style={{
@@ -2947,7 +3373,7 @@ const NewClientModal = ({
       <div><label className={lbl}>Notas</label><textarea value={form.notes} onChange={e => setForm(f => ({
           ...f,
           notes: e.target.value
-        }))} rows={2} className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none resize-none focus:ring-2 focus:ring-[#5B8FA6]/30" style={inpStyle} placeholder="Preferencias, alergias..." /></div>
+        }))} rows={2} className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none resize-none focus:ring-2 focus:ring-[#4472C4]/30" style={inpStyle} placeholder="Preferencias, alergias..." /></div>
     </div>
     <div className="flex gap-3 mt-5">
       <button onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-normal" style={{
@@ -2975,6 +3401,11 @@ export const SalonAdminDashboard = () => {
   const [pendingClientId, setPendingClientId] = useState<string | null>(null);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [botSettingsOpen, setBotSettingsOpen] = useState(false);
+  // Bot status: 'active' | 'pending' | 'paused' — derived from real state in the future
+  const botStatus: 'active' | 'pending' | 'paused' = 'active';
+  const botStatusColor = botStatus === 'active' ? '#10B981' : botStatus === 'pending' ? '#F59E0B' : '#EF4444';
+  const botStatusLabel = botStatus === 'active' ? 'Activo' : botStatus === 'pending' ? 'Pendientes' : 'Pausado';
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuAnchorRef = useRef<HTMLButtonElement>(null);
   const [services, setServices] = useState<Service[]>(INITIAL_SERVICES);
@@ -3208,21 +3639,28 @@ export const SalonAdminDashboard = () => {
       fontWeight: 400
     }}>
       <GlowBackground />
-      <aside onMouseEnter={() => setSidebarExpanded(true)} onMouseLeave={() => setSidebarExpanded(false)} className="hidden md:flex flex-col transition-all duration-300 ease-in-out overflow-hidden" style={{
+      <aside className="hidden md:flex flex-col" style={{
         position: 'absolute',
         left: 0,
         top: '60px',
         bottom: 0,
-        width: sidebarExpanded ? '196px' : '68px',
-        background: 'transparent',
-        zIndex: 15
+        width: sidebarExpanded ? '224px' : '68px',
+        background: 'rgba(240,245,248,0.88)',
+        backdropFilter: 'blur(20px) saturate(1.2)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.2)',
+        borderRight: '1px solid rgba(27,45,59,0.08)',
+        boxShadow: sidebarExpanded ? '4px 0 32px rgba(27,45,59,0.10)' : 'none',
+        transition: 'width 0.24s cubic-bezier(0.25,1,0.5,1), box-shadow 0.24s',
+        zIndex: 15,
+        // overflow visible so tooltips can escape; nav items themselves clip text via overflow:hidden where needed
       }}>
         <nav className="flex-1 py-4 px-2.5 space-y-0.5">
-          {NAV_ITEMS.map(item => <button key={item.id} onClick={() => setActiveTab(item.id)} className="w-full flex items-center overflow-hidden transition-all duration-150" style={{
+          {NAV_ITEMS.map(item => <button key={item.id} onClick={() => setActiveTab(item.id)} className={cn('group relative w-full flex items-center overflow-visible transition-all duration-150', sidebarExpanded ? 'justify-start' : 'justify-center')} style={{
             height: '42px',
-            paddingLeft: '10px',
+            paddingLeft: sidebarExpanded ? '14px' : '0',
+            paddingRight: sidebarExpanded ? '14px' : '0',
             borderRadius: '12px',
-            background: activeTab === item.id ? 'rgba(107,143,126,0.10)' : 'transparent',
+            background: activeTab === item.id ? 'rgba(68,114,196,0.10)' : 'transparent',
             color: activeTab === item.id ? T.text : '#9f9b93',
             fontWeight: 400
           }}>
@@ -3231,6 +3669,13 @@ export const SalonAdminDashboard = () => {
               height: '18px',
               flexShrink: 0
             }} />
+            {/* Hover tooltip when sidebar is collapsed */}
+            {!sidebarExpanded && (
+              <span className="hidden md:block absolute left-full ml-3 px-2.5 py-1.5 text-[12px] font-normal whitespace-nowrap rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                style={{ background: T.dark, color: '#fff', boxShadow: '0 4px 12px rgba(27,45,59,0.18)', zIndex: 30 }}>
+                {item.label}
+              </span>
+            )}
             <AnimatePresence>{sidebarExpanded && <motion.span initial={{
                 opacity: 0,
                 x: -8
@@ -3250,7 +3695,7 @@ export const SalonAdminDashboard = () => {
         <div className="shrink-0 overflow-hidden" style={{
           padding: '12px 10px'
         }}>
-          <button ref={userMenuAnchorRef} onClick={() => setUserMenuOpen(v => !v)} className="w-full flex items-center overflow-hidden transition-colors rounded-xl" style={{
+          <button ref={userMenuAnchorRef} onClick={() => setUserMenuOpen(v => !v)} className={cn('w-full flex items-center overflow-hidden transition-colors rounded-xl', sidebarExpanded ? 'justify-start' : 'justify-center')} style={{
             padding: '6px',
             background: userMenuOpen ? 'rgba(0,0,0,0.05)' : 'transparent'
           }}>
@@ -3278,35 +3723,61 @@ export const SalonAdminDashboard = () => {
       </aside>
       <AnimatePresence>{userMenuOpen && <UserMenu profile={profile} onClose={() => setUserMenuOpen(false)} onLogout={handleLogout} onOpenAccount={() => setAccountOpen(true)} onOpenSubscription={() => setSubscriptionOpen(true)} onOpenSupport={() => setSupportOpen(true)} anchorRef={userMenuAnchorRef} />}</AnimatePresence>
       {/* ── Fixed topbar ── */}
-      <div className="px-4 md:px-5 flex items-center justify-between gap-3" style={{
+      <div className="pr-4 md:pr-5 flex items-center justify-between gap-3" style={{
         position: 'fixed', top: 0, left: 0, right: 0,
         height: '60px', zIndex: 20,
-        background: 'transparent'
+        background: 'rgba(240,245,248,0.72)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(27,45,59,0.08)',
+        paddingLeft: '13px',
       }}>
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 flex items-center justify-center rounded-xl shrink-0 font-bold text-white text-sm" style={{
-            background: SAGE_GRAD
-          }}>TB</div>
-          <p className="text-[15px] leading-tight" style={{ color: T.text, fontWeight: 500 }}>
-            Turno<span style={{ color: T.orange }}>Bot</span>
-          </p>
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => setSidebarExpanded(v => !v)}
+            className="hidden md:flex transition-colors hover:opacity-80 items-center justify-center"
+            style={{
+              width: '36px', height: '36px',
+              borderRadius: '10px',
+              background: sidebarExpanded ? 'rgba(68,114,196,0.10)' : 'transparent',
+              border: 'none',
+              flexShrink: 0,
+            }}
+            aria-label={sidebarExpanded ? 'Colapsar sidebar' : 'Expandir sidebar'}
+          >
+            <SidebarSimple size={18} style={{ color: sidebarExpanded ? T.dark : T.text2 }} weight={sidebarExpanded ? 'fill' : 'regular'} />
+          </button>
+          {/* Perla wordmark — dot integrates bot status (pulse when active, click opens BotSettings) */}
+          <PerlaWordmark
+            size="md"
+            color={T.dark}
+            dotColor={botStatusColor}
+            pulse={botStatus === 'active'}
+            onDotClick={() => setBotSettingsOpen(true)}
+            dotTitle={`Tu agente · ${botStatusLabel}`}
+            className="shrink-0"
+          />
+          {/* Divider */}
+          <div className="hidden md:block" style={{ width: '1px', height: '22px', background: 'rgba(27,45,59,0.14)', flexShrink: 0 }} />
+          {/* Business name with chevron (future multi-tenant switch) */}
+          <button className="hidden md:flex items-center gap-1.5 min-w-0 rounded-lg px-2 py-1 transition-colors hover:bg-black/[0.04]" style={{ flexShrink: 1 }}>
+            <span className="text-[14px] leading-tight truncate" style={{ color: T.text, fontWeight: 500, fontFamily: DM_SANS }}>Barbería Norte</span>
+            <CaretDown size={12} style={{ color: T.text3, flexShrink: 0 }} />
+          </button>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={() => openNewApp()} className="flex items-center gap-1.5 text-xs font-normal px-3 py-2 rounded-xl transition-all hover:opacity-90 active:scale-95" style={{
+        <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => openNewApp()} className="flex items-center justify-center gap-1.5 text-xs font-medium rounded-xl transition-all hover:opacity-90 active:scale-95" style={{
               background: T.orange,
-              color: '#fff'
-            }}><Plus className="w-3.5 h-3.5" /><span className="hidden sm:inline">Nuevo turno</span></button>
-            <button onClick={() => setShareOpen(true)} className="p-2 rounded-xl transition-colors hover:opacity-80" style={{
-              background: T.bg2,
-              border: `1px solid ${T.border}`
-            }}><Share2 className="w-4 h-4" style={{
-                color: T.text2
-              }} /></button>
-            <div className="relative">
-              <button onClick={() => setNotifOpen(v => !v)} className="p-2 rounded-xl transition-colors hover:opacity-80" style={{
+              color: '#fff',
+              height: '36px',
+              padding: '0 14px',
+            }}><Plus size={14} weight="bold" /><span className="hidden sm:inline">Nuevo turno</span></button>
+            <div className="relative flex items-center">
+              <button onClick={() => setNotifOpen(v => !v)} className="rounded-xl transition-colors hover:opacity-80 flex items-center justify-center" style={{
                 background: T.bg2,
-                border: `1px solid ${T.border}`
-              }}><Bell className="w-4 h-4" style={{
+                border: `1px solid ${T.border}`,
+                width: '36px', height: '36px',
+              }}><Bell size={16} style={{
                   color: T.text2
                 }} /><span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{
                   background: T.orange
@@ -3357,73 +3828,23 @@ export const SalonAdminDashboard = () => {
           </div>
         </div>
       {/* ── Main content ── */}
-      <main className="flex flex-col min-w-0 overflow-hidden" style={{
-        position: 'absolute',
-        top: '60px',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1
-      }}>
-        <div className="flex-1 overflow-hidden pb-16 md:pb-0 flex flex-col">
-          <AnimatePresence mode="wait">
-            {activeTab === 'home' && <motion.div key="home" initial={{
-              opacity: 0,
-              y: 6
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} exit={{
-              opacity: 0,
-              y: -6
-            }} transition={{
-              duration: 0.2
-            }} className="flex-1 overflow-hidden h-full flex flex-col">
-              <InicioScreen todayApps={todayApps} services={services} providerMap={providerMap} clients={clients} messages={messages} onAppointmentClick={app => setSelectedAppointment(app)} onAddAppointment={openNewApp} greeting={greeting} profileName={profile.name} onNavigateAgenda={() => setActiveTab('agenda')} onNavigateMessages={() => setActiveTab('clients')} />
-            </motion.div>}
-            {activeTab === 'agenda' && <motion.div key="agenda" initial={{
-              opacity: 0,
-              y: 6
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} exit={{
-              opacity: 0,
-              y: -6
-            }} transition={{
-              duration: 0.2
-            }} className="flex-1 flex flex-col overflow-hidden h-full">
+      <main className="flex flex-col min-w-0 overflow-hidden absolute top-[60px] right-0 bottom-0 left-0 md:left-[68px] z-[1]">
+        <div className="flex-1 overflow-hidden pb-[calc(58px+env(safe-area-inset-bottom))] md:pb-0 flex flex-col">
+          {activeTab === 'home' && <div className="flex-1 overflow-hidden h-full flex flex-col">
+              <InicioScreen todayApps={todayApps} appointments={appointments} services={services} providerMap={providerMap} clients={clients} messages={messages} onAppointmentClick={app => setSelectedAppointment(app)} onAddAppointment={openNewApp} onUpdateStatus={updateStatus} greeting={greeting} profileName={profile.name} onNavigateAgenda={() => setActiveTab('agenda')} onNavigateMessages={() => setActiveTab('messages')} />
+            </div>}
+            {activeTab === 'agenda' && <div className="flex-1 flex flex-col overflow-hidden h-full">
               <AgendaScreen filteredApps={appointments} services={services} providers={providers} providerMap={providerMap} blockedSlots={blockedSlots} onAppointmentClick={app => setSelectedAppointment(app)} onAddAppointment={openNewApp} onBlockSlot={() => setBlockingSlot(true)} />
-            </motion.div>}
-            {activeTab === 'clients' && <motion.div key="clients" initial={{
-              opacity: 0,
-              y: 6
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} exit={{
-              opacity: 0,
-              y: -6
-            }} transition={{
-              duration: 0.2
-            }} className="flex-1 flex flex-col overflow-hidden h-full">
-              <ClientsScreen clients={clients} appointments={appointments} services={services} messages={messages} onNewClient={() => setNewClientOpen(true)} initialClientId={pendingClientId} onClientOpened={() => setPendingClientId(null)} />
-            </motion.div>}
-            {activeTab === 'config' && <motion.div key="config" initial={{
-              opacity: 0,
-              y: 6
-            }} animate={{
-              opacity: 1,
-              y: 0
-            }} exit={{
-              opacity: 0,
-              y: -6
-            }} transition={{
-              duration: 0.2
-            }} className="flex-1 overflow-auto h-full">
+            </div>}
+            {activeTab === 'clients' && <div className="flex-1 flex flex-col overflow-hidden h-full">
+              <ClientsScreen clients={clients} appointments={appointments} services={services} messages={messages} onNewClient={() => setNewClientOpen(true)} onNavigateMessages={() => setActiveTab('messages')} initialClientId={pendingClientId} onClientOpened={() => setPendingClientId(null)} />
+            </div>}
+            {activeTab === 'messages' && <div className="flex-1 flex flex-col overflow-hidden h-full">
+              <MessagesScreen messages={messages} clients={clients} />
+            </div>}
+            {activeTab === 'config' && <div className="flex-1 overflow-hidden h-full min-h-0">
               <ConfigScreen services={services} providers={providers} setProviders={setProviders} onAddService={addService} onEditService={svc => setEditingService(svc)} />
-            </motion.div>}
-          </AnimatePresence>
+            </div>}
         </div>
       </main>
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20" style={{
@@ -3431,14 +3852,15 @@ export const SalonAdminDashboard = () => {
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderTop: `1px solid ${T.border}`,
-        height: '58px'
+        height: 'calc(58px + env(safe-area-inset-bottom))',
+        paddingBottom: 'env(safe-area-inset-bottom)'
       }}>
         <div className="flex h-full">
-          {NAV_ITEMS.map(item => <button key={item.id} onClick={() => setActiveTab(item.id)} className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors" style={{
-            color: activeTab === item.id ? '#1A1A1A' : '#9f9b93'
+          {NAV_ITEMS.map(item => <button key={item.id} onClick={() => setActiveTab(item.id)} className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors hover:bg-black/[0.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4472C4]/40 focus-visible:ring-inset" style={{
+            color: activeTab === item.id ? T.dark : T.text3
           }}>
             <div className="w-8 h-8 flex items-center justify-center rounded-xl transition-all" style={{
-              background: activeTab === item.id ? 'rgba(0,0,0,0.05)' : 'transparent'
+              background: activeTab === item.id ? 'rgba(68,114,196,0.10)' : 'transparent'
             }}><item.icon style={{
                 width: '18px',
                 height: '18px'
@@ -3489,7 +3911,7 @@ export const SalonAdminDashboard = () => {
             }}>Cancelar</button>
             <button onClick={handleReschedule} className="flex-1 py-3 rounded-xl text-sm font-normal text-white flex items-center justify-center gap-2" style={{
               background: T.dark
-            }}><CalendarClock className="w-4 h-4" /><span>Confirmar</span></button>
+            }}><CalendarCheck className="w-4 h-4" /><span>Confirmar</span></button>
           </div>
         </ModalOverlay>}
       </AnimatePresence>
@@ -3541,6 +3963,7 @@ export const SalonAdminDashboard = () => {
       <AnimatePresence>{subscriptionOpen && <SubscriptionModal key="sub" onClose={() => setSubscriptionOpen(false)} />}</AnimatePresence>
       <AnimatePresence>{supportOpen && <SupportModal key="support" onClose={() => setSupportOpen(false)} />}</AnimatePresence>
       <AnimatePresence>{newClientOpen && <NewClientModal key="new-client" onClose={() => setNewClientOpen(false)} onSave={c => setClients(prev => [...prev, c])} />}</AnimatePresence>
+      <BotSettingsModal open={botSettingsOpen} onClose={() => setBotSettingsOpen(false)} />
     </div>
   </ToastProvider>;
 };
