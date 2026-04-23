@@ -9,6 +9,7 @@ type PerlaWordmarkProps = {
   pulse?: boolean;
   onDotClick?: () => void;
   dotTitle?: string;
+  dotTooltip?: React.ReactNode;
   className?: string;
 };
 
@@ -18,6 +19,8 @@ type PerlaWordmarkProps = {
  * - Pass `dotColor` for status (green=active / amber=pending / red=paused)
  * - Pass `pulse={true}` to animate the dot (use when bot is active)
  * - Pass `onDotClick` to make the dot clickable (e.g. open BotSettings)
+ * - Pass `dotTooltip` (ReactNode) to show a custom tooltip on hover.
+ *   `dotTitle` (string) is used as HTML `title` fallback for accessibility.
  */
 export function PerlaWordmark({
   size = 'md',
@@ -26,6 +29,7 @@ export function PerlaWordmark({
   pulse = false,
   onDotClick,
   dotTitle,
+  dotTooltip,
   className,
 }: PerlaWordmarkProps) {
   const sizes = {
@@ -70,16 +74,43 @@ export function PerlaWordmark({
       >
         perla
       </span>
-      {onDotClick ? (
-        <button
-          type="button"
-          onClick={onDotClick}
-          title={dotTitle}
-          aria-label={dotTitle ?? 'Estado del agente'}
-          style={{ background: 'transparent', border: 'none', padding: '4px', margin: '-4px', cursor: 'pointer', display: 'inline-flex', alignItems: 'baseline' }}
-        >
-          <span style={dotStyle} />
-        </button>
+      {onDotClick || dotTooltip ? (
+        <span className="group relative" style={{ display: 'inline-flex', alignItems: 'baseline' }}>
+          <button
+            type="button"
+            onClick={onDotClick}
+            title={!dotTooltip ? dotTitle : undefined}
+            aria-label={dotTitle ?? 'Estado del agente'}
+            style={{ background: 'transparent', border: 'none', padding: '4px', margin: '-4px', cursor: onDotClick ? 'pointer' : 'default', display: 'inline-flex', alignItems: 'baseline' }}
+          >
+            <span style={dotStyle} />
+          </button>
+          {dotTooltip && (
+            <span
+              className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 10px)',
+                // Anchor to the left of the dot so tooltip always extends right (never off-screen)
+                left: '-6px',
+                whiteSpace: 'nowrap',
+                background: '#1B2D3B',
+                color: '#fff',
+                fontSize: '12px',
+                fontWeight: 400,
+                padding: '8px 12px',
+                borderRadius: '10px',
+                boxShadow: '0 6px 20px rgba(27,45,59,0.22)',
+                zIndex: 30,
+                letterSpacing: '0.01em',
+                lineHeight: 1.4,
+                fontFamily: 'inherit',
+              }}
+            >
+              {dotTooltip}
+            </span>
+          )}
+        </span>
       ) : (
         <span style={dotStyle} />
       )}

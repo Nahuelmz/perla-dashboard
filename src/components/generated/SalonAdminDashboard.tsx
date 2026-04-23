@@ -1016,6 +1016,7 @@ type InicioScreenProps = {
   onAppointmentClick: (a: Appointment) => void;
   onAddAppointment: (date?: Date, time?: string) => void;
   onUpdateStatus: (id: string, status: AppointmentStatus) => void;
+  onOpenPending: () => void;
   greeting: string;
   profileName: string;
   onNavigateAgenda: () => void;
@@ -1051,6 +1052,7 @@ const InicioScreen = ({
   onAppointmentClick,
   onAddAppointment,
   onUpdateStatus,
+  onOpenPending,
   greeting,
   profileName,
   onNavigateAgenda,
@@ -1119,273 +1121,339 @@ const InicioScreen = ({
         </h2>
       </div>
 
-      {/* ── Conversational stats line (replaces KPI cards) — alerts are actionable ── */}
+      {/* ── Conversational subtitle — date + today stats + week projection — todos linkeados a secciones internas ── */}
       {(() => {
         const turnosHoy = todayApps.length;
         const confirmados = todayConfirmed.length;
         const pendientes = todayApps.filter(a => a.status === 'pending').length;
+        const unreadMsgs = messages.filter(m => m.unread).length;
         const charlasBot = messages.length;
+        // Week-ahead pending (tomorrow → +7 days)
+        const today = startOfToday();
+        const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+        const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7);
+        const weekPending = appointments.filter(a => a.date >= tomorrow && a.date <= weekEnd && a.status === 'pending').length;
+        const dateStr = ((s: string) => s.charAt(0).toUpperCase() + s.slice(1))(format(now, "EEEE d 'de' MMMM", { locale: es }));
+        // Scroll targets within Inicio
+        const scrollTo = (selector: string, block: 'start' | 'center' = 'center') => {
+          const el = document.querySelector(selector);
+          if (el) (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block });
+        };
         type Part = { text: string; color: string; emphasis?: boolean; onClick?: () => void };
-        const parts: Part[] = [];
+        const todayParts: Part[] = [];
         if (turnosHoy === 0) {
-          parts.push({ text: 'Hoy no tenés turnos agendados', color: T.text2 });
+          todayParts.push({ text: 'Hoy no tenés turnos agendados', color: T.text2, onClick: () => scrollTo('[data-agenda-list="true"]', 'start') });
         } else {
-          parts.push({ text: `Hoy tenés ${turnosHoy} ${turnosHoy === 1 ? 'turno' : 'turnos'}`, color: T.text2, emphasis: true });
-          parts.push({ text: `${confirmados} ${confirmados === 1 ? 'confirmado' : 'confirmados'}`, color: T.text2 });
-          if (pendientes > 0) parts.push({
-            text: `${pendientes} sin confirmar`,
-            color: T.orange,
-            emphasis: true,
-            onClick: () => {
-              // scroll to first pending in agenda list below
-              const el = document.querySelector('[data-pending-app="true"]');
-              if (el) (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'center' });
-            },
-          });
-          parts.push({ text: `${kpiValues.vacantes} vacantes`, color: T.text3 });
+          todayParts.push({ text: `Hoy tenés ${turnosHoy} ${turnosHoy === 1 ? 'turno' : 'turnos'}`, color: T.text2, emphasis: true, onClick: () => scrollTo('[data-agenda-list="true"]', 'start') });
+          // "X confirmados" removido — redundante con "X turnos" + "X sin confirmar"
+          if (pendientes > 0) todayParts.push({ text: `${pendientes} sin confirmar`, color: T.orange, emphasis: true, onClick: onOpenPending });
+          todayParts.push({ text: `${kpiValues.vacantes} vacantes`, color: T.text3, onClick: () => scrollTo('[data-slots-libres="true"]') });
         }
-        if (charlasBot > 0) parts.push({ text: `Tu agente respondió ${charlasBot} ${charlasBot === 1 ? 'charla' : 'charlas'}`, color: T.text3 });
+        if (unreadMsgs > 0) todayParts.push({ text: `${unreadMsgs} ${unreadMsgs === 1 ? 'mensaje sin responder' : 'mensajes sin responder'}`, color: T.orange, emphasis: true, onClick: () => scrollTo('[data-messages-preview="true"]', 'start') });
+        // "Tu agente respondió X charlas" removido — movido al tooltip del dot del topbar
+
+        const renderPart = (part: Part, key: number, showDot: boolean) => (
+          <span key={key}>
+            {showDot && <span style={{ color: T.text3, margin: '0 8px' }}>·</span>}
+            {part.onClick ? (
+              <button
+                onClick={part.onClick}
+                className="hover:underline focus:outline-none focus-visible:underline"
+                style={{ color: part.color, fontWeight: part.emphasis ? 500 : 400, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', textUnderlineOffset: '3px', textDecorationThickness: '1px' }}
+              >
+                {part.text}
+              </button>
+            ) : (
+              <span style={{ color: part.color, fontWeight: part.emphasis ? 500 : 400 }}>{part.text}</span>
+            )}
+          </span>
+        );
+
         return (
-          <p className="anim-float-in" style={{ fontSize: '14px', fontWeight: 400, marginBottom: '24px', lineHeight: 1.6, animationDelay: '50ms' }}>
-            {parts.map((part, i) => (
-              <span key={i}>
-                {i > 0 && <span style={{ color: T.text3, margin: '0 8px' }}>·</span>}
-                {part.onClick ? (
-                  <button
-                    onClick={part.onClick}
-                    className="hover:underline focus:outline-none focus-visible:underline"
-                    style={{ color: part.color, fontWeight: part.emphasis ? 500 : 400, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', textUnderlineOffset: '3px', textDecorationThickness: '1px' }}
-                  >
-                    {part.text}
-                  </button>
-                ) : (
-                  <span style={{ color: part.color, fontWeight: part.emphasis ? 500 : 400 }}>{part.text}</span>
-                )}
-              </span>
-            ))}
-          </p>
+          <div className="anim-float-in" style={{ marginBottom: '28px', animationDelay: '50ms' }}>
+            {/* Date line (muted) */}
+            <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3, marginBottom: '8px' }}>{dateStr}</p>
+            {/* Today stats — calma, sin alertas */}
+            <p style={{ fontSize: '15px', fontWeight: 400, lineHeight: 1.6 }}>
+              {todayParts.map((part, i) => renderPart(part, i, i > 0))}
+            </p>
+          </div>
         );
       })()}
 
-      {/* ── Próximos turnos — list sin fondo (rule: bg = atención; esto es contenido) ── */}
-      <div className="anim-float-in" style={{ marginBottom: '24px', animationDelay: '100ms' }}>
+      {/* ── Agenda de hoy — Hero (próximo) + lista plana del resto del día ── */}
+      <div data-agenda-list="true" className="anim-float-in" style={{ marginBottom: '28px', animationDelay: '100ms' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Próximos turnos</p>
-          {upcomingTop3.length > 0 && (
-            <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'none', border: 'none', cursor: 'pointer' }}>
-              <span>Ver agenda</span><ArrowRight size={11} />
-            </button>
-          )}
+          <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Agenda de hoy</p>
+          <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'none', border: 'none', cursor: 'pointer' }}>
+            <span>Ver completa</span><ArrowRight size={11} />
+          </button>
         </div>
-        {upcomingTop3.length === 0 ? (
-          <div style={{ padding: '24px 0', borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, textAlign: 'center' }}>
-            <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3, marginBottom: '12px' }}>No hay próximos turnos</p>
+        {todaySorted.length === 0 ? (
+          <div style={{ padding: '32px 20px', textAlign: 'center', borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}` }}>
+            <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3, marginBottom: '12px' }}>Sin turnos para hoy</p>
             <button onClick={() => onAddAppointment(startOfToday(), '09:00')} style={{ fontSize: '12px', fontWeight: 500, color: '#fff', padding: '7px 16px', borderRadius: '10px', background: T.orange, border: 'none', cursor: 'pointer' }}>
               + Agregar turno
             </button>
           </div>
-        ) : (
-          <div>
-            {upcomingTop3.map((app, idx) => {
-              const svc = services.find(s => s.id === app.serviceId);
-              const prov = providerMap[app.providerId];
-              const clientNote = clients.find(c => c.id === app.clientId)?.notes;
-              const [h, m] = app.startTime.split(':').map(Number);
-              const diff = (h * 60 + m) - (now.getHours() * 60 + now.getMinutes());
-              let countdown = '';
-              if (diff > 0) {
-                if (diff < 60) countdown = `en ${diff} min`;
-                else {
-                  const hrs = Math.floor(diff / 60);
-                  const mins = diff % 60;
-                  countdown = mins > 0 ? `en ${hrs}h ${mins}min` : `en ${hrs}h`;
-                }
-              }
-              return (
+        ) : (() => {
+          // Separate the "next" (hero) from the rest of the day
+          const restOfDay = todaySorted.filter(a => a.id !== nextApp?.id);
+          return (
+            <div style={{ position: 'relative' }}>
+              {/* HERO — next appointment (glass card with fade that bleeds into the list) */}
+              {nextApp && (() => {
+                const svc = services.find(s => s.id === nextApp.serviceId);
+                const prov = providerMap[nextApp.providerId];
+                const clientNote = clients.find(c => c.id === nextApp.clientId)?.notes;
+                const isPending = nextApp.status === 'pending';
+                return (
+                  <div style={{ position: 'relative', marginBottom: restOfDay.length > 0 ? '4px' : 0 }} data-pending-app={isPending ? 'true' : undefined}>
+                    {/* Glass background — extends down with mask fade into the list below */}
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0, right: 0,
+                        bottom: restOfDay.length > 0 ? '-60px' : 0,
+                        background: 'rgba(255,255,255,0.45)',
+                        backdropFilter: 'blur(16px)',
+                        WebkitBackdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(91,143,166,0.22)',
+                        borderRadius: '18px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
+                        WebkitMaskImage: restOfDay.length > 0 ? 'linear-gradient(180deg, black 0%, black 70%, transparent 100%)' : 'none',
+                        maskImage: restOfDay.length > 0 ? 'linear-gradient(180deg, black 0%, black 70%, transparent 100%)' : 'none',
+                        pointerEvents: 'none',
+                        zIndex: 0,
+                      }}
+                    />
+                    {/* Hero content — sin border-left (el StatusPill indica el estado) */}
+                    <button
+                      onClick={() => onAppointmentClick(nextApp)}
+                      className="w-full text-left transition-colors hover:bg-black/[0.02]"
+                      style={{
+                        position: 'relative', zIndex: 1,
+                        display: 'flex', alignItems: 'flex-start', gap: '24px',
+                        padding: '20px 24px',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ minWidth: '88px', flexShrink: 0 }}>
+                        <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: '40px', fontWeight: 400, letterSpacing: '-0.02em', color: T.dark, lineHeight: 1 }}>
+                          {nextApp.startTime.split(':')[0]}<span style={{ color: SAGE }}>:</span>{nextApp.startTime.split(':')[1]}
+                        </p>
+                        {minsUntilNext && <p style={{ fontSize: '11px', color: T.text3, marginTop: '6px' }}>{minsUntilNext}</p>}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <p style={{ fontSize: '16px', fontWeight: 500, color: T.dark, lineHeight: 1.2 }}>{nextApp.clientName}</p>
+                          <StatusPill status={nextApp.status} />
+                        </div>
+                        <p style={{ fontSize: '13px', color: T.text2, lineHeight: 1.45 }}>
+                          <span>{svc?.name ?? '—'}</span>
+                          <span style={{ color: T.text3 }}> · {svc?.duration ?? 0} min</span>
+                          {prov && <><span style={{ color: T.text3 }}> · con </span><span>{prov.name}</span></>}
+                        </p>
+                        {clientNote && (
+                          <p style={{ fontSize: '12px', color: T.text3, fontStyle: 'italic', marginTop: '2px' }}>{clientNote}</p>
+                        )}
+                      </div>
+                      {prov && (
+                        <div style={{ flexShrink: 0, marginTop: '4px' }}>
+                          <ProviderAvatar provider={prov} size="sm" />
+                        </div>
+                      )}
+                    </button>
+                    {/* Inline actions for pending hero */}
+                    {isPending && (
+                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', padding: '0 24px 18px 115px' }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onUpdateStatus(nextApp.id, 'confirmed'); }}
+                          className="flex items-center gap-1 transition-colors hover:opacity-90"
+                          style={{ padding: '6px 14px', borderRadius: '8px', background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}
+                        >
+                          <Check size={12} weight="bold" /><span>Confirmar</span>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onUpdateStatus(nextApp.id, 'cancelled'); }}
+                          className="transition-colors hover:bg-black/[0.04]"
+                          style={{ padding: '6px 14px', borderRadius: '8px', background: 'transparent', color: T.text2, fontSize: '12px', fontWeight: 400, border: `1px solid ${T.border}`, cursor: 'pointer' }}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+              {/* REST OF DAY — plain list sin fondo */}
+              {restOfDay.length > 0 && (
+                <div style={{ position: 'relative', zIndex: 1, paddingTop: nextApp ? '4px' : 0 }}>
+                  {restOfDay.map((app, i) => {
+                    const svc = services.find(s => s.id === app.serviceId);
+                    const prov = providerMap[app.providerId];
+                    const isPending = app.status === 'pending';
+                    return (
+                      <div key={app.id} data-pending-app={isPending ? 'true' : undefined} style={{
+                        borderBottom: !isPending && i < restOfDay.length - 1 ? `1px solid rgba(91,143,166,0.14)` : undefined,
+                        // Pending → mini-card flotante con border completo sutil (no left-border "muy AI")
+                        border: isPending ? '1px solid rgba(255,148,77,0.35)' : undefined,
+                        borderRadius: isPending ? '10px' : undefined,
+                        background: isPending ? 'rgba(255,148,77,0.03)' : 'transparent',
+                        margin: isPending ? '4px 0' : undefined,
+                        transition: 'background 0.15s',
+                      }}>
+                        <button onClick={() => onAppointmentClick(app)} className="w-full text-left transition-colors hover:bg-black/[0.02]" style={{
+                          display: 'flex', alignItems: 'center', gap: '16px',
+                          padding: '12px 18px',
+                          background: 'transparent',
+                        }}>
+                          <span style={{ fontSize: '13px', fontWeight: 500, color: SAGE, width: '44px', flexShrink: 0, fontFamily: GEIST_MONO }}>{app.startTime}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: '14px', fontWeight: 400, color: T.text, lineHeight: 1.3 }} className="truncate">{app.clientName}</p>
+                            <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2 }} className="truncate">{svc?.name ?? '—'}{prov && ` · con ${prov.name}`}</p>
+                          </div>
+                          {prov && <ProviderAvatar provider={prov} size="sm" />}
+                          <StatusPill status={app.status} />
+                        </button>
+                        {isPending && (
+                          <div className="flex items-center gap-2" style={{ padding: '0 18px 10px 76px' }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onUpdateStatus(app.id, 'confirmed'); }}
+                              className="flex items-center gap-1 transition-colors hover:opacity-90"
+                              style={{ padding: '5px 12px', borderRadius: '8px', background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}
+                            >
+                              <Check size={12} weight="bold" /><span>Confirmar</span>
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onUpdateStatus(app.id, 'cancelled'); }}
+                              className="transition-colors hover:bg-black/[0.04]"
+                              style={{ padding: '5px 12px', borderRadius: '8px', background: 'transparent', color: T.text2, fontSize: '12px', fontWeight: 400, border: `1px solid ${T.border}`, cursor: 'pointer' }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+        {/* Slots libres */}
+        {vacantBlocks.length > 0 && <div data-slots-libres="true" style={{ marginTop: '16px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: '8px' }}>Slots libres</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {vacantBlocks.slice(0, 6).map(block => (
+              <button key={block} onClick={() => onAddAppointment(startOfToday(), block)} style={{ padding: '5px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'rgba(255,255,255,0.72)', border: `1px solid ${T.borderO}`, cursor: 'pointer' }}>{block}</button>
+            ))}
+            {vacantBlocks.length > 6 && <span style={{ fontSize: '12px', fontWeight: 400, color: T.text3, padding: '5px 6px' }}>+{vacantBlocks.length - 6} más</span>}
+          </div>
+        </div>}
+      </div>
+
+      {/* ── Próximos días — lista tranquila, sin fondo, sin urgencia ── */}
+      {(() => {
+        const today = startOfToday();
+        const nextDays: { date: Date; total: number; pending: number }[] = [];
+        for (let i = 1; i <= 7; i++) {
+          const d = addDays(today, i);
+          const dayApps = appointments.filter(a => isSameDay(a.date, d) && a.status !== 'cancelled' && a.status !== 'no_show');
+          if (dayApps.length === 0) continue;
+          nextDays.push({
+            date: d,
+            total: dayApps.length,
+            pending: dayApps.filter(a => a.status === 'pending').length,
+          });
+        }
+        if (nextDays.length === 0) return null;
+        const formatDayLabel = (d: Date) => {
+          const daysDiff = Math.round((d.getTime() - today.getTime()) / 86400000);
+          if (daysDiff === 1) return 'Mañana';
+          // Same week → day name; otherwise "DD MMM"
+          const s = format(d, 'EEEE', { locale: es });
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        };
+        return (
+          <div className="anim-float-in" style={{ marginBottom: '28px', animationDelay: '150ms' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Próximos días</p>
+              <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'none', border: 'none', cursor: 'pointer' }}>
+                <span>Ver semana</span><ArrowRight size={11} />
+              </button>
+            </div>
+            <div>
+              {nextDays.slice(0, 5).map((d, i) => (
                 <button
-                  key={app.id}
-                  onClick={() => onAppointmentClick(app)}
-                  className="w-full text-left transition-colors group hover:bg-black/[0.02]"
+                  key={d.date.toISOString()}
+                  onClick={onNavigateAgenda}
+                  className="w-full text-left transition-colors hover:bg-black/[0.02]"
                   style={{
-                    display: 'flex', alignItems: 'flex-start', gap: '20px',
-                    padding: '14px 8px',
-                    borderTop: idx === 0 ? `1px solid ${T.border}` : undefined,
-                    borderBottom: `1px solid ${T.border}`,
+                    display: 'flex', alignItems: 'baseline', gap: '16px',
+                    padding: '10px 8px',
+                    borderBottom: i < Math.min(nextDays.length, 5) - 1 ? `1px solid rgba(91,143,166,0.14)` : undefined,
                     background: 'transparent',
                     cursor: 'pointer',
                   }}
                 >
-                  {/* Time column */}
-                  <div style={{ minWidth: '76px', flexShrink: 0 }}>
-                    <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: idx === 0 ? '32px' : '24px', fontWeight: 400, letterSpacing: '-0.02em', color: T.dark, lineHeight: 1 }}>
-                      {app.startTime.split(':')[0]}<span style={{ color: SAGE }}>:</span>{app.startTime.split(':')[1]}
-                    </p>
-                    {countdown && idx === 0 && <p style={{ fontSize: '11px', color: T.text3, marginTop: '4px' }}>{countdown}</p>}
-                  </div>
-                  {/* Info column */}
-                  <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <p style={{ fontSize: idx === 0 ? '15px' : '14px', fontWeight: 500, color: T.dark, lineHeight: 1.2 }}>{app.clientName}</p>
-                      <StatusPill status={app.status} />
-                    </div>
-                    <p style={{ fontSize: '13px', color: T.text2, lineHeight: 1.45 }}>
-                      <span>{svc?.name ?? '—'}</span>
-                      <span style={{ color: T.text3 }}> · {svc?.duration ?? 0} min</span>
-                      {prov && <><span style={{ color: T.text3 }}> · con </span><span>{prov.name}</span></>}
-                    </p>
-                    {clientNote && idx === 0 && (
-                      <p style={{ fontSize: '12px', color: T.text3, fontStyle: 'italic', marginTop: '2px' }}>{clientNote}</p>
+                  <span style={{ minWidth: '96px', fontSize: '14px', fontWeight: 400, color: T.text, lineHeight: 1.3 }}>
+                    {formatDayLabel(d.date)}
+                  </span>
+                  <span style={{ flex: 1, fontSize: '13px', color: T.text2 }}>
+                    {d.total} {d.total === 1 ? 'turno' : 'turnos'}
+                    {d.pending > 0 && (
+                      <span style={{ color: T.text3 }}>{` · ${d.pending} por confirmar`}</span>
                     )}
-                  </div>
-                  {/* Provider avatar (right) */}
-                  {prov && (
-                    <div style={{ flexShrink: 0, marginTop: '2px' }}>
-                      <ProviderAvatar provider={prov} size="sm" />
-                    </div>
-                  )}
+                  </span>
+                  <span style={{ fontSize: '12px', color: T.text3 }}>{format(d.date, 'd MMM', { locale: es })}</span>
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        )}
-      </div>
-
-      {/* ── Agenda del día ── */}
-      <div className="anim-float-in" style={{ marginBottom: '20px', animationDelay: '130ms' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Agenda de hoy</p>
-          <button onClick={onNavigateAgenda} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange }}>
-            <span>Ver completa</span><ArrowRight className="w-3 h-3" />
-          </button>
-        </div>
-        <GlassCard className="overflow-hidden">
-          {todaySorted.length === 0
-            ? <div style={{ padding: '32px 20px', textAlign: 'center' }}>
-                <p style={{ fontSize: '13px', fontWeight: 400, color: T.text3 }}>Sin turnos para hoy</p>
-              </div>
-            : <div>
-                {todaySorted.map((app, i) => {
-                  const svc = services.find(s => s.id === app.serviceId);
-                  const prov = providerMap[app.providerId];
-                  const isNext = nextApp?.id === app.id;
-                  const isPending = app.status === 'pending';
-                  // Border-left color: orange for pending, red for cancelled (won't show today since filtered), transparent otherwise
-                  const accentBorder = isPending ? T.orange : 'transparent';
-                  return (
-                    <div key={app.id} data-pending-app={isPending ? 'true' : undefined} style={{
-                      borderBottom: i < todaySorted.length - 1 ? `1px solid ${T.border}` : undefined,
-                      borderLeft: `3px solid ${accentBorder}`,
-                      background: isPending ? 'rgba(255,148,77,0.04)' : isNext ? 'rgba(68,114,196,0.04)' : 'transparent',
-                      transition: 'background 0.15s',
-                    }}>
-                      <button onClick={() => onAppointmentClick(app)} className="w-full text-left transition-colors hover:bg-black/[0.02]" style={{
-                        display: 'flex', alignItems: 'center', gap: '12px',
-                        padding: '10px 16px',
-                        background: 'transparent',
-                      }}>
-                        <span style={{ fontSize: '12px', fontWeight: 400, color: SAGE, width: '38px', flexShrink: 0, fontFamily: GEIST_MONO }}>{app.startTime}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: '13px', fontWeight: 400, color: T.text, lineHeight: 1.2 }} className="truncate">{app.clientName}</p>
-                          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text2 }} className="truncate">{svc?.name ?? '—'}</p>
-                        </div>
-                        {prov && <ProviderAvatar provider={prov} size="sm" />}
-                        <StatusPill status={app.status} />
-                      </button>
-                      {/* Inline actions for pending items */}
-                      {isPending && (
-                        <div className="flex items-center gap-2" style={{ padding: '0 16px 12px 67px' }}>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onUpdateStatus(app.id, 'confirmed'); }}
-                            className="flex items-center gap-1 transition-colors hover:opacity-90"
-                            style={{ padding: '5px 12px', borderRadius: '8px', background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}
-                          >
-                            <Check size={12} weight="bold" />
-                            <span>Confirmar</span>
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onUpdateStatus(app.id, 'cancelled'); }}
-                            className="transition-colors hover:bg-black/[0.04]"
-                            style={{ padding: '5px 12px', borderRadius: '8px', background: 'transparent', color: T.text2, fontSize: '12px', fontWeight: 400, border: `1px solid ${T.border}`, cursor: 'pointer' }}
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-          }
-        </GlassCard>
-        {/* Time-aware footer: future pending items */}
-        {(() => {
-          const today = startOfToday();
-          const tomorrowStart = new Date(today);
-          tomorrowStart.setDate(today.getDate() + 1);
-          const weekEnd = new Date(today);
-          weekEnd.setDate(today.getDate() + 7);
-          const tomorrowPending = appointments.filter(a => isSameDay(a.date, tomorrowStart) && a.status === 'pending').length;
-          const weekPending = appointments.filter(a => a.date > tomorrowStart && a.date <= weekEnd && a.status === 'pending').length;
-          if (tomorrowPending === 0 && weekPending === 0) return null;
-          return (
-            <button
-              onClick={onNavigateAgenda}
-              className="w-full flex items-center justify-between mt-2 px-3 py-2.5 rounded-xl transition-colors hover:bg-black/[0.03]"
-              style={{ background: 'transparent', border: `1px dashed ${T.border}`, fontSize: '12px', color: T.text2, cursor: 'pointer' }}
-            >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CalendarBlank size={13} style={{ color: T.text3, flexShrink: 0 }} />
-                <span>
-                  {tomorrowPending > 0 && <><strong style={{ color: T.text, fontWeight: 500 }}>Mañana:</strong> {tomorrowPending} sin confirmar</>}
-                  {tomorrowPending > 0 && weekPending > 0 && <span style={{ color: T.text3, margin: '0 6px' }}>·</span>}
-                  {weekPending > 0 && <><strong style={{ color: T.text, fontWeight: 500 }}>Esta semana:</strong> {weekPending} más</>}
-                </span>
-              </span>
-              <ArrowRight size={12} style={{ color: T.text3 }} />
-            </button>
-          );
-        })()}
-        {vacantBlocks.length > 0 && <div style={{ marginTop: '12px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Slots libres</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {vacantBlocks.slice(0, 6).map(block => (
-              <button key={block} onClick={() => onAddAppointment(startOfToday(), block)} style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'rgba(255,255,255,0.72)', border: `1px solid ${T.borderO}` }}>{block}</button>
-            ))}
-            {vacantBlocks.length > 6 && <span style={{ fontSize: '12px', fontWeight: 400, color: T.text3, padding: '4px 6px' }}>+{vacantBlocks.length - 6} más</span>}
-          </div>
-        </div>}
-      </div>
+        );
+      })()}
 
       {/* ── Messages preview ── */}
       {messages.length > 0 && (() => {
         const unread = messages.filter(m => m.unread);
         const shown = unread.length > 0 ? unread : messages.slice(0, 2);
         return (
-          <div style={{ marginTop: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <p style={{ fontSize: '12px', fontWeight: 400, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mensajes</p>
-                {unread.length > 0 && <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '99px', background: T.orange, color: '#fff', fontSize: '9px', fontWeight: 400 }}>{unread.length}</span>}
+          <div data-messages-preview="true" className="anim-float-in" style={{ marginBottom: '24px', animationDelay: '160ms' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Mensajes</p>
+                {unread.length > 0 && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '18px', height: '18px', padding: '0 6px', borderRadius: '99px', background: T.orange, color: '#fff', fontSize: '10px', fontWeight: 600 }}>{unread.length}</span>
+                )}
               </div>
               <button onClick={onNavigateMessages} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 400, color: T.orange, background: 'none', border: 'none', cursor: 'pointer' }}>
-                <span>Ver todos</span><ArrowRight className="w-3 h-3" />
+                <span>Ver todos</span><ArrowRight size={11} />
               </button>
             </div>
             <GlassCard className="overflow-hidden">
               {shown.map((msg, i) => {
                 const initials = msg.clientName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
                 return (
-                  <button key={msg.id} onClick={onNavigateMessages} className="w-full text-left transition-colors hover:brightness-95" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 16px', borderBottom: i < shown.length - 1 ? `1px solid ${T.border}` : undefined, background: 'transparent' }}>
-                    <div style={{ position: 'relative', flexShrink: 0 }}>
-                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: SAGE_GRAD, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 400, color: '#fff' }}>{initials}</div>
-                      {msg.unread && <span style={{ position: 'absolute', top: 0, right: 0, width: '8px', height: '8px', borderRadius: '50%', background: T.orange, border: '2px solid #fff' }} />}
+                  <button key={msg.id} onClick={onNavigateMessages} className="w-full text-left transition-colors hover:bg-black/[0.02]" style={{
+                    display: 'flex', alignItems: 'center', gap: '14px',
+                    padding: '14px 18px',
+                    borderBottom: i < shown.length - 1 ? `1px solid ${T.border}` : undefined,
+                    background: 'transparent',
+                  }}>
+                    <div style={{ flexShrink: 0 }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: SAGE_GRAD, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 500, color: '#fff' }}>{initials}</div>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '2px' }}>
-                        <p style={{ fontSize: '13px', fontWeight: msg.unread ? 500 : 400, color: T.text }}>{msg.clientName}</p>
+                      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '3px' }}>
+                        <p style={{ fontSize: '14px', fontWeight: msg.unread ? 500 : 400, color: T.text }}>{msg.clientName}</p>
                         <span style={{ fontSize: '11px', color: T.text3, flexShrink: 0, marginLeft: '8px' }}>{msg.time}</span>
                       </div>
-                      <p style={{ fontSize: '12px', color: msg.unread ? T.text2 : T.text3, fontWeight: 400 }} className="truncate">{msg.preview}</p>
+                      <p style={{ fontSize: '13px', color: msg.unread ? T.text2 : T.text3, fontWeight: 400, lineHeight: 1.4 }} className="truncate">{msg.preview}</p>
                     </div>
                   </button>
                 );
@@ -1428,6 +1496,7 @@ const AgendaScreen = ({
   }));
   const [filterValues, setFilterValues] = useState<Set<string>>(new Set());
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const [pendingOnlyFilter, setPendingOnlyFilter] = useState(false);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -1452,15 +1521,16 @@ const AgendaScreen = ({
     return out;
   }, [filteredApps, providerMap]);
   const providerFilteredApps = useMemo(() => {
-    if (filterValues.size === 0) return filteredApps;
     const providerIds = Array.from(filterValues).filter(v => v.startsWith('p:')).map(v => v.slice(2));
     const serviceIds = Array.from(filterValues).filter(v => v.startsWith('s:')).map(v => v.slice(2));
     return filteredApps.filter(a => {
       const mp = providerIds.length === 0 || providerIds.includes(a.providerId);
       const ms = serviceIds.length === 0 || serviceIds.includes(a.serviceId);
-      return mp && ms;
+      const mPending = !pendingOnlyFilter || a.status === 'pending';
+      return mp && ms && mPending;
     });
-  }, [filteredApps, filterValues]);
+  }, [filteredApps, filterValues, pendingOnlyFilter]);
+  const totalPendingCount = useMemo(() => filteredApps.filter(a => a.status === 'pending').length, [filteredApps]);
   const selectedDateApps = useMemo(() => providerFilteredApps.filter(a => isSameDay(a.date, selectedDate)), [providerFilteredApps, selectedDate]);
   const switchToDay = (d: Date) => {
     setSelectedDate(d);
@@ -1471,43 +1541,7 @@ const AgendaScreen = ({
     <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', paddingBottom: '16px', borderBottom: `1px solid ${T.border}`, marginBottom: '4px', flexShrink: 0 }}>
       <h2 style={{ fontSize: '24px', fontWeight: 400, color: T.dark, fontFamily: DM_SERIF, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.1 }}>Agenda</h2>
     </div>
-    {/* Pending alerts banner */}
-    {(() => {
-      const today = startOfToday();
-      const weekEnd = addDays(today, 7);
-      const pendingThisWeek = filteredApps.filter(a => a.date >= today && a.date <= weekEnd && a.status === 'pending');
-      if (pendingThisWeek.length === 0) return null;
-      const todayPending = pendingThisWeek.filter(a => isSameDay(a.date, today)).length;
-      const tomorrowPending = pendingThisWeek.filter(a => isSameDay(a.date, addDays(today, 1))).length;
-      const restPending = pendingThisWeek.length - todayPending - tomorrowPending;
-      return (
-        <div style={{ maxWidth: '960px', margin: '6px auto 8px', width: '100%', flexShrink: 0 }}>
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl" style={{
-            background: 'rgba(245,158,11,0.06)',
-            border: '1px solid rgba(245,158,11,0.20)',
-          }}>
-            <Warning size={16} weight="fill" style={{ color: '#D97706', flexShrink: 0 }} />
-            <div className="flex-1 min-w-0 text-[13px]" style={{ color: T.text }}>
-              <strong style={{ fontWeight: 500 }}>{pendingThisWeek.length} {pendingThisWeek.length === 1 ? 'turno sin confirmar' : 'turnos sin confirmar'}</strong>
-              <span style={{ color: T.text3, marginLeft: '8px' }}>
-                {todayPending > 0 && `Hoy: ${todayPending}`}
-                {todayPending > 0 && (tomorrowPending > 0 || restPending > 0) && ' · '}
-                {tomorrowPending > 0 && `Mañana: ${tomorrowPending}`}
-                {tomorrowPending > 0 && restPending > 0 && ' · '}
-                {restPending > 0 && `Próximos días: ${restPending}`}
-              </span>
-            </div>
-            <button
-              onClick={() => setCalView('week')}
-              className="flex items-center gap-1 text-[12px] font-medium px-2.5 py-1 rounded-lg transition-colors hover:opacity-90 shrink-0"
-              style={{ background: '#D97706', color: '#fff', border: 'none', cursor: 'pointer' }}
-            >
-              <span>Ver semana</span><ArrowRight size={11} />
-            </button>
-          </div>
-        </div>
-      );
-    })()}
+    {/* Banner de pendientes removido — redundante con el filter "Pendientes" + modal desde Inicio */}
     <div className="flex-1 flex flex-col overflow-hidden" style={{ ...CONTENT_GLASS, maxWidth: '960px', margin: '0 auto', width: '100%' }}>
     <div style={{ padding: '0 4px' }}>
       <div className="py-2.5 flex items-center gap-2 flex-wrap shrink-0 px-3" style={{
@@ -1540,8 +1574,24 @@ const AgendaScreen = ({
               color: T.text2
             }} /></button>
         </div>}
-        {/* Right side: actions (Filtrar + Bloquear) — anchored right via ml-auto so they don't shift between views */}
-        <div ref={filterDropdownRef} className="relative ml-auto">
+        {/* Right side: actions (Solo pendientes + Filtrar + Bloquear) — anchored right via ml-auto so they don't shift between views */}
+        {totalPendingCount > 0 && (
+          <button
+            onClick={() => setPendingOnlyFilter(v => !v)}
+            className="flex items-center gap-1.5 text-xs font-normal px-2.5 py-1.5 rounded-xl whitespace-nowrap transition-all ml-auto"
+            style={{
+              background: pendingOnlyFilter ? '#D97706' : 'rgba(217,119,6,0.08)',
+              color: pendingOnlyFilter ? '#fff' : '#D97706',
+              border: `1px solid ${pendingOnlyFilter ? '#D97706' : 'rgba(217,119,6,0.25)'}`,
+              cursor: 'pointer',
+            }}
+            title={pendingOnlyFilter ? 'Ver todos los turnos' : `Ver solo los ${totalPendingCount} pendientes`}
+          >
+            <Warning size={12} weight={pendingOnlyFilter ? 'fill' : 'regular'} />
+            <span>{pendingOnlyFilter ? 'Todos' : `Pendientes (${totalPendingCount})`}</span>
+          </button>
+        )}
+        <div ref={filterDropdownRef} className={cn('relative', totalPendingCount === 0 && 'ml-auto')}>
           <button onClick={() => setFilterDropdownOpen(v => !v)} className="flex items-center gap-1.5 text-xs font-normal px-2.5 py-1.5 rounded-xl whitespace-nowrap transition-all" style={{
             background: filterCount > 0 ? T.dark : T.bg2,
             color: filterCount > 0 ? '#fff' : T.text2,
@@ -2466,15 +2516,8 @@ const ConfigScreen = ({
           </nav>
         </div>
 
-        {/* ── Right content — con fondo (regla "fondo = atención") ── */}
-        <div ref={configScrollRef} className="flex-1 overflow-y-auto min-h-0 h-full" style={{
-          borderRadius: '18px',
-          background: 'rgba(255,255,255,0.40)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(91,143,166,0.22)',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.05), 0 4px 20px rgba(0,0,0,0.04)',
-        }}>
+        {/* ── Right content — sin fondo propio, las CARDS internas son las "zonas de atención" ── */}
+        <div ref={configScrollRef} className="flex-1 overflow-y-auto min-h-0 h-full" style={{ background: 'transparent' }}>
 
           <div key={activeSection} className="space-y-10 p-1 pb-24 anim-float-in">
 
@@ -2547,7 +2590,7 @@ const ConfigScreen = ({
             <div data-sub="servicios">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <p style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.09em', color: T.text3 }}>Servicios</p>
-                <button onClick={onAddService} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '10px', background: T.dark, color: '#fff', fontSize: '12px', border: 'none', cursor: 'pointer' }}><Plus className="w-3 h-3" /><span>Nuevo</span></button>
+                <button onClick={onAddService} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '10px', background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}><Plus className="w-3 h-3" /><span>Nuevo</span></button>
               </div>
               <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
                 <div className="divide-y" style={{ borderColor: T.border }}>
@@ -2676,7 +2719,7 @@ const ConfigScreen = ({
                   <div className="px-5 py-4" style={{ borderBottom: `1px solid ${T.border}` }}><h3 className="font-normal text-sm" style={{ color: T.text }}>Plan activo</h3></div>
                   <div className="px-5 py-4 flex items-center justify-between">
                     <div><p className="text-sm font-normal" style={{ color: T.text }}>Plan Básico</p><p className="text-xs font-normal mt-0.5" style={{ color: T.text3 }}>Hasta 5 profesionales · 1 sede · Asistente WhatsApp</p></div>
-                    <button style={{ padding: '6px 14px', borderRadius: '10px', background: 'linear-gradient(135deg, #4472C4, #98BAE8)', color: '#fff', fontSize: '13px', border: 'none', cursor: 'pointer' }}>Mejorar</button>
+                    <button style={{ padding: '6px 14px', borderRadius: '10px', background: T.orange, color: '#fff', fontSize: '13px', fontWeight: 500, border: 'none', cursor: 'pointer' }}>Mejorar</button>
                   </div>
                 </div>
                 <div className="rounded-2xl overflow-hidden" style={{ ...CARD_GLASS }}>
@@ -3192,6 +3235,180 @@ const UserMenu = ({
   </motion.div>;
 };
 
+// ─── PENDING MODAL — central place to resolve pending appointments ─────────────
+type PendingModalProps = {
+  open: boolean;
+  onClose: () => void;
+  appointments: Appointment[];
+  services: Service[];
+  providerMap: Record<string, Provider>;
+  onUpdateStatus: (id: string, status: AppointmentStatus) => void;
+};
+const PendingModal = ({ open, onClose, appointments, services, providerMap, onUpdateStatus }: PendingModalProps) => {
+  const showToast = React.useContext(ToastContext);
+  if (!open) return null;
+
+  // Build time buckets of pending appointments
+  const today = startOfToday();
+  const tomorrow = addDays(today, 1);
+  const weekEnd = addDays(today, 7);
+  const pending = appointments.filter(a => a.status === 'pending');
+  const bucketOf = (a: Appointment): 'hoy' | 'manana' | 'semana' | 'despues' => {
+    if (isSameDay(a.date, today)) return 'hoy';
+    if (isSameDay(a.date, tomorrow)) return 'manana';
+    if (a.date <= weekEnd) return 'semana';
+    return 'despues';
+  };
+  const buckets: { key: string; label: string; items: Appointment[] }[] = [
+    { key: 'hoy',      label: 'Hoy',          items: pending.filter(a => bucketOf(a) === 'hoy').sort((a, b) => toMins(a.startTime) - toMins(b.startTime)) },
+    { key: 'manana',   label: 'Mañana',       items: pending.filter(a => bucketOf(a) === 'manana').sort((a, b) => toMins(a.startTime) - toMins(b.startTime)) },
+    { key: 'semana',   label: 'Esta semana',  items: pending.filter(a => bucketOf(a) === 'semana').sort((a, b) => a.date.getTime() - b.date.getTime() || toMins(a.startTime) - toMins(b.startTime)) },
+    { key: 'despues',  label: 'Después',      items: pending.filter(a => bucketOf(a) === 'despues').sort((a, b) => a.date.getTime() - b.date.getTime() || toMins(a.startTime) - toMins(b.startTime)) },
+  ].filter(b => b.items.length > 0);
+
+  const total = pending.length;
+
+  const handlePhone = (phone: string) => {
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      window.location.href = `tel:${phone}`;
+    } else {
+      if (navigator.clipboard) navigator.clipboard.writeText(phone);
+      showToast?.(`${phone} · copiado al portapapeles`);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.18 }}
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 40, opacity: 0 }}
+        transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+        onClick={e => e.stopPropagation()}
+        className="relative flex flex-col w-full rounded-t-3xl md:rounded-2xl shadow-2xl overflow-hidden"
+        style={{ maxWidth: '560px', maxHeight: '85vh', background: '#ffffff', border: `1px solid ${T.border}` }}
+      >
+        {/* Mobile handle */}
+        <div className="md:hidden flex justify-center pt-3 pb-1 shrink-0">
+          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(0,0,0,0.12)' }} />
+        </div>
+        {/* Header */}
+        <div className="shrink-0 px-6 pt-5 pb-4 flex items-start justify-between gap-4" style={{ borderBottom: `1px solid ${T.border}` }}>
+          <div>
+            <h3 style={{ fontFamily: DM_SERIF, fontSize: '22px', fontWeight: 400, color: T.dark, margin: 0, letterSpacing: '-0.005em', lineHeight: 1.15 }}>Pendientes por resolver</h3>
+            <p style={{ fontSize: '13px', color: T.text3, marginTop: '4px' }}>
+              {total === 0
+                ? 'No hay turnos esperando confirmación'
+                : `${total} ${total === 1 ? 'turno espera' : 'turnos esperan'} tu confirmación`}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-black/5 shrink-0" aria-label="Cerrar">
+            <X size={16} style={{ color: T.text2 }} />
+          </button>
+        </div>
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {total === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center" style={{ padding: '40px 12px' }}>
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '16px',
+              }}>
+                <Sparkle size={24} weight="fill" style={{ color: '#10B981' }} />
+              </div>
+              <h4 style={{ fontFamily: DM_SERIF, fontSize: '20px', fontWeight: 400, color: T.dark, margin: 0, letterSpacing: '-0.005em' }}>Todo al día</h4>
+              <p style={{ fontSize: '13px', color: T.text3, marginTop: '6px', maxWidth: '260px', lineHeight: 1.5 }}>
+                No hay turnos que necesiten tu confirmación. Bien hecho.
+              </p>
+            </div>
+          ) : (
+            <div>
+              {buckets.map((bucket, bi) => (
+                <div key={bucket.key} style={{ marginBottom: bi < buckets.length - 1 ? '20px' : 0 }}>
+                  <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: '8px' }}>{bucket.label}</p>
+                  <div className="space-y-2">
+                    {bucket.items.map(app => {
+                      const svc = services.find(s => s.id === app.serviceId);
+                      const prov = providerMap[app.providerId];
+                      const showDate = bucket.key === 'semana' || bucket.key === 'despues';
+                      return (
+                        <div
+                          key={app.id}
+                          style={{
+                            padding: '12px 14px',
+                            borderRadius: '10px',
+                            border: '1px solid rgba(255,148,77,0.35)',
+                            background: 'rgba(255,148,77,0.03)',
+                          }}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div style={{ minWidth: '64px', flexShrink: 0 }}>
+                              {showDate && (
+                                <p style={{ fontSize: '11px', color: T.text3, marginBottom: '2px' }}>
+                                  {format(app.date, "EEE d MMM", { locale: es }).replace(/^./, c => c.toUpperCase())}
+                                </p>
+                              )}
+                              <p style={{ fontFamily: GEIST_MONO, fontSize: '14px', fontWeight: 500, color: T.dark }}>{app.startTime}</p>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: '14px', fontWeight: 500, color: T.dark, lineHeight: 1.2 }}>{app.clientName}</p>
+                              <p style={{ fontSize: '12px', color: T.text2, marginTop: '2px' }}>
+                                {svc?.name ?? '—'}
+                                <span style={{ color: T.text3 }}> · {svc?.duration ?? 0} min</span>
+                                {prov && <><span style={{ color: T.text3 }}> · con </span><span>{prov.name}</span></>}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-3" style={{ paddingLeft: '76px' }}>
+                            <button
+                              onClick={() => { onUpdateStatus(app.id, 'confirmed'); showToast?.('Turno confirmado'); }}
+                              className="flex items-center gap-1 transition-colors hover:opacity-90"
+                              style={{ padding: '6px 12px', borderRadius: '8px', background: T.orange, color: '#fff', fontSize: '12px', fontWeight: 500, border: 'none', cursor: 'pointer' }}
+                            >
+                              <Check size={12} weight="bold" /><span>Confirmar</span>
+                            </button>
+                            <button
+                              onClick={() => { onUpdateStatus(app.id, 'cancelled'); showToast?.('Turno cancelado'); }}
+                              className="transition-colors hover:bg-black/[0.04]"
+                              style={{ padding: '6px 12px', borderRadius: '8px', background: 'transparent', color: T.text2, fontSize: '12px', fontWeight: 400, border: `1px solid ${T.border}`, cursor: 'pointer' }}
+                            >
+                              Cancelar
+                            </button>
+                            {app.clientPhone && (
+                              <button
+                                onClick={() => handlePhone(app.clientPhone)}
+                                className="flex items-center gap-1 ml-auto transition-colors hover:bg-black/[0.04]"
+                                style={{ padding: '6px 10px', borderRadius: '8px', background: 'transparent', color: T.text2, fontSize: '12px', fontWeight: 400, border: 'none', cursor: 'pointer' }}
+                                title={app.clientPhone}
+                              >
+                                <Phone size={12} /><span className="hidden sm:inline">Llamar</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 // ─── MODALS ────────────────────────────────────────────────────────────────────
 const ShareModal = ({
   onClose
@@ -3402,6 +3619,7 @@ export const SalonAdminDashboard = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [botSettingsOpen, setBotSettingsOpen] = useState(false);
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
   // Bot status: 'active' | 'pending' | 'paused' — derived from real state in the future
   const botStatus: 'active' | 'pending' | 'paused' = 'active';
   const botStatusColor = botStatus === 'active' ? '#10B981' : botStatus === 'pending' ? '#F59E0B' : '#EF4444';
@@ -3747,7 +3965,7 @@ export const SalonAdminDashboard = () => {
           >
             <SidebarSimple size={18} style={{ color: sidebarExpanded ? T.dark : T.text2 }} weight={sidebarExpanded ? 'fill' : 'regular'} />
           </button>
-          {/* Perla wordmark — dot integrates bot status (pulse when active, click opens BotSettings) */}
+          {/* Perla wordmark — dot integrates bot status with rich tooltip on hover */}
           <PerlaWordmark
             size="md"
             color={T.dark}
@@ -3755,6 +3973,22 @@ export const SalonAdminDashboard = () => {
             pulse={botStatus === 'active'}
             onDotClick={() => setBotSettingsOpen(true)}
             dotTitle={`Tu agente · ${botStatusLabel}`}
+            dotTooltip={(() => {
+              const responded = messages.length;
+              const waiting = messages.filter(m => m.unread).length;
+              return (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: botStatusColor, display: 'inline-block' }} />
+                    <strong style={{ fontWeight: 500 }}>Tu agente · {botStatusLabel}</strong>
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: '11.5px' }}>
+                    Respondió {responded} {responded === 1 ? 'charla' : 'charlas'} hoy
+                    {waiting > 0 ? ` · ${waiting} ${waiting === 1 ? 'espera respuesta' : 'esperan respuesta'}` : ' · nadie esperando'}
+                  </div>
+                </>
+              );
+            })()}
             className="shrink-0"
           />
           {/* Divider */}
@@ -3831,7 +4065,7 @@ export const SalonAdminDashboard = () => {
       <main className="flex flex-col min-w-0 overflow-hidden absolute top-[60px] right-0 bottom-0 left-0 md:left-[68px] z-[1]">
         <div className="flex-1 overflow-hidden pb-[calc(58px+env(safe-area-inset-bottom))] md:pb-0 flex flex-col">
           {activeTab === 'home' && <div className="flex-1 overflow-hidden h-full flex flex-col">
-              <InicioScreen todayApps={todayApps} appointments={appointments} services={services} providerMap={providerMap} clients={clients} messages={messages} onAppointmentClick={app => setSelectedAppointment(app)} onAddAppointment={openNewApp} onUpdateStatus={updateStatus} greeting={greeting} profileName={profile.name} onNavigateAgenda={() => setActiveTab('agenda')} onNavigateMessages={() => setActiveTab('messages')} />
+              <InicioScreen todayApps={todayApps} appointments={appointments} services={services} providerMap={providerMap} clients={clients} messages={messages} onAppointmentClick={app => setSelectedAppointment(app)} onAddAppointment={openNewApp} onUpdateStatus={updateStatus} onOpenPending={() => setPendingModalOpen(true)} greeting={greeting} profileName={profile.name} onNavigateAgenda={() => setActiveTab('agenda')} onNavigateMessages={() => setActiveTab('messages')} />
             </div>}
             {activeTab === 'agenda' && <div className="flex-1 flex flex-col overflow-hidden h-full">
               <AgendaScreen filteredApps={appointments} services={services} providers={providers} providerMap={providerMap} blockedSlots={blockedSlots} onAppointmentClick={app => setSelectedAppointment(app)} onAddAppointment={openNewApp} onBlockSlot={() => setBlockingSlot(true)} />
@@ -3964,6 +4198,19 @@ export const SalonAdminDashboard = () => {
       <AnimatePresence>{supportOpen && <SupportModal key="support" onClose={() => setSupportOpen(false)} />}</AnimatePresence>
       <AnimatePresence>{newClientOpen && <NewClientModal key="new-client" onClose={() => setNewClientOpen(false)} onSave={c => setClients(prev => [...prev, c])} />}</AnimatePresence>
       <BotSettingsModal open={botSettingsOpen} onClose={() => setBotSettingsOpen(false)} />
+      <AnimatePresence>
+        {pendingModalOpen && (
+          <PendingModal
+            key="pending-modal"
+            open={pendingModalOpen}
+            onClose={() => setPendingModalOpen(false)}
+            appointments={appointments}
+            services={services}
+            providerMap={providerMap}
+            onUpdateStatus={updateStatus}
+          />
+        )}
+      </AnimatePresence>
     </div>
   </ToastProvider>;
 };
