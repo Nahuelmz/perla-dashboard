@@ -419,3 +419,42 @@ export const T = {
   radius: '14px',
   radiusLg: '20px'
 };
+
+// ──────────────────────────────────────────────────────────
+// Agent (Perla) status + activity — P5 Panel
+// ──────────────────────────────────────────────────────────
+
+export type AgentState = 'active' | 'paused';
+
+export type AgentActivityType =
+  | 'confirm'
+  | 'schedule'
+  | 'reschedule'
+  | 'cancel'
+  | 'reply';
+
+export type AgentActivityItem = {
+  id: string;
+  type: AgentActivityType;
+  label: string;     // e.g. "Confirmó turno de Sofía"
+  timeAgo: string;   // e.g. "2h", "ayer", "hace 3h"
+};
+
+export const agentStatus: { state: AgentState; since: Date; subtitle: string } = {
+  state: 'active',
+  since: new Date(Date.now() - 1000 * 60 * 60 * 26), // 26h ago
+  subtitle: 'perla está respondiendo',
+};
+
+export const agentDailyStats = {
+  turnos: 12,
+  mensajes: 28,
+  confirmRate: 94, // percent, integer
+};
+
+export const agentActivity: AgentActivityItem[] = [
+  { id: 'a1', type: 'confirm',    label: 'Confirmó turno de Sofía',    timeAgo: '2h' },
+  { id: 'a2', type: 'schedule',   label: 'Agendó a Matías (nuevo)',    timeAgo: '5h' },
+  { id: 'a3', type: 'reply',      label: 'Respondió a 4 consultas',    timeAgo: '7h' },
+  { id: 'a4', type: 'reschedule', label: 'Reagendó turno de Lucía',    timeAgo: 'ayer' },
+];

@@ -6,3 +6,4 @@ export { Toggle } from './Toggle';
 export { SectionHeader } from './SectionHeader';
 export { IconButton } from './IconButton';
 export { PerlaWordmark } from './PerlaWordmark';
+export { PerlaStatusPanel } from './PerlaStatusPanel';

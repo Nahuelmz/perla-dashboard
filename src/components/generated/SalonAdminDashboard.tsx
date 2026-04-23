@@ -5,9 +5,9 @@ import { format, startOfToday, isSameDay, startOfWeek, addWeeks, subWeeks, getHo
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Service, Appointment, Client, BlockedSlot, TimeRange, AppointmentStatus, Provider, NavTab, Message, UserProfile } from './types';
-import { INITIAL_SERVICES, INITIAL_APPOINTMENTS, INITIAL_CLIENTS, INITIAL_BLOCKED_SLOTS, DAYS_ORDER, DAY_NAMES, INITIAL_PROVIDERS, INITIAL_MESSAGES, T } from './mockData';
+import { INITIAL_SERVICES, INITIAL_APPOINTMENTS, INITIAL_CLIENTS, INITIAL_BLOCKED_SLOTS, DAYS_ORDER, DAY_NAMES, INITIAL_PROVIDERS, INITIAL_MESSAGES, T, agentStatus, agentDailyStats, agentActivity } from './mockData';
 import { LoginScreen } from './LoginScreen';
-import { GlassCard, StatusPill, ProviderAvatar, Toggle, PerlaWordmark, IconButton, SectionHeader } from '@/components/dashboard';
+import { GlassCard, StatusPill, ProviderAvatar, Toggle, PerlaWordmark, IconButton, SectionHeader, PerlaStatusPanel } from '@/components/dashboard';
 const inp = 'w-full rounded-xl px-3 py-2.5 text-sm border focus:outline-none focus:ring-2 focus:ring-[#4472C4]/30 focus:border-[#4472C4]/40 transition-colors';
 const inpStyle: React.CSSProperties = {
   background: 'rgba(0,0,0,0.04)',
@@ -3850,6 +3850,8 @@ export const SalonAdminDashboard = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [botSettingsOpen, setBotSettingsOpen] = useState(false);
+  const [agentPanelOpen, setAgentPanelOpen] = useState(false);
+  const agentAnchorRef = useRef<HTMLDivElement>(null);
   const [pendingModalOpen, setPendingModalOpen] = useState(false);
   // Bot status: 'active' | 'pending' | 'paused' — derived from real state in the future
   const botStatus: 'active' | 'pending' | 'paused' = 'active';
@@ -4197,31 +4199,42 @@ export const SalonAdminDashboard = () => {
             <SidebarSimple size={18} style={{ color: sidebarExpanded ? T.dark : T.text2 }} weight={sidebarExpanded ? 'fill' : 'regular'} />
           </button>
           {/* Perla wordmark — dot integrates bot status with rich tooltip on hover */}
-          <PerlaWordmark
-            size="md"
-            color={T.dark}
-            dotColor={botStatusColor}
-            pulse={botStatus === 'active'}
-            onDotClick={() => setBotSettingsOpen(true)}
-            dotTitle={`Tu agente · ${botStatusLabel}`}
-            dotTooltip={(() => {
-              const responded = messages.length;
-              const waiting = messages.filter(m => m.unread).length;
-              return (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: botStatusColor, display: 'inline-block' }} />
-                    <strong style={{ fontWeight: 500 }}>Tu agente · {botStatusLabel}</strong>
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: '11.5px' }}>
-                    Respondió {responded} {responded === 1 ? 'charla' : 'charlas'} hoy
-                    {waiting > 0 ? ` · ${waiting} ${waiting === 1 ? 'espera respuesta' : 'esperan respuesta'}` : ' · nadie esperando'}
-                  </div>
-                </>
-              );
-            })()}
-            className="shrink-0"
-          />
+          <div ref={agentAnchorRef} style={{ position: 'relative' }}>
+            <PerlaWordmark
+              size="md"
+              color={T.dark}
+              dotColor={agentStatus.state === 'active' ? T.orange : '#F57C00'}
+              pulse={agentStatus.state === 'active'}
+              onWordmarkClick={() => setAgentPanelOpen((v) => !v)}
+              dotTitle={agentStatus.state === 'active' ? 'Agente activo' : 'Agente pausado'}
+              dotTooltip={(() => {
+                const responded = messages.length;
+                const waiting = messages.filter(m => m.unread).length;
+                return (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: botStatusColor, display: 'inline-block' }} />
+                      <strong style={{ fontWeight: 500 }}>Tu agente · {botStatusLabel}</strong>
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: '11.5px' }}>
+                      Respondió {responded} {responded === 1 ? 'charla' : 'charlas'} hoy
+                      {waiting > 0 ? ` · ${waiting} ${waiting === 1 ? 'espera respuesta' : 'esperan respuesta'}` : ' · nadie esperando'}
+                    </div>
+                  </>
+                );
+              })()}
+              className="shrink-0"
+            />
+            <PerlaStatusPanel
+              open={agentPanelOpen}
+              onClose={() => setAgentPanelOpen(false)}
+              anchorRef={agentAnchorRef}
+              onOpenBotSettings={() => setBotSettingsOpen(true)}
+              status={agentStatus}
+              stats={agentDailyStats}
+              activity={agentActivity}
+            />
+          </div>
           {/* Divider */}
           <div className="hidden md:block" style={{ width: '1px', height: '22px', background: 'rgba(27,45,59,0.14)', flexShrink: 0 }} />
           {/* Business name with chevron (future multi-tenant switch) */}

@@ -8,6 +8,7 @@ type PerlaWordmarkProps = {
   dotColor?: string;
   pulse?: boolean;
   onDotClick?: () => void;
+  onWordmarkClick?: () => void;
   dotTitle?: string;
   dotTooltip?: React.ReactNode;
   className?: string;
@@ -28,6 +29,7 @@ export function PerlaWordmark({
   dotColor = '#4472C4',
   pulse = false,
   onDotClick,
+  onWordmarkClick,
   dotTitle,
   dotTooltip,
   className,
@@ -54,12 +56,14 @@ export function PerlaWordmark({
   return (
     <div
       className={className}
+      onClick={onWordmarkClick}
       style={{
         display: 'inline-flex',
         alignItems: 'baseline',
         gap: '2px',
         userSelect: 'none' as const,
         lineHeight: 1,
+        cursor: onWordmarkClick ? 'pointer' : 'default',
       }}
     >
       <span
@@ -81,7 +85,7 @@ export function PerlaWordmark({
             onClick={onDotClick}
             title={!dotTooltip ? dotTitle : undefined}
             aria-label={dotTitle ?? 'Estado del agente'}
-            style={{ background: 'transparent', border: 'none', padding: '4px', margin: '-4px', cursor: onDotClick ? 'pointer' : 'default', display: 'inline-flex', alignItems: 'baseline' }}
+            style={{ background: 'transparent', border: 'none', padding: '4px', margin: '-4px', cursor: onDotClick ? 'pointer' : 'inherit', display: 'inline-flex', alignItems: 'baseline' }}
           >
             <span style={dotStyle} />
           </button>

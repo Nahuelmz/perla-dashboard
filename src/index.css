@@ -250,3 +250,21 @@ img.broken-image-fallback {
 .anim-float-in {
   animation: floatIn 0.55s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
+
+@keyframes slideUpSheet {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-slide-up-sheet {
+  animation: slideUpSheet 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.anim-fade-backdrop {
+  animation: fadeInBackdrop 0.2s ease-out both;
+}
