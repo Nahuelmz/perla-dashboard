@@ -87,7 +87,7 @@ export function PerlaWordmark({
           </button>
           {dotTooltip && (
             <span
-              className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              className="pointer-events-none opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-[180ms] ease-out"
               style={{
                 position: 'absolute',
                 top: 'calc(100% + 10px)',

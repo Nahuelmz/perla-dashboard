@@ -1068,7 +1068,12 @@ const InicioScreen = ({
     vacantes,
     facturacion
   };
-  const now = new Date();
+  // Live-updating "now" — recompute every 60s so countdowns ("en 45 min") stay fresh
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const tick = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(tick);
+  }, []);
   const upcomingTop3 = useMemo(() => {
     const active = todayApps.filter(a => a.status !== 'cancelled' && a.status !== 'no_show');
     const upcoming = active.filter(a => {
@@ -1235,8 +1240,8 @@ const InicioScreen = ({
                       className="w-full text-left transition-colors hover:bg-black/[0.02]"
                       style={{
                         position: 'relative', zIndex: 1,
-                        display: 'flex', alignItems: 'flex-start', gap: '24px',
-                        padding: '20px 24px',
+                        display: 'flex', alignItems: 'flex-start', gap: '20px',
+                        padding: '16px 20px',
                         background: 'transparent',
                         cursor: 'pointer',
                       }}
@@ -1269,7 +1274,7 @@ const InicioScreen = ({
                     </button>
                     {/* Inline actions for pending hero */}
                     {isPending && (
-                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', padding: '0 24px 18px 115px' }}>
+                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', padding: '0 20px 16px 128px' }}>
                         <button
                           onClick={(e) => { e.stopPropagation(); onUpdateStatus(nextApp.id, 'confirmed'); }}
                           className="flex items-center gap-1 transition-colors hover:opacity-90"
@@ -1374,10 +1379,10 @@ const InicioScreen = ({
         if (nextDays.length === 0) return null;
         const formatDayLabel = (d: Date) => {
           const daysDiff = Math.round((d.getTime() - today.getTime()) / 86400000);
-          if (daysDiff === 1) return 'Mañana';
-          // Same week → day name; otherwise "DD MMM"
-          const s = format(d, 'EEEE', { locale: es });
-          return s.charAt(0).toUpperCase() + s.slice(1);
+          const dateStr = format(d, "d 'de' MMM", { locale: es });
+          if (daysDiff === 1) return { primary: 'Mañana', secondary: dateStr };
+          const dayName = format(d, 'EEEE', { locale: es });
+          return { primary: dayName.charAt(0).toUpperCase() + dayName.slice(1), secondary: dateStr };
         };
         return (
           <div className="anim-float-in" style={{ marginBottom: '28px', animationDelay: '150ms' }}>
@@ -1388,31 +1393,34 @@ const InicioScreen = ({
               </button>
             </div>
             <div>
-              {nextDays.slice(0, 5).map((d, i) => (
-                <button
-                  key={d.date.toISOString()}
-                  onClick={onNavigateAgenda}
-                  className="w-full text-left transition-colors hover:bg-black/[0.02]"
-                  style={{
-                    display: 'flex', alignItems: 'baseline', gap: '16px',
-                    padding: '10px 8px',
-                    borderBottom: i < Math.min(nextDays.length, 5) - 1 ? `1px solid rgba(91,143,166,0.14)` : undefined,
-                    background: 'transparent',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <span style={{ minWidth: '96px', fontSize: '14px', fontWeight: 400, color: T.text, lineHeight: 1.3 }}>
-                    {formatDayLabel(d.date)}
-                  </span>
-                  <span style={{ flex: 1, fontSize: '13px', color: T.text2 }}>
-                    {d.total} {d.total === 1 ? 'turno' : 'turnos'}
-                    {d.pending > 0 && (
-                      <span style={{ color: T.text3 }}>{` · ${d.pending} por confirmar`}</span>
-                    )}
-                  </span>
-                  <span style={{ fontSize: '12px', color: T.text3 }}>{format(d.date, 'd MMM', { locale: es })}</span>
-                </button>
-              ))}
+              {nextDays.slice(0, 5).map((d, i) => {
+                const { primary, secondary } = formatDayLabel(d.date);
+                return (
+                  <button
+                    key={d.date.toISOString()}
+                    onClick={onNavigateAgenda}
+                    className="w-full text-left transition-colors hover:bg-black/[0.02]"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '16px',
+                      padding: '10px 8px',
+                      borderBottom: i < Math.min(nextDays.length, 5) - 1 ? `1px solid rgba(91,143,166,0.14)` : undefined,
+                      background: 'transparent',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span style={{ minWidth: '170px', display: 'flex', alignItems: 'baseline', gap: '8px', lineHeight: 1.3 }}>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: T.text }}>{primary}</span>
+                      <span style={{ fontSize: '12px', color: T.text3 }}>{secondary}</span>
+                    </span>
+                    <span style={{ flex: 1, fontSize: '13px', color: T.text2 }}>
+                      {d.total} {d.total === 1 ? 'turno' : 'turnos'}
+                      {d.pending > 0 && (
+                        <span style={{ color: T.text3 }}>{` · ${d.pending} por confirmar`}</span>
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         );
@@ -1521,8 +1529,8 @@ const WeeklyComparison = ({ appointments, services }: { appointments: Appointmen
     <div className="anim-float-in" style={{ marginBottom: '8px', animationDelay: '180ms' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '14px' }}>
         <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Esta semana</p>
-        {/* Toggle turnos / facturación */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', padding: '3px', borderRadius: '10px', background: 'rgba(91,143,166,0.08)' }}>
+        {/* Toggle turnos / facturación — segmented control */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', padding: '3px', borderRadius: '10px', background: 'rgba(91,143,166,0.06)', border: '1px solid rgba(91,143,166,0.18)' }}>
           {(['turnos', 'facturacion'] as const).map(m => (
             <button
               key={m}
@@ -1535,8 +1543,8 @@ const WeeklyComparison = ({ appointments, services }: { appointments: Appointmen
                 fontWeight: 500,
                 cursor: 'pointer',
                 background: metric === m ? '#fff' : 'transparent',
-                color: metric === m ? T.dark : T.text3,
-                boxShadow: metric === m ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                color: metric === m ? T.dark : T.text2,
+                boxShadow: metric === m ? '0 1px 3px rgba(27,45,59,0.10)' : 'none',
                 transition: 'all 0.15s',
               }}
             >
@@ -1574,15 +1582,28 @@ const WeeklyComparison = ({ appointments, services }: { appointments: Appointmen
           {data.dayBars.map((d, i) => {
             const val = isFacturacion ? d.facturacion : d.turnos;
             const pct = maxBar > 0 ? (val / maxBar) * 100 : 0;
+            // Track baseline visible para días vacíos (distingue "sin data" vs "no existe")
+            const bg = d.isToday ? T.orange : d.isPast ? 'rgba(68,114,196,0.55)' : 'rgba(91,143,166,0.32)';
+            const hasData = val > 0;
             return (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-end', height: '100%' }}>
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-end', height: '100%', position: 'relative' }}>
+                {/* Track baseline (visible en todos los días para no "desaparecer" los vacíos) */}
                 <div style={{
-                  height: `${Math.max(pct, 4)}%`,
-                  background: d.isToday ? T.orange : d.isPast ? 'rgba(68,114,196,0.55)' : 'rgba(91,143,166,0.22)',
-                  borderRadius: '4px 4px 0 0',
-                  minHeight: val > 0 ? '6px' : '2px',
-                  transition: 'height 0.3s ease, background 0.15s',
+                  position: 'absolute', left: 0, right: 0, bottom: 0,
+                  height: '4px',
+                  background: hasData ? 'transparent' : (d.isPast ? 'rgba(91,143,166,0.20)' : 'rgba(91,143,166,0.14)'),
+                  borderRadius: '2px',
+                  pointerEvents: 'none',
                 }} />
+                {hasData && (
+                  <div style={{
+                    height: `${Math.max(pct, 8)}%`,
+                    background: bg,
+                    borderRadius: '4px 4px 0 0',
+                    minHeight: '6px',
+                    transition: 'height 0.3s ease, background 0.15s',
+                  }} />
+                )}
               </div>
             );
           })}
@@ -1734,16 +1755,16 @@ const AgendaScreen = ({
         {totalPendingCount > 0 && (
           <button
             onClick={() => setPendingOnlyFilter(v => !v)}
-            className="flex items-center gap-1.5 text-xs font-normal px-2.5 py-1.5 rounded-xl whitespace-nowrap transition-all ml-auto"
+            className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-xl whitespace-nowrap transition-all ml-auto"
             style={{
-              background: pendingOnlyFilter ? '#D97706' : 'rgba(217,119,6,0.08)',
-              color: pendingOnlyFilter ? '#fff' : '#D97706',
-              border: `1px solid ${pendingOnlyFilter ? '#D97706' : 'rgba(217,119,6,0.25)'}`,
+              background: pendingOnlyFilter ? '#D97706' : 'rgba(217,119,6,0.14)',
+              color: pendingOnlyFilter ? '#fff' : '#B45309',
+              border: `1px solid ${pendingOnlyFilter ? '#D97706' : 'rgba(217,119,6,0.45)'}`,
               cursor: 'pointer',
             }}
             title={pendingOnlyFilter ? 'Ver todos los turnos' : `Ver solo los ${totalPendingCount} pendientes`}
           >
-            <Warning size={12} weight={pendingOnlyFilter ? 'fill' : 'regular'} />
+            <Warning size={12} weight={pendingOnlyFilter ? 'fill' : 'fill'} />
             <span>{pendingOnlyFilter ? 'Todos' : `Pendientes (${totalPendingCount})`}</span>
           </button>
         )}
@@ -3402,6 +3423,13 @@ type PendingModalProps = {
 };
 const PendingModal = ({ open, onClose, appointments, services, providerMap, onUpdateStatus }: PendingModalProps) => {
   const showToast = React.useContext(ToastContext);
+  // ESC to close
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [open, onClose]);
   if (!open) return null;
 
   // Build time buckets of pending appointments
