@@ -1463,9 +1463,165 @@ const InicioScreen = ({
         );
       })()}
 
+      {/* ── Esta semana — comparación actual vs anterior con toggle + mini-bars ── */}
+      <WeeklyComparison appointments={appointments} services={services} />
+
       <div style={{ height: '16px' }} />
     </div>
   </div>;
+};
+
+// ─── WEEKLY COMPARISON — hero metric + mini bars + sub-stats ──────────────────
+const WeeklyComparison = ({ appointments, services }: { appointments: Appointment[]; services: Service[]; }) => {
+  const [metric, setMetric] = useState<'turnos' | 'facturacion'>('turnos');
+  const data = useMemo(() => {
+    const today = startOfToday();
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const prevWeekStart = addDays(weekStart, -7);
+    const weekEnd = addDays(weekStart, 6);
+    const prevWeekEnd = addDays(weekStart, -1);
+    const thisWeek = appointments.filter(a => a.date >= weekStart && a.date <= weekEnd);
+    const prevWeek = appointments.filter(a => a.date >= prevWeekStart && a.date <= prevWeekEnd);
+    const confirmed = thisWeek.filter(a => a.status === 'confirmed');
+    const prevConfirmed = prevWeek.filter(a => a.status === 'confirmed');
+    const facturacion = confirmed.reduce((s, a) => s + (services.find(sv => sv.id === a.serviceId)?.price ?? 0), 0);
+    const prevFacturacion = prevConfirmed.reduce((s, a) => s + (services.find(sv => sv.id === a.serviceId)?.price ?? 0), 0);
+    const prevFacturacionForBars = prevConfirmed;
+    const deltaPct = (cur: number, prev: number) => (prev > 0 ? Math.round(((cur - prev) / prev) * 100) : (cur > 0 ? 100 : 0));
+    const daysLabels = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    const dayBars = Array.from({ length: 7 }, (_, i) => {
+      const day = addDays(weekStart, i);
+      const dayConfirmed = confirmed.filter(a => isSameDay(a.date, day));
+      const turnosDay = dayConfirmed.length;
+      const facturacionDay = dayConfirmed.reduce((s, a) => s + (services.find(sv => sv.id === a.serviceId)?.price ?? 0), 0);
+      return { label: daysLabels[i], turnos: turnosDay, facturacion: facturacionDay, isToday: isSameDay(day, today), isPast: day < today };
+    });
+    return {
+      turnos: confirmed.length,
+      prevTurnos: prevConfirmed.length,
+      turnosDelta: deltaPct(confirmed.length, prevConfirmed.length),
+      facturacion,
+      prevFacturacion,
+      facturacionDelta: deltaPct(facturacion, prevFacturacion),
+      noShows: thisWeek.filter(a => a.status === 'no_show').length,
+      uniqueClients: new Set(confirmed.map(a => a.clientId)).size,
+      dayBars,
+    };
+  }, [appointments, services]);
+
+  const isFacturacion = metric === 'facturacion';
+  const currentValue = isFacturacion ? data.facturacion : data.turnos;
+  const delta = isFacturacion ? data.facturacionDelta : data.turnosDelta;
+  const barValues = data.dayBars.map(d => isFacturacion ? d.facturacion : d.turnos);
+  const maxBar = Math.max(...barValues, 1);
+  const deltaPositive = delta >= 0;
+  const deltaColor = delta === 0 ? T.text3 : deltaPositive ? '#10B981' : '#C62828';
+
+  return (
+    <div className="anim-float-in" style={{ marginBottom: '8px', animationDelay: '180ms' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <p style={{ fontSize: '11px', fontWeight: 500, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.09em' }}>Esta semana</p>
+        {/* Toggle turnos / facturación */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', padding: '3px', borderRadius: '10px', background: 'rgba(91,143,166,0.08)' }}>
+          {(['turnos', 'facturacion'] as const).map(m => (
+            <button
+              key={m}
+              onClick={() => setMetric(m)}
+              style={{
+                padding: '4px 12px',
+                borderRadius: '7px',
+                border: 'none',
+                fontSize: '12px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                background: metric === m ? '#fff' : 'transparent',
+                color: metric === m ? T.dark : T.text3,
+                boxShadow: metric === m ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                transition: 'all 0.15s',
+              }}
+            >
+              {m === 'turnos' ? 'Turnos' : 'Facturación'}
+            </button>
+          ))}
+        </div>
+      </div>
+      <GlassCard style={{ padding: '24px 28px' }}>
+        {/* Hero number + delta */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', marginBottom: '18px' }}>
+          <p style={{ fontFamily: INSTRUMENT_SERIF, fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 400, letterSpacing: '-0.02em', color: T.dark, lineHeight: 1 }}>
+            {isFacturacion ? `$${currentValue.toLocaleString()}` : currentValue}
+          </p>
+          <p style={{ fontSize: '13px', color: T.text2 }}>
+            {isFacturacion ? 'facturación' : `${currentValue === 1 ? 'turno' : 'turnos'} de lunes a domingo`}
+          </p>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '3px',
+            marginLeft: 'auto',
+            padding: '4px 10px',
+            borderRadius: '99px',
+            background: delta === 0 ? 'rgba(91,143,166,0.08)' : deltaPositive ? 'rgba(16,185,129,0.10)' : 'rgba(198,40,40,0.08)',
+            color: deltaColor,
+            fontSize: '12px',
+            fontWeight: 500,
+            whiteSpace: 'nowrap' as const,
+          }}>
+            {delta !== 0 && (deltaPositive ? <TrendUp size={11} weight="bold" /> : <TrendDown size={11} weight="bold" />)}
+            <span>{delta > 0 ? '+' : ''}{delta}% <span style={{ color: T.text3, fontWeight: 400 }}>vs semana anterior</span></span>
+          </span>
+        </div>
+        {/* Mini bars por día */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '58px', marginBottom: '6px' }}>
+          {data.dayBars.map((d, i) => {
+            const val = isFacturacion ? d.facturacion : d.turnos;
+            const pct = maxBar > 0 ? (val / maxBar) * 100 : 0;
+            return (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-end', height: '100%' }}>
+                <div style={{
+                  height: `${Math.max(pct, 4)}%`,
+                  background: d.isToday ? T.orange : d.isPast ? 'rgba(68,114,196,0.55)' : 'rgba(91,143,166,0.22)',
+                  borderRadius: '4px 4px 0 0',
+                  minHeight: val > 0 ? '6px' : '2px',
+                  transition: 'height 0.3s ease, background 0.15s',
+                }} />
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
+          {data.dayBars.map((d, i) => (
+            <div key={i} style={{ flex: 1, textAlign: 'center' as const, fontSize: '11px', color: d.isToday ? T.orange : T.text3, fontWeight: d.isToday ? 500 : 400 }}>
+              {d.label}
+            </div>
+          ))}
+        </div>
+        {/* Sub-stats */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingTop: '16px', borderTop: `1px solid ${T.border}`, fontSize: '13px' }}>
+          {!isFacturacion && (
+            <span style={{ color: T.text2 }}>
+              <strong style={{ fontWeight: 500, color: T.dark }}>${data.facturacion.toLocaleString()}</strong>
+              <span style={{ color: T.text3 }}> facturados</span>
+            </span>
+          )}
+          {isFacturacion && (
+            <span style={{ color: T.text2 }}>
+              <strong style={{ fontWeight: 500, color: T.dark }}>{data.turnos}</strong>
+              <span style={{ color: T.text3 }}> {data.turnos === 1 ? 'turno' : 'turnos'}</span>
+            </span>
+          )}
+          <span style={{ color: T.text3 }}>·</span>
+          <span style={{ color: T.text2 }}>
+            <strong style={{ fontWeight: 500, color: T.dark }}>{data.uniqueClients}</strong>
+            <span style={{ color: T.text3 }}> {data.uniqueClients === 1 ? 'cliente único' : 'clientes únicos'}</span>
+          </span>
+          <span style={{ color: T.text3 }}>·</span>
+          <span style={{ color: T.text2 }}>
+            <strong style={{ fontWeight: 500, color: data.noShows > 0 ? T.dark : T.text2 }}>{data.noShows}</strong>
+            <span style={{ color: T.text3 }}> {data.noShows === 1 ? 'no-show' : 'no-shows'}</span>
+          </span>
+        </div>
+      </GlassCard>
+    </div>
+  );
 };
 
 // ─── AGENDA SCREEN ─────────────────────────────────────────────────────────────
